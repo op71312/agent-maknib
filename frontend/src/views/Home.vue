@@ -24,7 +24,7 @@ export default {
   name: 'Home',
   methods: {
     startGame() {
-      this.$router.push('/game');
+      this.$router.push('/level')
     },
     showRules() {
       this.$router.push('/rules');
