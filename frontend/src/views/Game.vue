@@ -2,6 +2,25 @@
   <div class="game-container">
     <div class="fire-background"></div>
     <div class="content">
+      <!-- AI Thoughts Panel -->
+      <div class="ai-thoughts-panel">
+        <h3 class="panel-title">AI's Analysis</h3>
+        <div class="thoughts-history">
+          <div v-for="(entry, index) in aiThoughtHistory" 
+               :key="index"
+               class="thought-entry">
+            <div class="thought-header">
+              <span class="turn-number">Turn {{entry.turn}}</span>
+              <span class="timestamp">{{entry.timestamp}}</span>
+            </div>
+            <div class="thought-content">
+              {{entry.thoughts}}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Game Content -->
       <div class="game-content">
         <h2 class="difficulty-display">ระดับ: {{ difficultyText }}</h2>
 
@@ -61,9 +80,11 @@ import axios from 'axios'
 
 const router = useRouter()
 const size = ref(8)
-const timeLeft = ref(300)
+const timeLeft = ref(900) // เปลี่ยนจาก 300 เป็น 900 วินาที (15 นาที)
 const currentPlayer = ref('X')
 const selected = ref(null)
+const aiThoughts = ref('') // เพิ่มการเก็บความคิด AI
+const aiThoughtHistory = ref([])
 const difficulty = defineProps({
   difficulty: {
     type: String,
@@ -183,17 +204,24 @@ async function requestAIMove() {
   try {
     const response = await axios.post('http://localhost:5000/ai/move', {
       boardState: getBoardState(),
-      difficulty: difficulty.difficulty,
+      difficulty: props.difficulty,
       timeLeft: timeLeft.value
     })
 
-    const { from, to } = response.data
+    const { from, to, thoughts } = response.data
     if (from && to) {
       const [fr, fc] = from
       const [tr, tc] = to
       board.value[tr][tc] = board.value[fr][fc]
       board.value[fr][fc] = ''
       checkCapture(tr, tc)
+      
+      // เพิ่มความคิดใหม่เข้าไปในประวัติ
+      aiThoughtHistory.value.unshift({
+        turn: aiThoughtHistory.value.length + 1,
+        thoughts,
+        timestamp: new Date().toLocaleTimeString()
+      })
     }
   } catch (err) {
     console.error('AI move error:', err)
@@ -289,9 +317,90 @@ function getPieceClasses(cell) {
 
 .content {
   position: relative;
-  z-index: 10;
-  max-width: 720px;
+  z-index: 1;
   width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: 400px 1fr;
+  gap: 2rem;
+  padding: 2rem;
+}
+
+.ai-thoughts-panel {
+  height: 93vh;
+  background: rgba(172, 63, 63, 0.7);
+  backdrop-filter: blur(12px);
+  border-radius: 30px;
+  padding: 3rem;
+  box-shadow: 0 8px 32px rgba(175, 68, 68, 0.3);
+  border: 5px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-title {
+  color: #fecaca;
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.thoughts-history {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 1rem;
+}
+
+.thought-entry {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 1.2rem;
+  margin-bottom: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.thought-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.8rem;
+  color: #fecaca;
+  font-size: 0.9rem;
+}
+
+.turn-number {
+  font-weight: 600;
+}
+
+.timestamp {
+  opacity: 0.8;
+}
+
+.thought-content {
+  color: #fff;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  font-size: 1rem;
+}
+
+/* Custom Scrollbar */
+.thoughts-history::-webkit-scrollbar {
+  width: 8px;
+}
+
+.thoughts-history::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.thoughts-history::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+.thoughts-history::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
 }
 
 .game-content {
@@ -501,6 +610,17 @@ function getPieceClasses(cell) {
 
   .difficulty-display {
     font-size: 1.6rem;
+  }
+}
+
+@media (max-width: 1200px) {
+  .content {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+  }
+
+  .ai-thoughts-panel {
+    height: 300px;
   }
 }
 </style>
