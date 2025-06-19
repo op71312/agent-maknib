@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>หมากหนีบ (Mak Nib)</title>
+</head>
+<body>
+    <script type="text/javascript">
+        async function loadPygame() {
+            let script = document.createElement('script');
+            script.src = "https://pygame-web.github.io/pygbag/pygbag.js";
+            document.body.appendChild(script);
+            script.onload = async () => {
+                await pyodide.loadPackage(['micropip']);
+                await pyodide.runPythonAsync(`
+                    import micropip
+                    await micropip.install('pygame')
+                    import main
+                `);
+            };
+        }
+        loadPygame();
+    </script>
+</body>
+</html>
