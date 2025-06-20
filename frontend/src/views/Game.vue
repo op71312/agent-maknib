@@ -64,6 +64,11 @@
             </div>
           </div>
 
+          <div class="score-board">
+            <span class="score-x">X: {{ xScore }}</span>
+            <span class="score-o">O: {{ oScore }}</span>
+          </div>
+
           <button class="back-button" @click="goBack" aria-label="กลับสู่เมนูระดับ">
             กลับ
           </button>
@@ -204,7 +209,7 @@ async function requestAIMove() {
   try {
     const response = await axios.post('http://localhost:5000/ai/move', {
       boardState: getBoardState(),
-      difficulty: props.difficulty,
+      difficulty: difficulty.value, // หรือ props.difficulty ถ้าใช้ defineProps
       timeLeft: timeLeft.value
     })
 
@@ -623,4 +628,14 @@ function getPieceClasses(cell) {
     height: 300px;
   }
 }
+
+.score-board {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+}
+.score-x { color: #fff176; font-weight: bold; }
+.score-o { color: #ef5350; font-weight: bold; }
 </style>
