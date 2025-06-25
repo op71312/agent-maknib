@@ -29,7 +29,11 @@
             <div class="timer" :aria-label="'เวลาที่เหลือ: ' + Math.floor(timeLeft / 60) + ' นาที ' + (timeLeft % 60) + ' วินาที'">
               ⏳ เวลา: {{ Math.floor(timeLeft / 60) }}:{{ (timeLeft % 60).toString().padStart(2, '0') }}
             </div>
-            <div class="turn">ถึงตา: <span class="player-name">{{ currentPlayer === 'X' ? 'ผู้เล่น X' : 'AI (O)' }}</span></div>
+            <div class="turn">ถึงตา: 
+              <span class="player-name">
+                {{ currentPlayer === 'X' ? 'ผู้เล่น X' : (isPvP ? 'ผู้เล่น O' : 'AI (O)') }}
+              </span>
+            </div>
           </div>
 
           <div class="board" role="grid" aria-label="กระดานเกม">
@@ -94,20 +98,25 @@ const difficulty = defineProps({
   difficulty: {
     type: String,
     required: true,
-    validator: (val) => ['easy', 'medium', 'hard'].includes(val)
+    validator: (val) => ['easy', 'medium', 'hard', 'friend'].includes(val)
   }
 })
 
 const difficultyText = computed(() => {
-  const map = { easy: 'ง่าย', medium: 'กลาง', hard: 'ยาก' }
+  const map = { easy: 'ง่าย', medium: 'กลาง', hard: 'ยาก', friend: 'เล่นกับเพื่อน' }
   return map[difficulty.difficulty]
 })
+
+const isPvP = computed(() => difficulty.difficulty === 'friend')
 
 const board = ref([
   ['O', 'O', 'O', 'O', 'O', 'O', 'O', 'O'],
   ...Array(6).fill().map(() => Array(size.value).fill('')),
   ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X']
 ])
+
+const xScore = ref(0)
+const oScore = ref(0)
 
 function getBoardState() {
   return board.value.map(row =>
@@ -145,7 +154,8 @@ function isPathClear(r1, c1, r2, c2) {
 }
 
 function handleClick(row, col) {
-  if (currentPlayer.value !== 'X') return
+  // ถ้าเป็น PvP ให้ทั้ง X และ O เล่นได้
+  if (!isPvP.value && currentPlayer.value !== 'X') return
   const piece = board.value[row][col]
 
   if (selected.value) {
@@ -173,34 +183,65 @@ function inBounds(row, col) {
 }
 
 function checkCapture(row, col) {
-  const dirs = [[0, 1], [1, 0], [0, -1], [-1, 0]]
+  const dirs = [
+    [0, 1],  // ขวา
+    [1, 0],  // ล่าง
+    [0, -1], // ซ้าย
+    [-1, 0], // บน
+  ]
   const enemy = currentPlayer.value === 'X' ? 'O' : 'X'
+  let captured = 0
 
   for (const [dr, dc] of dirs) {
-    const r1 = row + dr, c1 = col + dc
-    const r2 = row + 2 * dr, c2 = col + 2 * dc
-    const r0 = row - dr, c0 = col - dc
-
-    if (inBounds(r1, c1) && inBounds(r2, c2) &&
-        board.value[r1][c1] === enemy &&
-        board.value[r2][c2] === currentPlayer.value) {
+    // --- รูปแบบที่ 1: เดินเข้าไปตรงกลางระหว่างศัตรู 2 ตัว ---
+    const r1 = row - dr, c1 = col - dc
+    const r2 = row + dr, c2 = col + dc
+    if (
+      inBounds(r1, c1) && inBounds(r2, c2) &&
+      board.value[r1][c1] === enemy &&
+      board.value[r2][c2] === enemy
+    ) {
       board.value[r1][c1] = ''
+      board.value[r2][c2] = ''
+      captured += 2
     }
 
-    if (inBounds(r0, c0) && inBounds(r1, c1) &&
-        board.value[r0][c0] === enemy &&
-        board.value[r1][c1] === enemy) {
-      if (r1 - r0 === dr && c1 - c0 === dc) {
-        board.value[r0][c0] = ''
-        board.value[r1][c1] = ''
+    // --- รูปแบบที่ 2: หนีบศัตรูหลายตัวระหว่างหมากเรา 2 ตัว ---
+    let toCapture = []
+    let r = row + dr
+    let c = col + dc
+    while (inBounds(r, c) && board.value[r][c] === enemy) {
+      toCapture.push([r, c])
+      r += dr
+      c += dc
+    }
+    // ถ้ามีศัตรูคั่นกลางอย่างน้อย 1 ตัว และปลายทางเป็นหมากเรา
+    if (
+      toCapture.length > 0 &&
+      inBounds(r, c) &&
+      board.value[r][c] === currentPlayer.value
+    ) {
+      for (const [cr, cc] of toCapture) {
+        board.value[cr][cc] = ''
+        captured++
       }
+    }
+  }
+
+  // เพิ่มคะแนนให้ฝั่งที่เดิน
+  if (captured > 0) {
+    if (currentPlayer.value === 'X') {
+      xScore.value += captured
+    } else {
+      oScore.value += captured
     }
   }
 }
 
 function switchPlayer() {
   currentPlayer.value = currentPlayer.value === 'X' ? 'O' : 'X'
-  if (currentPlayer.value === 'O') {
+  // ถ้าไม่ใช่ PvP ให้ AI เดิน
+  if (!isPvP.value && currentPlayer.value === 'O') {
     requestAIMove()
   }
 }

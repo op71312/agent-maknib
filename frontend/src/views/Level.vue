@@ -7,16 +7,17 @@
           <h1 class="title">เลือกระดับความยาก</h1>
           <div class="level-options">
             <button class="ui massive level-btn easy" @click="selectLevel('easy')">
-             
               ง่าย (Easy)
             </button>
             <button class="ui massive level-btn medium" @click="selectLevel('medium')">
-              
               ปานกลาง (Medium)
             </button>
             <button class="ui massive level-btn hard" @click="selectLevel('hard')">
-             
               ยาก (Hard)
+            </button>
+            <!-- ปุ่มใหม่ -->
+            <button class="ui massive level-btn friend" @click="selectLevel('friend')">
+              เล่นกับเพื่อน (PvP)
             </button>
           </div>
           <button class="ui large back-button" @click="goBack">
@@ -155,6 +156,9 @@ export default {
 .level-btn.hard::after {
   content: "🔥";
 }
+.level-btn.friend::after {
+  content: "🤝";
+}
 
 .level-btn.easy {
   background: linear-gradient(135deg, #00c97c, #00b894) !important;
@@ -166,6 +170,10 @@ export default {
 
 .level-btn.hard {
   background: linear-gradient(135deg, #ff416c, #9932cc) !important;
+}
+
+.level-btn.friend {
+  background: linear-gradient(135deg, #2196f3, #00bcd4) !important;
 }
 
 .level-btn:hover {
