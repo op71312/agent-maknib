@@ -1,5 +1,6 @@
 const { dummyAI } = require('../models/model');
 const { indexToPosition } = require('../utils/position');
+const GameHistory = require('../models/GameHistory');
 
 /*exports.getAIMove = (req, res) => {
   const { boardState, difficulty, timeLeft, moveHistory, aiPieceId } = req.body;
@@ -29,3 +30,39 @@ exports.getAIMove = (req, res) => {
     thoughts: 'AI ตัดสินใจเดินหมากจาก [1,1] ไป [1,2] เพื่อเปิดเกม'
   });
 };
+
+// เรียกเมื่อจบเกม
+exports.saveGameHistory = async (req, res) => {
+  try {
+    console.log('saveGameHistory called', req.body)
+    // รับข้อมูลจาก frontend
+    const {
+      moves,
+      winner,
+      xMoveCount,
+      oMoveCount,
+      xScore,
+      oScore,
+      xTotalTime,
+      oTotalTime,
+      level
+    } = req.body
+
+    const history = new GameHistory({
+      moves,
+      winner,
+      xMoveCount,
+      oMoveCount,
+      xScore,
+      oScore,
+      xTotalTime,
+      oTotalTime,
+      level
+    })
+
+    await history.save()
+    res.status(201).json({ message: 'Saved', id: history._id })
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+}

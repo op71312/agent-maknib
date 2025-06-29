@@ -77,6 +77,14 @@
             กลับ
           </button>
         </div>
+
+        <!-- Game Over Panel -->
+        <div v-if="isGameOver" class="game-over-panel">
+          <h2>จบเกม</h2>
+          <p v-if="winner === 'draw'">เสมอ</p>
+          <p v-else>ผู้ชนะ: {{ winner }}</p>
+          <button class="back-button" @click="goBack">กลับ</button>
+        </div>
       </div>
     </div>
   </div>
@@ -94,6 +102,7 @@ const currentPlayer = ref('X')
 const selected = ref(null)
 const aiThoughts = ref('') // เพิ่มการเก็บความคิด AI
 const aiThoughtHistory = ref([])
+const moveHistory = ref([]) // ประวัติการเดินหมาก
 const difficulty = defineProps({
   difficulty: {
     type: String,
@@ -117,6 +126,11 @@ const board = ref([
 
 const xScore = ref(0)
 const oScore = ref(0)
+const isGameOver = ref(false)
+const winner = ref('')
+const xTotalTime = ref(0)
+const oTotalTime = ref(0) // ทุกครั้งที่จบตา ให้บวกเวลาที่ใช้ในตานั้นให้ฝั่งที่เดิน
+const turnStartTime = ref(timeLeft.value)
 
 function getBoardState() {
   return board.value.map(row =>
@@ -169,6 +183,21 @@ function handleClick(row, col) {
       board.value[fromRow][fromCol] = ''
       selected.value = null
       checkCapture(row, col)
+      // บันทึกการเดินลงในประวัติ
+      const timeUsedSec = turnStartTime.value - timeLeft.value
+      moveHistory.value.push({
+        turn: moveHistory.value.length + 1,
+        player: currentPlayer.value,
+        from: toChessPos(fromRow, fromCol),
+        to: toChessPos(row, col),
+        timeUsed: timeUsedSec // หรือ formatTimeUsed(timeUsedSec) ถ้าต้องการ string
+      })
+      // สะสมเวลาที่ใช้
+      if (currentPlayer.value === 'X') {
+        xTotalTime.value += timeUsedSec
+      } else {
+        oTotalTime.value += timeUsedSec
+      }
       switchPlayer()
     } else {
       selected.value = null
@@ -235,11 +264,13 @@ function checkCapture(row, col) {
     } else {
       oScore.value += captured
     }
+    checkGameEnd()
   }
 }
 
 function switchPlayer() {
   currentPlayer.value = currentPlayer.value === 'X' ? 'O' : 'X'
+  turnStartTime.value = timeLeft.value // บันทึกเวลาตอนเริ่มเทิร์นใหม่
   // ถ้าไม่ใช่ PvP ให้ AI เดิน
   if (!isPvP.value && currentPlayer.value === 'O') {
     requestAIMove()
@@ -276,12 +307,36 @@ async function requestAIMove() {
   }
 }
 
+// เรียกใช้เมื่อจบเกม
+async function saveGameHistory() {
+  // สมมติคุณเก็บประวัติการเดินไว้ใน moveHistory (array)
+  // และมีตัวแปร winner, xScore, oScore, xMoveCount, oMoveCount, xTotalTime, oTotalTime, difficultyText
+  try {
+    await axios.post('http://localhost:5000/save-history', {
+      moves: moveHistory.value,
+      winner: winner.value,
+      xMoveCount: moveHistory.value.filter(m => m.player === 'X').length,
+      oMoveCount: moveHistory.value.filter(m => m.player === 'O').length,
+      xScore: xScore.value,      // <-- แต้มที่ X ทำได้
+      oScore: oScore.value,      // <-- แต้มที่ O ทำได้
+      xTotalTime: xTotalTime.value,
+      oTotalTime: oTotalTime.value,
+      level: difficulty.difficulty
+    })
+  } catch (err) {
+    console.error('Save history error:', err)
+  }
+}
+
 function goBack() {
   router.push('/level')
 }
 
 setInterval(() => {
-  if (timeLeft.value > 0) timeLeft.value--
+  if (timeLeft.value > 0) {
+    timeLeft.value--
+    if (timeLeft.value === 0) checkGameEnd()
+  }
 }, 1000)
 
 function isPossibleMove(row, col) {
@@ -320,6 +375,40 @@ function getPieceClasses(cell) {
   return {
     'piece-black': cell === 'X',
     'piece-red': cell === 'O'
+  }
+}
+
+function checkGameEnd() {
+  if (xScore.value >= 8) {
+    isGameOver.value = true
+    winner.value = 'X'
+    saveGameHistory()
+  } else if (oScore.value >= 8) {
+    isGameOver.value = true
+    winner.value = 'O'
+    saveGameHistory()
+  } else if (timeLeft.value <= 0) {
+    isGameOver.value = true
+    if (xScore.value > oScore.value) winner.value = 'X'
+    else if (oScore.value > xScore.value) winner.value = 'O'
+    else winner.value = 'draw'
+    saveGameHistory()
+  }
+}
+
+function toChessPos(row, col) {
+  const file = String.fromCharCode('a'.charCodeAt(0) + col)
+  const rank = 8 - row
+  return file + rank
+}
+
+function formatTimeUsed(seconds) {
+  const min = Math.floor(seconds / 60)
+  const sec = seconds % 60
+  if (min > 0) {
+    return `${min} min ${sec} sec`
+  } else {
+    return `${sec} sec`
   }
 }
 </script>
@@ -679,4 +768,36 @@ function getPieceClasses(cell) {
 }
 .score-x { color: #fff176; font-weight: bold; }
 .score-o { color: #ef5350; font-weight: bold; }
+
+.game-over-panel {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(50, 50, 50, 0.9);
+  border-radius: 20px;
+  padding: 2rem 3rem;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
+  z-index: 1000;
+  text-align: center;
+}
+
+.game-over-panel h2 {
+  color: #ff4747;
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+}
+
+.game-over-panel p {
+  color: #fff;
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.game-over-panel .back-button {
+  width: 100%;
+  padding: 12px 0;
+  font-size: 1.2rem;
+}
 </style>
