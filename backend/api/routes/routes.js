@@ -11,5 +11,6 @@ router.get('/ai/move', (req, res) => {
     thoughts: 'AI ตัดสินใจเดินหมากจาก [1,1] ไป [1,2] เพื่อเปิดเกม'
   });
 });
+router.post('/save-history', controller.saveGameHistory)
 
 module.exports = router;
