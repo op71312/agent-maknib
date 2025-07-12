@@ -1,0 +1,2 @@
+iteration,win_rate_player1,win_rate_player_minus1,draw_rate,avg_game_length,avg_final_pieces_p1,avg_final_pieces_p_1,new_training_examples,replay_buffer_size,iteration_time
+0,0.25,0.65,0.1,163.55,2.1,4.5,2520,3271,341.3737003803253
