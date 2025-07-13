@@ -166,7 +166,7 @@ export default {
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   overflow: hidden;
   min-width: 200px;
-  backdrop-filter: blur(10px);
+  /* REMOVED: backdrop-filter: blur(10px); */
 }
 
 .button-content {

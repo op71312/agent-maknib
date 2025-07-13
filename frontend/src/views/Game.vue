@@ -1,7 +1,11 @@
 <template>
   <div class="game-container">
+    <!-- Background elements are now fixed to the viewport -->
     <div class="fire-background"></div>
     <div class="ambient-particles"></div>
+    
+    <!-- REMOVED: Back Button (top one) as requested. The back button at the bottom of the board will be used instead. -->
+    
     <div class="content">
       <!-- AI Thoughts Panel -->
       <div class="ai-thoughts-panel">
@@ -61,7 +65,7 @@
                 <div class="info-content">
                   <div class="info-label">ถึงตา</div>
                   <div class="info-value player-name" :class="{ 'player-x': currentPlayer === 'X', 'player-o': currentPlayer === 'O' }">
-                    {{ currentPlayer === 'X' ? 'ผู้เล่น   ⚫' : (isPvP ? 'ผู้เล่น   🔴' : 'AI (O)  🔴') }}
+                    {{ currentPlayer === 'X' ? 'ผู้เล่น ⚫' : (isPvP ? 'ผู้เล่น 🔴' : 'AI (O) 🔴') }}
                   </div>
                 </div>
               </div>
@@ -71,9 +75,9 @@
                 <div class="info-content">
                   <div class="info-label">คะแนน</div>
                   <div class="score-inline">
-                    <span class="score-x">⚫ Player <br>{{ xScore }}</span>
+                    <span class="score-x">⚫ {{ xScore }}</span>
                     <span class="vs-divider">VS</span>
-                    <span class="score-o">🔴 Player <br>{{ oScore }}</span>
+                    <span class="score-o">🔴 {{ oScore }}</span>
                   </div>
                 </div>
               </div>
@@ -82,51 +86,54 @@
         </div>
 
         <div class="game-board-container">
-          <div class="board" role="grid" aria-label="กระดานเกม">
-            <div class="board-border"></div>
-            <div 
-              v-for="(row, rowIndex) in board"
-              :key="rowIndex"
-              class="row"
-              role="row"
-            >
-              <div
-                v-for="(cell, colIndex) in row" 
-                :key="colIndex"
-                class="cell"
-                :class="{
-                  'cell-black': (rowIndex + colIndex) % 2 === 1,
-                  'cell-red': (rowIndex + colIndex) % 2 === 0,
-                  'selected': isSelected(rowIndex, colIndex),
-                  'possible-move': isPossibleMove(rowIndex, colIndex),
-                  'has-piece': cell !== ''
-                }"
-                @click="handleClick(rowIndex, colIndex)"
-                role="gridcell"
-                :aria-selected="isSelected(rowIndex, colIndex)"
-                tabindex="0"
-                @keydown.enter.prevent="handleClick(rowIndex, colIndex)"
+          <div class="board-wrapper">
+            <div class="board" role="grid" aria-label="กระดานเกม">
+              <div class="board-glow"></div>
+              <div 
+                v-for="(row, rowIndex) in board"
+                :key="rowIndex"
+                class="row"
+                role="row"
               >
-                <div v-if="cell"
-                     class="piece"
-                     :class="getPieceClasses(cell)"
-                     :aria-label="cell === 'X' ? 'หมากสีดำ' : 'หมากสีแดง'">
-                  <div class="piece-inner"></div>
-                  <div class="piece-shine"></div>
-                </div>
-                <div v-if="isPossibleMove(rowIndex, colIndex)" class="move-indicator">
-                  <div class="move-dot"></div>
+                <div
+                  v-for="(cell, colIndex) in row" 
+                  :key="colIndex"
+                  class="cell"
+                  :class="{
+                    'cell-light': (rowIndex + colIndex) % 2 === 0,
+                    'cell-dark': (rowIndex + colIndex) % 2 === 1,
+                    'selected': isSelected(rowIndex, colIndex),
+                    'possible-move': isPossibleMove(rowIndex, colIndex),
+                    'has-piece': cell !== ''
+                  }"
+                  @click="handleClick(rowIndex, colIndex)"
+                  role="gridcell"
+                  :aria-selected="isSelected(rowIndex, colIndex)"
+                  tabindex="0"
+                  @keydown.enter.prevent="handleClick(rowIndex, colIndex)"
+                >
+                  <!-- ลบหรือคอมเมนต์บรรทัดนี้ในแต่ละ .cell -->
+                  <!-- <div class="cell-coordinates">{{ String.fromCharCode('a'.charCodeAt(0) + colIndex) }}{{ 8 - rowIndex }}</div> -->
+                  <div v-if="cell"
+                       class="piece"
+                       :class="getPieceClasses(cell)"
+                       :aria-label="cell === 'X' ? 'หมากสีดำ' : 'หมากสีแดง'">
+                    <div class="piece-inner"></div>
+                    <div class="piece-shine"></div>
+                  </div>
+                  <div v-if="isPossibleMove(rowIndex, colIndex)" class="move-indicator">
+                    <div class="move-dot"></div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <div class="game-controls">
-            <button class="control-button back-button" @click="goBack" aria-label="กลับสู่เมนูระดับ">
-              <i class="icon">🏠</i>
-              <span>กลับ</span>
-            </button>
-          </div>
+          <!-- ปุ่มกลับขวาล่าง -->
+          <button class="control-button back-float-btn" @click="goBack" aria-label="กลับสู่เมนูระดับ">
+            <i class="icon">🏠</i>
+            <span>กลับ</span>
+          </button>
         </div>
 
         <!-- Game Over Panel -->
@@ -165,7 +172,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 
@@ -227,13 +234,13 @@ function isPathClear(r1, c1, r2, c2) {
   if (r1 === r2) {
     const start = Math.min(c1, c2) + 1;
     const end = Math.max(c1, c2);
-    for (let c = start; c < end; c++) {
+    for (let c = start + 1; c < end; c++) {
       if (board.value[r1][c] !== '') return false;
     }
   } else if (c1 === c2) {
     const start = Math.min(r1, r2) + 1;
     const end = Math.max(r1, r2);
-    for (let r = start; r < end; r++) {
+    for (let r = start + 1; r < end; r++) {
       if (board.value[r][c1] !== '') return false;
     }
   } else {
@@ -418,13 +425,6 @@ function goBack() {
   router.push('/level')
 }
 
-setInterval(() => {
-  if (timeLeft.value > 0) {
-    timeLeft.value--
-    if (timeLeft.value === 0) checkGameEnd()
-  }
-}, 1000)
-
 function isPossibleMove(row, col) {
   if (!selected.value || board.value[row][col] !== '') return false
   
@@ -497,6 +497,24 @@ function formatTimeUsed(seconds) {
     return `${sec} sec`
   }
 }
+
+const timerInterval = ref(null)
+
+const startTimer = () => {
+  timerInterval.value = setInterval(() => {
+    if (timeLeft.value > 0) {
+      timeLeft.value--
+      if (timeLeft.value === 0) checkGameEnd()
+    }
+  }, 1000)
+}
+
+// Ensure all hooks are called at the top level
+startTimer()
+
+onUnmounted(() => {
+  clearInterval(timerInterval.value)
+})
 </script>
 
 <style scoped>
@@ -504,85 +522,63 @@ function formatTimeUsed(seconds) {
 
 .game-container {
   font-family: 'Kanit', sans-serif;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(ellipse at center, #2d0a0a 0%, #0a0000 70%);
-  overflow: hidden;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 1rem;
+  /* Ensure it takes full viewport width and height */
+  position: fixed; /* ADDED: Fix position to viewport */
+  top: 0; /* ADDED: Align to top */
+  left: 0; /* ADDED: Align to left */
+  width: 100vw; /* ADDED: Take full viewport width */
+  height: 100vh; /* Changed from min-height to height for full coverage */
+  background: radial-gradient(ellipse at center, #1a0000 0%, #000000 70%);
+  overflow-y: auto; /* Allow scrolling on the main container */
+  display: flex; /* Use flexbox for main layout */
+  flex-direction: column; /* Stack children vertically */
+  justify-content: flex-start; /* Align content to the top */
+  align-items: center; /* Center content horizontally */
+  /* REMOVED: padding: 1rem; from here */
   box-sizing: border-box;
 }
 
-.fire-background {
-  position: absolute;
+.fire-background,
+.ambient-particles {
+  position: fixed; /* Keep fixed for background */
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: 
-    radial-gradient(circle at 25% 75%, rgba(255, 69, 0, 0.15) 0%, transparent 50%),
-    radial-gradient(circle at 75% 25%, rgba(255, 140, 0, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 50% 50%, rgba(220, 20, 60, 0.08) 0%, transparent 70%),
-    linear-gradient(45deg, 
-      transparent 0%,
-      rgba(139, 0, 0, 0.2) 25%,
-      rgba(255, 69, 0, 0.15) 50%,
-      rgba(139, 0, 0, 0.2) 75%,
-      transparent 100%);
-  background-size: 400% 400%, 300% 300%, 500% 500%, 200% 200%;
-  animation: 
-    fireEffect1 12s ease-in-out infinite,
-    fireEffect2 18s ease-in-out infinite reverse,
-    fireEffect3 25s ease-in-out infinite;
-  opacity: 0.6;
+  z-index: -1;
+  transform: translateZ(0); /* Promote hardware acceleration */
 }
 
-.ambient-particles {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: 
-    radial-gradient(1px 1px at 20px 30px, rgba(255, 69, 0, 0.4), transparent),
-    radial-gradient(1px 1px at 40px 70px, rgba(255, 140, 0, 0.3), transparent),
-    radial-gradient(1px 1px at 90px 40px, rgba(255, 215, 0, 0.2), transparent),
-    radial-gradient(1px 1px at 130px 80px, rgba(255, 69, 0, 0.2), transparent);
-  background-repeat: repeat;
-  background-size: 250px 150px;
-  animation: sparkle 30s linear infinite;
-  opacity: 0.4;
-}
+/* REMOVED: .back-btn and .back-btn-icon CSS rules as the top button is removed from template */
 
 .content {
   position: relative;
   z-index: 1;
-  width: 100%;
-  height: 100%;
-  display: grid;
-  grid-template-columns: 380px 1fr;
+  width: 100%; /* Ensure it takes full width of its parent */
+  flex-grow: 1; /* Allow content to grow and fill vertical space */
+  display: grid; /* Desktop layout */
+  grid-template-columns: 350px 1fr;
   gap: 2rem;
-  max-width: 1600px;
+  padding: 2rem; /* ADDED: Padding moved here for internal spacing */
+  /* REMOVED: max-width: 1800px; to allow full width stretch */
+  transform: translateZ(0);
+  /* Ensure content area is at least viewport height minus padding */
+  min-height: calc(100vh - 4rem); /* Adjusted for 2rem padding on top/bottom */
 }
 
 .ai-thoughts-panel {
-  height: 100%;
-  background: linear-gradient(145deg, rgba(30, 30, 30, 0.95), rgba(20, 20, 20, 0.9));
-  backdrop-filter: blur(20px);
-  border-radius: 24px;
+  height: 100%; /* Make it stretch to the height of the content grid area */
+  background: linear-gradient(145deg,  rgba(97, 26, 26, 0.95), rgba(10, 0, 0, 0.98)); /* Increased opacity */
+  border-radius: 20px;
   padding: 2rem;
   box-shadow: 
-    0 20px 40px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+    0 10px 20px rgba(255, 0, 0, 0.15), /* Reduced shadow blur */
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 69, 0, 0.2);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: hidden; /* Keep hidden for the panel itself, thoughts-history handles scroll */
+  transform: translateZ(0); /* Promote hardware acceleration */
 }
 
 .panel-header {
@@ -591,7 +587,7 @@ function formatTimeUsed(seconds) {
   gap: 1rem;
   margin-bottom: 2rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 69, 0, 0.2);
 }
 
 .ai-icon {
@@ -600,8 +596,8 @@ function formatTimeUsed(seconds) {
 }
 
 .panel-title {
-  color: #e0e0e0;
-  font-size: 1.5rem;
+  color: #e8eaed;
+  font-size: 1.4rem;
   font-weight: 600;
   margin: 0;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
@@ -609,49 +605,31 @@ function formatTimeUsed(seconds) {
 
 .thoughts-history {
   flex: 1;
-  overflow-y: auto;
+  overflow-y: auto; /* This is the scrollbar for the AI thoughts content */
   padding-right: 0.5rem;
 }
 
 .thought-entry {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
-  border-radius: 16px;
-  padding: 1.5rem;
+  background: linear-gradient(135deg, rgba(255, 69, 0, 0.08), rgba(139, 0, 0, 0.05));
+  border-radius: 12px;
+  padding: 1.2rem;
   margin-bottom: 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 69, 0, 0.15);
   transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
 }
 
 .thought-entry.latest {
-  border-color: rgba(255, 215, 0, 0.3);
-  box-shadow: 0 0 20px rgba(255, 215, 0, 0.1);
-}
-
-.thought-entry::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.5), transparent);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.thought-entry.latest::before {
-  opacity: 1;
+  border-color: rgba(255, 215, 0, 0.4);
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.15);
 }
 
 .thought-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
-  color: #b0b0b0;
-  font-size: 0.9rem;
+  margin-bottom: 0.8rem;
+  color: #ffb74d;
+  font-size: 0.85rem;
 }
 
 .turn-number {
@@ -661,14 +639,12 @@ function formatTimeUsed(seconds) {
 
 .timestamp {
   opacity: 0.7;
-  font-size: 0.8rem;
 }
 
 .thought-content {
-  color: #e0e0e0;
-  line-height: 1.6;
-  white-space: pre-wrap;
-  font-size: 0.95rem;
+  color: #e8eaed;
+  line-height: 1.5;
+  font-size: 0.9rem;
 }
 
 .empty-thoughts {
@@ -677,7 +653,7 @@ function formatTimeUsed(seconds) {
   align-items: center;
   justify-content: center;
   height: 200px;
-  color: #888;
+  color: #ff8a65;
   text-align: center;
 }
 
@@ -690,7 +666,7 @@ function formatTimeUsed(seconds) {
 .dot {
   width: 8px;
   height: 8px;
-  background: #666;
+  background: #ff8a65;
   border-radius: 50%;
   animation: thinking 1.4s ease-in-out infinite both;
 }
@@ -699,17 +675,18 @@ function formatTimeUsed(seconds) {
 .dot:nth-child(2) { animation-delay: -0.16s; }
 
 .game-content {
-  background: linear-gradient(145deg, rgba(20, 5, 5, 0.95), rgba(10, 0, 0, 0.9));
-  backdrop-filter: blur(20px);
-  border-radius: 24px;
+  height: 100%; /* Make it stretch to the height of the content grid area */
+  background: linear-gradient(145deg, rgba(97, 26, 26, 0.95), rgba(10, 0, 0, 0.98)); /* Increased opacity */
+  border-radius: 20px;
   padding: 2rem;
   box-shadow: 
-    0 20px 40px rgba(255, 0, 0, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 69, 0, 0.2);
+    0 10px 20px rgba(186, 41, 41, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 69, 0, 0.13);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: hidden; /* Keep hidden for the panel itself, board-container handles scroll */
+  transform: translateZ(0); /* Promote hardware acceleration */
 }
 
 .game-header {
@@ -725,7 +702,9 @@ function formatTimeUsed(seconds) {
   font-size: 2rem;
   font-weight: 700;
   margin-bottom: 2rem;
-  text-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+  text-shadow: 
+    0 0 10px rgba(255, 69, 0, 0.8),
+    0 0 20px rgba(255, 69, 0, 0.6);
   letter-spacing: 1px;
 }
 
@@ -746,22 +725,28 @@ function formatTimeUsed(seconds) {
   display: flex;
   justify-content: center;
   align-items: stretch;
-  gap: 2rem;
+  gap: 1.5rem;
 }
 
 .info-card {
   flex: 1 1 0;
   min-width: 0;
   max-width: none;
-  background: linear-gradient(135deg, rgba(255,255,255,0.10), rgba(255,255,255,0.05));
+  background: linear-gradient(135deg, rgba(255, 69, 0, 0.15), rgba(139, 0, 0, 0.1));
   border-radius: 16px;
   padding: 1.5rem 1rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.7rem;
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid rgba(255, 69, 0, 0.2);
   box-sizing: border-box;
+  transition: all 0.3s ease;
+}
+
+.info-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(255, 69, 0, 0.2);
 }
 
 .info-card .info-content {
@@ -771,7 +756,7 @@ function formatTimeUsed(seconds) {
 
 .info-icon {
   font-size: 2rem;
-  opacity: 0.8;
+  opacity: 0.9;
 }
 
 .info-content {
@@ -779,7 +764,7 @@ function formatTimeUsed(seconds) {
 }
 
 .info-label {
-  color: #b0b0b0;
+  color: #ffb74d;
   font-size: 0.9rem;
   margin-bottom: 0.25rem;
 }
@@ -792,7 +777,7 @@ function formatTimeUsed(seconds) {
 }
 
 .info-value.warning {
-  color: #ffa726;
+  color: #ffb74d;
   animation: pulse 1s ease-in-out infinite;
 }
 
@@ -820,7 +805,7 @@ function formatTimeUsed(seconds) {
 
 .vs-divider {
   color: #ff6b6b;
-  font-size: 1.2rem;
+  font-size: 1rem;
   font-weight: 700;
   text-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
 }
@@ -831,6 +816,17 @@ function formatTimeUsed(seconds) {
   flex-direction: column;
   align-items: center;
   gap: 2rem;
+  min-height: 0; /* Allow flex item to shrink */
+  overflow-y: auto; /* Allow internal scrolling for the board and controls if needed */
+}
+
+.board-wrapper {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 600px;
 }
 
 .board {
@@ -838,7 +834,7 @@ function formatTimeUsed(seconds) {
   display: grid;
   grid-template-rows: repeat(8, 1fr);
   gap: 3px;
-  background: linear-gradient(145deg, #1a1a1a, #0d0d0d);
+  background: linear-gradient(145deg, #2c1810, #1a0f08);
   padding: 20px;
   border-radius: 20px;
   border: 3px solid rgba(255, 69, 0, 0.3);
@@ -846,22 +842,26 @@ function formatTimeUsed(seconds) {
     0 0 40px rgba(255, 69, 0, 0.2),
     inset 0 0 20px rgba(0, 0, 0, 0.5);
   user-select: none;
+  width: 100%;
+  aspect-ratio: 1;
 }
 
-.board-border {
+.board-glow {
   position: absolute;
-  top: -3px;
-  left: -3px;
-  right: -3px;
-  bottom: -3px;
-  border-radius: 20px;
+  top: -6px;
+  left: -6px;
+  right: -6px;
+  bottom: -6px;
+  border-radius: 24px;
   background: linear-gradient(45deg, 
-    rgba(255, 69, 0, 0.3), 
-    rgba(255, 140, 0, 0.2), 
-    rgba(255, 69, 0, 0.3));
+    rgba(255, 69, 0, 0.4), 
+    rgba(255, 140, 0, 0.3), 
+    rgba(255, 69, 0, 0.4));
   background-size: 200% 200%;
-  animation: borderGlow 3s ease-in-out infinite;
+  animation: boardGlow 4s ease-in-out infinite;
   z-index: -1;
+  filter: blur(4px); /* Reduced blur for performance */
+  transform: translateZ(0); /* Promote hardware acceleration */
 }
 
 .row {
@@ -871,17 +871,17 @@ function formatTimeUsed(seconds) {
 }
 
 .cell {
-  width: 61px;
-  height: 61px;
+  aspect-ratio: 1;
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  border-radius: 11px;
+  border-radius: 8px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   outline-offset: 4px;
   overflow: hidden;
+  min-width: 0;
 }
 
 .cell::before {
@@ -904,15 +904,15 @@ function formatTimeUsed(seconds) {
   position: absolute;
   top: 2px;
   left: 4px;
-  font-size: 0.7rem;
-  color: rgba(255, 255, 255, 0.3);
+  font-size: 0.6rem;
+  color: rgba(255, 255, 255, 0.4);
   font-weight: 500;
   pointer-events: none;
 }
 
 .cell:hover:not(.selected):not(.has-piece) {
   transform: scale(1.05);
-  box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
 }
 
 .cell:focus-visible {
@@ -921,14 +921,14 @@ function formatTimeUsed(seconds) {
   z-index: 10;
 }
 
-.cell-black {
-  background: linear-gradient(145deg, #2d2d2d, #1a1a1a);
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+.cell-light {
+  background: linear-gradient(145deg, #f5deb3, #deb887);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.cell-red {
-  background: linear-gradient(145deg, #4a1a1a, #2d0d0d);
-  box-shadow: inset 0 2px 4px rgba(139, 0, 0, 0.2);
+.cell-dark {
+  background: linear-gradient(145deg, #8b4513, #654321);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .piece {
@@ -943,46 +943,46 @@ function formatTimeUsed(seconds) {
 
 .piece-inner {
   position: absolute;
-  top: 15%;
-  left: 15%;
-  right: 15%;
-  bottom: 15%;
+  top: 20%;
+  left: 20%;
+  right: 20%;
+  bottom: 20%;
   border-radius: 50%;
   background: inherit;
-  filter: brightness(1.2);
+  filter: brightness(1.3);
 }
 
 .piece-shine {
   position: absolute;
-  top: 20%;
-  left: 25%;
-  width: 30%;
-  height: 30%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.4), transparent);
+  top: 25%;
+  left: 30%;
+  width: 25%;
+  height: 25%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.6), transparent);
   border-radius: 50%;
-  filter: blur(2px);
+  filter: blur(1px);
 }
 
 .piece-black {
-  background: linear-gradient(145deg, #4a4a4a, #1a1a1a);
-  border: 2px solid #666;
+  background: linear-gradient(145deg, #2c3e50, #1a252f);
+  border: 2px solid #34495e;
   box-shadow: 
-    0 4px 8px rgba(0, 0, 0, 0.5),
+    0 4px 8px rgba(0, 0, 0, 0.4),
     inset 0 2px 4px rgba(255, 255, 255, 0.1);
 }
 
 .piece-red {
-  background: linear-gradient(145deg, #ff4444, #cc0000);
-  border: 2px solid #ff6666;
+  background: linear-gradient(145deg, #e74c3c, #c0392b);
+  border: 2px solid #e67e22;
   box-shadow: 
-    0 4px 8px rgba(204, 0, 0, 0.5),
+    0 4px 8px rgba(231, 76, 60, 0.4),
     inset 0 2px 4px rgba(255, 255, 255, 0.2);
 }
 
 .selected {
   box-shadow: 
-    inset 0 0 20px rgba(255, 215, 0, 0.6),
-    0 0 30px rgba(255, 215, 0, 0.4);
+    inset 0 0 20px rgba(255, 215, 0, 0.7),
+    0 0 30px rgba(255, 215, 0, 0.5);
   transform: scale(1.1);
   z-index: 5;
 }
@@ -990,12 +990,12 @@ function formatTimeUsed(seconds) {
 .selected .piece {
   transform: scale(1.1);
   box-shadow: 
-    0 0 25px rgba(255, 215, 0, 0.6),
+    0 0 25px rgba(255, 215, 0, 0.7),
     0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 .possible-move {
-  box-shadow: inset 0 0 15px rgba(76, 175, 80, 0.6);
+  box-shadow: inset 0 0 15px rgba(76, 175, 80, 0.7);
   animation: possibleMove 1.5s ease-in-out infinite;
 }
 
@@ -1016,52 +1016,6 @@ function formatTimeUsed(seconds) {
   animation: moveDot 1s ease-in-out infinite;
 }
 
-.score-board {
-  display: flex;
-  align-items: center;
-  gap: 2rem;
-  padding: 1.5rem;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.score-card {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem 1.5rem;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  transition: all 0.3s ease;
-}
-
-.score-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-}
-
-.score-icon {
-  font-size: 1.5rem;
-}
-
-.score-content {
-  text-align: center;
-}
-
-.score-label {
-  color: #b0b0b0;
-  font-size: 0.9rem;
-  margin-bottom: 0.25rem;
-}
-
-.score-value {
-  color: #fff;
-  font-size: 1.8rem;
-  font-weight: 700;
-}
-
 .game-controls {
   display: flex;
   justify-content: center;
@@ -1072,7 +1026,7 @@ function formatTimeUsed(seconds) {
   display: flex;
   align-items: center;
   gap: 0.8rem;
-  background: linear-gradient(135deg, #ff4444, #cc0000);
+  background: linear-gradient(135deg, #dc143c, #8b0000);
   border: none;
   color: white;
   font-weight: 600;
@@ -1080,16 +1034,15 @@ function formatTimeUsed(seconds) {
   padding: 1rem 2rem;
   border-radius: 50px;
   cursor: pointer;
-  box-shadow: 0 4px 15px rgba(255, 68, 68, 0.3);
+  box-shadow: 0 4px 15px rgba(220, 20, 60, 0.3);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  user-select: none;
   font-family: 'Kanit', sans-serif;
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .control-button:hover {
-  background: linear-gradient(135deg, #ff6666, #ff4444);
-  box-shadow: 0 8px 25px rgba(255, 68, 68, 0.4);
+  background: linear-gradient(135deg, #ff1744, #dc143c);
+  box-shadow: 0 8px 25px rgba(220, 20, 60, 0.4);
   transform: translateY(-3px);
 }
 
@@ -1102,31 +1055,32 @@ function formatTimeUsed(seconds) {
 }
 
 .game-over-overlay {
-  position: relative;
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
   background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(10px);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
   animation: fadeIn 0.3s ease;
+  transform: translateZ(0); /* Promote hardware acceleration */
 }
 
 .game-over-panel {
-  background: linear-gradient(145deg, rgba(30, 30, 30, 0.95), rgba(20, 20, 20, 0.9));
+  background: linear-gradient(145deg, rgba(30, 0, 0, 0.95), rgba(10, 0, 0, 0.98)); /* Increased opacity */
   border-radius: 24px;
   padding: 3rem;
   box-shadow: 
-    0 20px 40px rgba(0, 0, 0, 0.5),
+    0 10px 20px rgba(255, 0, 0, 0.25), /* Reduced shadow blur */
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 69, 0, 0.3);
   text-align: center;
   min-width: 400px;
   animation: slideUp 0.4s ease;
+  transform: translateZ(0); /* Promote hardware acceleration */
 }
 
 .game-over-icon {
@@ -1153,7 +1107,7 @@ function formatTimeUsed(seconds) {
 }
 
 .result-text.draw {
-  color: #ffa726;
+  color: #ffb74d;
 }
 
 .result-text.winner {
@@ -1180,7 +1134,7 @@ function formatTimeUsed(seconds) {
   justify-content: space-around;
   margin-bottom: 2rem;
   padding: 1rem;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 69, 0, 0.1);
   border-radius: 12px;
 }
 
@@ -1191,7 +1145,7 @@ function formatTimeUsed(seconds) {
 }
 
 .final-score-label {
-  color: #b0b0b0;
+  color: #ffb74d;
   font-size: 0.9rem;
 }
 
@@ -1212,17 +1166,17 @@ function formatTimeUsed(seconds) {
 }
 
 .thoughts-history::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 69, 0, 0.1);
   border-radius: 3px;
 }
 
 .thoughts-history::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 69, 0, 0.3);
   border-radius: 3px;
 }
 
 .thoughts-history::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 69, 0, 0.5);
 }
 
 /* Animations */
@@ -1242,19 +1196,19 @@ function formatTimeUsed(seconds) {
 }
 
 @keyframes sparkle {
-  0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.4; }
-  50% { transform: translateY(-15px) rotate(180deg); opacity: 0.8; }
+  0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.6; }
+  50% { transform: translateY(-10px) rotate(180deg); opacity: 1; }
 }
 
 @keyframes pulse {
   0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.7; transform: scale(1.05); }
+  50% { opacity: 0.8; transform: scale(1.05); }
 }
 
 @keyframes bounce {
   0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-  40% { transform: translateY(-10px); }
-  60% { transform: translateY(-5px); }
+  40% { transform: translateY(-8px); }
+  60% { transform: translateY(-4px); }
 }
 
 @keyframes thinking {
@@ -1262,14 +1216,14 @@ function formatTimeUsed(seconds) {
   40% { transform: scale(1); opacity: 1; }
 }
 
-@keyframes borderGlow {
+@keyframes boardGlow {
   0%, 100% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
 }
 
 @keyframes possibleMove {
-  0%, 100% { box-shadow: inset 0 0 15px rgba(76, 175, 80, 0.6); }
-  50% { box-shadow: inset 0 0 25px rgba(76, 175, 80, 0.8); }
+  0%, 100% { box-shadow: inset 0 0 15px rgba(76, 175, 80, 0.7); }
+  50% { box-shadow: inset 0 0 25px rgba(76, 175, 80, 0.9); }
 }
 
 @keyframes moveDot {
@@ -1288,44 +1242,55 @@ function formatTimeUsed(seconds) {
 }
 
 /* Responsive Design */
+@media (max-width: 1400px) {
+  .content {
+    grid-template-columns: 320px 1fr;
+  }
+}
+
 @media (max-width: 1200px) {
   .content {
-    grid-template-columns: 1fr;
-    grid-template-rows: 300px 1fr;
+    grid-template-columns: 1fr; /* Single column */
+    display: flex; /* Use flexbox for vertical stacking */
+    flex-direction: column;
+    gap: 1.5rem; /* Adjust gap for mobile */
+    padding-top: 2rem; /* Adjusted padding as fixed back-btn is removed, keeping 2rem top padding */
+    height: auto; /* Allow content to define its height */
+    min-height: auto; /* Reset min-height for mobile flex layout */
+    overflow-y: auto; /* Allow content area to scroll on mobile */
   }
   
-  .ai-thoughts-panel {
-    height: 300px;
+  .ai-thoughts-panel,
+  .game-content {
+    flex-shrink: 0; /* Prevent shrinking below content size */
+    flex-grow: 1; /* Allow them to grow */
+    min-height: 0; /* Crucial for flex items to shrink */
+    height: auto; /* Let content define height */
+  }
+
+  /* Make game-content scrollable on mobile */
+  .game-content {
+    overflow-y: auto; 
   }
 }
 
 @media (max-width: 768px) {
   .content {
-    padding: 1rem;
+    padding: 1rem; /* Adjusted padding for smaller screens */
     gap: 1rem;
+    padding-top: 1rem; /* Adjusted padding for smaller screens */
   }
   
-  .cell {
-    width: 45px;
-    height: 45px;
+  .game-content {
+    padding: 1.5rem;
   }
   
   .board {
     padding: 15px;
   }
   
-  .game-info {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-  
-  .difficulty-display {
-    font-size: 1.5rem;
-  }
-  
-  .score-board {
-    flex-direction: column;
-    gap: 1rem;
+  .board-wrapper {
+    max-width: 400px;
   }
   
   .game-status-bar {
@@ -1333,10 +1298,15 @@ function formatTimeUsed(seconds) {
     align-items: center;
     gap: 1rem;
   }
+  
   .info-card {
     min-width: 0;
     width: 100%;
-    max-width: 400px;
+    max-width: 300px;
+  }
+  
+  .difficulty-display {
+    font-size: 1.5rem;
   }
   
   .game-over-panel {
@@ -1347,13 +1317,16 @@ function formatTimeUsed(seconds) {
 }
 
 @media (max-width: 480px) {
-  .cell {
-    width: 35px;
-    height: 35px;
+  .game-content {
+    padding: 1rem;
   }
   
-  .game-content {
-    padding: 1.5rem;
+  .board {
+    padding: 10px;
+  }
+  
+  .board-wrapper {
+    max-width: 320px;
   }
   
   .difficulty-display {
@@ -1368,6 +1341,10 @@ function formatTimeUsed(seconds) {
     padding: 0.8rem 1.5rem;
     font-size: 1rem;
   }
+  
+  .cell-coordinates {
+    font-size: 0.5rem;
+  }
 }
 
 /* Accessibility improvements */
@@ -1377,7 +1354,7 @@ function formatTimeUsed(seconds) {
   .difficulty-icon,
   .ai-icon,
   .thinking-animation,
-  .border-glow,
+  .board-glow,
   .possible-move,
   .move-dot {
     animation: none;
@@ -1398,14 +1375,14 @@ function formatTimeUsed(seconds) {
 
 /* High contrast mode support */
 @media (prefers-contrast: high) {
-  .cell-black {
-    background: #000;
-    border: 2px solid #fff;
+  .cell-light {
+    background: #f5deb3;
+    border: 2px solid #000;
   }
   
-  .cell-red {
-    background: #800000;
-    border: 2px solid #fff;
+  .cell-dark {
+    background: #8b4513;
+    border: 2px solid #000;
   }
   
   .piece-black {
@@ -1416,6 +1393,37 @@ function formatTimeUsed(seconds) {
   .piece-red {
     background: #ff0000;
     border: 3px solid #fff;
+  }
+}
+
+.back-float-btn {
+  position: absolute;
+  right: 2rem;
+  bottom: 2rem;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  background: linear-gradient(135deg, #dc143c, #8b0000);
+  border: none;
+  color: white;
+  font-weight: 600;
+  font-size: 1.1rem;
+  padding: 1rem 2rem;
+  border-radius: 50px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(220, 20, 60, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: 'Kanit', sans-serif;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+@media (max-width: 768px) {
+  .back-float-btn {
+    right: 1rem;
+    bottom: 1rem;
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
   }
 }
 </style>
