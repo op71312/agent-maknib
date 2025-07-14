@@ -19,6 +19,6 @@ const GameHistorySchema = new mongoose.Schema({
   oTotalTime: Number,
   level: String,
   createdAt: { type: Date, default: Date.now }
-})
+}, { versionKey: false });
 
 module.exports = mongoose.model('GameHistory', GameHistorySchema)
