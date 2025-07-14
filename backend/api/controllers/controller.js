@@ -22,12 +22,39 @@ const GameHistory = require('../models/GameHistory');
   });
 };*/
 
-exports.getAIMove = (req, res) => {
-  // สมมติ AI เดินจาก [0,0] ไป [0,1] ทุกครั้ง
+exports.getAIMove = async (req, res) => {
+  // รับข้อมูลจาก frontend
+  const {
+    boardState,
+    difficulty,
+    timeLeft,
+    pieceId,         // หมายเลขประจำหมาก (array หรือ object)
+    move_history     // { ai: [...], player: [...] }
+  } = req.body;
+
+  // ตรวจสอบข้อมูล
+  if (!boardState || !difficulty || typeof timeLeft !== 'number' || !move_history) {
+    return res.status(400).json({ error: 'ข้อมูลไม่ครบหรือไม่ถูกต้อง' });
+  }
+
+  // เตรียมข้อมูลส่งให้ LLM
+  const llmPayload = {
+    boardState,
+    difficulty,
+    timeLeft,
+    pieceId,
+    move_history
+  };
+
+  // ตัวอย่าง: ส่งข้อมูลไป LLM (คุณต้องเขียนฟังก์ชัน callLLM เอง)
+  // const llmResult = await callLLM(llmPayload);
+
+  // ตัวอย่างผลลัพธ์จำลอง (ให้แก้ไขตามจริง)
   res.json({
     from: [0, 0],
     to: [1, 0],
-    thoughts: 'AI ตัดสินใจเดินหมากจาก [1,1] ไป [1,2] เพื่อเปิดเกม'
+    thoughts: 'AI ตัดสินใจเดินหมากจาก [1,1] ไป [2,1] เพื่อเปิดเกม',
+    llmPayload // ส่งกลับไปดูโครงสร้างข้อมูลที่ส่งให้ LLM (สำหรับ debug)
   });
 };
 
@@ -66,3 +93,6 @@ exports.saveGameHistory = async (req, res) => {
     res.status(500).json({ error: err.message })
   }
 }
+
+
+
