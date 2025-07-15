@@ -330,43 +330,35 @@ function checkCapture(row, col) {
       }
     }
 
-    // --- หนีบแบบ sandwich (เช่น x _ x) ---
-    const r1 = row - dr, c1 = col - dc;
-    const r2 = row + dr, c2 = col + dc;
-    if (
-      inBounds(r1, c1) && inBounds(r2, c2) &&
-      board.value[r1][c1] === enemy &&
-      board.value[r2][c2] === enemy
-    ) {
-      board.value[r1][c1] = '';
-      board.value[r2][c2] = '';
-      captured += 2;
+    // --- กติกา "แทรก" ไม่จำกัดจำนวนช่อง ---
+    // เช่น x o o o _ o x แล้ว o มาแทรก
+    // ตรวจสอบฝั่งซ้าย/บนและขวา/ล่างเป็นศัตรู ตรงกลางเป็นหมากเรา
+    let leftR = row - dr, leftC = col - dc;
+    let rightR = row + dr, rightC = col + dc;
+    let midCount = 0;
+    // เดินไปทางขวา/ล่าง นับหมากเรา
+    while (inBounds(rightR, rightC) && board.value[rightR][rightC] === currentPlayer.value) {
+      midCount++;
+      rightR += dr;
+      rightC += dc;
     }
-
-    // --- แทรกกลางกลุ่มศัตรู (เช่น x _ o x, x _ o o o x) ---
-    // ตรวจสอบฝั่งซ้าย/บน และขวา/ล่าง ว่าเป็นศัตรู
-    // และตรงกลางเป็นหมากเรา
-    for (let len = 2; len <= 6; len++) { // รองรับกลุ่มศัตรูยาวๆ
-      let leftR = row - dr, leftC = col - dc;
-      let rightR = row + dr * len, rightC = col + dc * len;
-      let valid = true;
-      // ฝั่งซ้าย/บน
-      if (!inBounds(leftR, leftC) || board.value[leftR][leftC] !== enemy) valid = false;
-      // ฝั่งขวา/ล่าง
-      if (!inBounds(rightR, rightC) || board.value[rightR][rightC] !== enemy) valid = false;
-      // ตรงกลางต้องเป็นหมากเรา (อย่างน้อย 1 ตัว)
-      for (let i = 1; i < len; i++) {
-        let midR = row + dr * i, midC = col + dc * i;
-        if (!inBounds(midR, midC) || board.value[midR][midC] !== currentPlayer.value) {
-          valid = false;
-          break;
-        }
-      }
-      if (valid) {
-        board.value[leftR][leftC] = '';
-        board.value[rightR][rightC] = '';
-        captured += 2;
-      }
+    // เดินไปทางซ้าย/บน นับหมากเรา
+    let leftCount = 0;
+    while (inBounds(leftR, leftC) && board.value[leftR][leftC] === currentPlayer.value) {
+      leftCount++;
+      leftR -= dr;
+      leftC -= dc;
+    }
+    // ถ้าทั้งสองฝั่งเป็นศัตรู และตรงกลางเป็นหมากเราอย่างน้อย 1 ตัว
+    if (
+      midCount + leftCount > 0 &&
+      inBounds(leftR, leftC) && inBounds(rightR, rightC) &&
+      board.value[leftR][leftC] === enemy &&
+      board.value[rightR][rightC] === enemy
+    ) {
+      board.value[leftR][leftC] = '';
+      board.value[rightR][rightC] = '';
+      captured += 2;
     }
   }
 
