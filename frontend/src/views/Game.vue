@@ -303,37 +303,21 @@ function checkCapture(row, col) {
     [1, 0],  // ล่าง
     [0, -1], // ซ้าย
     [-1, 0], // บน
-  ]
-  
-  const enemy = currentPlayer.value === 'X' ? 'O' : 'X'
-  let captured = 0
-  
+  ];
+
+  const enemy = currentPlayer.value === 'X' ? 'O' : 'X';
+  let captured = 0;
+
   for (const [dr, dc] of dirs) {
-    // --- รูปแบบที่ 1: เดินเข้าไปตรงกลางระหว่างศัตรู 2 ตัว ---
-    const r1 = row - dr, c1 = col - dc
-    const r2 = row + dr, c2 = col + dc
-    
-    if (
-      inBounds(r1, c1) && inBounds(r2, c2) &&
-      board.value[r1][c1] === enemy &&
-      board.value[r2][c2] === enemy
-    ) {
-      board.value[r1][c1] = ''
-      board.value[r2][c2] = ''
-      captured += 2
-    }
-    
-    // --- รูปแบบที่ 2: หนีบศัตรูหลายตัวระหว่างหมากเรา 2 ตัว ---
-    let toCapture = []
-    let r = row + dr
-    let c = col + dc
-    
+    // --- หนีบศัตรูหลายตัวระหว่างหมากเรา 2 ตัว (เช่น _ x x x o) ---
+    let toCapture = [];
+    let r = row + dr;
+    let c = col + dc;
     while (inBounds(r, c) && board.value[r][c] === enemy) {
-      toCapture.push([r, c])
-      r += dr
-      c += dc
+      toCapture.push([r, c]);
+      r += dr;
+      c += dc;
     }
-    
     // ถ้ามีศัตรูคั่นกลางอย่างน้อย 1 ตัว และปลายทางเป็นหมากเรา
     if (
       toCapture.length > 0 &&
@@ -341,20 +325,59 @@ function checkCapture(row, col) {
       board.value[r][c] === currentPlayer.value
     ) {
       for (const [cr, cc] of toCapture) {
-        board.value[cr][cc] = ''
-        captured++
+        board.value[cr][cc] = '';
+        captured++;
+      }
+    }
+
+    // --- หนีบแบบ sandwich (เช่น x _ x) ---
+    const r1 = row - dr, c1 = col - dc;
+    const r2 = row + dr, c2 = col + dc;
+    if (
+      inBounds(r1, c1) && inBounds(r2, c2) &&
+      board.value[r1][c1] === enemy &&
+      board.value[r2][c2] === enemy
+    ) {
+      board.value[r1][c1] = '';
+      board.value[r2][c2] = '';
+      captured += 2;
+    }
+
+    // --- แทรกกลางกลุ่มศัตรู (เช่น x _ o x, x _ o o o x) ---
+    // ตรวจสอบฝั่งซ้าย/บน และขวา/ล่าง ว่าเป็นศัตรู
+    // และตรงกลางเป็นหมากเรา
+    for (let len = 2; len <= 6; len++) { // รองรับกลุ่มศัตรูยาวๆ
+      let leftR = row - dr, leftC = col - dc;
+      let rightR = row + dr * len, rightC = col + dc * len;
+      let valid = true;
+      // ฝั่งซ้าย/บน
+      if (!inBounds(leftR, leftC) || board.value[leftR][leftC] !== enemy) valid = false;
+      // ฝั่งขวา/ล่าง
+      if (!inBounds(rightR, rightC) || board.value[rightR][rightC] !== enemy) valid = false;
+      // ตรงกลางต้องเป็นหมากเรา (อย่างน้อย 1 ตัว)
+      for (let i = 1; i < len; i++) {
+        let midR = row + dr * i, midC = col + dc * i;
+        if (!inBounds(midR, midC) || board.value[midR][midC] !== currentPlayer.value) {
+          valid = false;
+          break;
+        }
+      }
+      if (valid) {
+        board.value[leftR][leftC] = '';
+        board.value[rightR][rightC] = '';
+        captured += 2;
       }
     }
   }
-  
+
   // เพิ่มคะแนนให้ฝั่งที่เดิน
   if (captured > 0) {
     if (currentPlayer.value === 'X') {
-      xScore.value += captured
+      xScore.value += captured;
     } else {
-      oScore.value += captured
+      oScore.value += captured;
     }
-    checkGameEnd()
+    checkGameEnd();
   }
 }
 
