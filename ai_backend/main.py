@@ -317,6 +317,7 @@ app.add_middleware(
 class AIMoveRequest(BaseModel):
     board: List[List[int]]
     current_player: int
+    difficulty: str = "medium"  # เพิ่มพารามิเตอร์
 
 class AIMoveResponse(BaseModel):
     from_row: int
@@ -337,13 +338,17 @@ model.eval()
 def ai_move(req: AIMoveRequest):
     env = MakNeebRLEnv()
     env.reset(board=req.board, current_player=req.current_player)
-    mcts = MCTS(model, DEVICE, c_puct=1.5, num_simulations=100)
+    # กำหนดจำนวน simulation ตามระดับ
+    if req.difficulty == "easy":
+        num_sim = 10
+    elif req.difficulty == "medium":
+        num_sim = 50
+    else:  # hard
+        num_sim = 200
+    mcts = MCTS(model, DEVICE, c_puct=1.5, num_simulations=num_sim)
     action_probs, _ = mcts.search(env)
     best_action = int(np.argmax(action_probs))
     (from_row, from_col), (to_row, to_col) = env._decode_action(best_action)
-    print("Legal actions:", env.get_legal_actions())
-    print("Best action:", best_action)
-    print("Decoded:", from_row, from_col, to_row, to_col)
     return AIMoveResponse(
         from_row=from_row,
         from_col=from_col,

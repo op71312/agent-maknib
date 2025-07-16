@@ -25,9 +25,6 @@ exports.getAIMove = async (req, res) => {
   };
 
   res.json({
-    from: [0, 0],
-    to: [1, 0],
-    thoughts: 'AI ตัดสินใจเดินหมากจาก [1,1] ไป [2,1] เพื่อเปิดเกม',
     llmPayload 
   });
 };
