@@ -360,6 +360,20 @@ function checkCapture(row, col) {
       board.value[rightR][rightC] = '';
       captured += 2;
     }
+
+    // --- เพิ่มกรณี sandwich สั้น (enemy - me - enemy) ---
+    // ใช้ชื่อใหม่เพื่อไม่ชนกับตัวแปรข้างบน
+    const sLeftR = row - dr, sLeftC = col - dc;
+    const sRightR = row + dr, sRightC = col + dc;
+    if (
+      inBounds(sLeftR, sLeftC) && inBounds(sRightR, sRightC) &&
+      board.value[sLeftR][sLeftC] === enemy &&
+      board.value[sRightR][sRightC] === enemy
+    ) {
+      board.value[sLeftR][sLeftC] = '';
+      board.value[sRightR][sRightC] = '';
+      captured += 2;
+    }
   }
 
   // เพิ่มคะแนนให้ฝั่งที่เดิน
@@ -385,29 +399,21 @@ function switchPlayer() {
 
 async function requestAIMove() {
   try {
-    const response = await axios.post('http://localhost:5000/ai/move', {
-      boardState: getBoardState(),
-      difficulty: difficulty.value, // หรือ props.difficulty ถ้าใช้ defineProps
-      timeLeft: timeLeft.value
+    const response = await axios.post('http://localhost:8000/ai-move', {
+      board: getBoardState(),
+      current_player: 1 // ฝั่ง AI คือ 1 (O) ตาม convention ของโมเดล
     })
-    
-    const { from, to, thoughts } = response.data
-    
-    if (from && to) {
-      const [fr, fc] = from
-      const [tr, tc] = to
-      
-      board.value[tr][tc] = board.value[fr][fc]
-      board.value[fr][fc] = ''
-      checkCapture(tr, tc)
-      
-      // เพิ่มความคิดใหม่เข้าไปในประวัติ
-      aiThoughtHistory.value.unshift({
-        turn: aiThoughtHistory.value.length + 1,
-        thoughts,
-        timestamp: new Date().toLocaleTimeString()
-      })
-    }
+    const { from_row, from_col, to_row, to_col, action_id } = response.data
+    // เดินหมากตามที่ AI ตอบกลับ
+    board.value[to_row][to_col] = board.value[from_row][from_col]
+    board.value[from_row][from_col] = ''
+    checkCapture(to_row, to_col)
+    // เพิ่มประวัติความคิด AI (ถ้ามี)
+    aiThoughtHistory.value.unshift({
+      turn: aiThoughtHistory.value.length + 1,
+      thoughts: `AI เลือกเดินจาก (${from_row},${from_col}) ไป (${to_row},${to_col}) [action_id: ${action_id}]`,
+      timestamp: new Date().toLocaleTimeString()
+    })
   } catch (err) {
     console.error('AI move error:', err)
   } finally {
