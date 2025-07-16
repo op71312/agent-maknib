@@ -281,79 +281,49 @@ function inBounds(row, col) {
 
 function checkCapture(row, col) {
   const dirs = [
-    [0, 1],  
-    [1, 0],  
-    [0, -1], 
-    [-1, 0], 
+    [0, 1], [1, 0], [0, -1], [-1, 0]
   ];
-
   const enemy = currentPlayer.value === 'X' ? 'O' : 'X';
-  let captured = 0;
+  let capturedSet = new Set();
 
   for (const [dr, dc] of dirs) {
+    // Sandwich capture
     let toCapture = [];
-    let r = row + dr;
-    let c = col + dc;
+    let r = row + dr, c = col + dc;
     while (inBounds(r, c) && board.value[r][c] === enemy) {
       toCapture.push([r, c]);
-      r += dr;
-      c += dc;
+      r += dr; c += dc;
     }
-    if (
-      toCapture.length > 0 &&
-      inBounds(r, c) &&
-      board.value[r][c] === currentPlayer.value
-    ) {
+    if (toCapture.length > 0 && inBounds(r, c) && board.value[r][c] === currentPlayer.value) {
       for (const [cr, cc] of toCapture) {
-        board.value[cr][cc] = '';
-        captured++;
+        capturedSet.add(`${cr},${cc}`);
       }
     }
 
-    let leftR = row - dr, leftC = col - dc;
-    let rightR = row + dr, rightC = col + dc;
-    let midCount = 0;
-    while (inBounds(rightR, rightC) && board.value[rightR][rightC] === currentPlayer.value) {
-      midCount++;
-      rightR += dr;
-      rightC += dc;
-    }
-    let leftCount = 0;
-    while (inBounds(leftR, leftC) && board.value[leftR][leftC] === currentPlayer.value) {
-      leftCount++;
-      leftR -= dr;
-      leftC -= dc;
-    }
+    // Immediate adjacent capture (สองข้าง)
+    const adj1 = [row - dr, col - dc];
+    const adj2 = [row + dr, col + dc];
     if (
-      midCount + leftCount > 0 &&
-      inBounds(leftR, leftC) && inBounds(rightR, rightC) &&
-      board.value[leftR][leftC] === enemy &&
-      board.value[rightR][rightC] === enemy
+      inBounds(adj1[0], adj1[1]) && inBounds(adj2[0], adj2[1]) &&
+      board.value[adj1[0]][adj1[1]] === enemy &&
+      board.value[adj2[0]][adj2[1]] === enemy
     ) {
-      board.value[leftR][leftC] = '';
-      board.value[rightR][rightC] = '';
-      captured += 2;
-    }
-
-    const sLeftR = row - dr, sLeftC = col - dc;
-    const sRightR = row + dr, sRightC = col + dc;
-    if (
-      inBounds(sLeftR, sLeftC) && inBounds(sRightR, sRightC) &&
-      board.value[sLeftR][sLeftC] === enemy &&
-      board.value[sRightR][sRightC] === enemy
-    ) {
-      board.value[sLeftR][sLeftC] = '';
-      board.value[sRightR][sRightC] = '';
-      captured += 2;
+      capturedSet.add(`${adj1[0]},${adj1[1]}`);
+      capturedSet.add(`${adj2[0]},${adj2[1]}`);
     }
   }
 
+  // Remove captured pieces
+  let captured = 0;
+  for (const pos of capturedSet) {
+    const [r, c] = pos.split(',').map(Number);
+    board.value[r][c] = '';
+    captured++;
+  }
+
   if (captured > 0) {
-    if (currentPlayer.value === 'X') {
-      xScore.value += captured;
-    } else {
-      oScore.value += captured;
-    }
+    if (currentPlayer.value === 'X') xScore.value += captured;
+    else oScore.value += captured;
     checkGameEnd();
   }
 }
