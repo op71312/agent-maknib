@@ -3,7 +3,8 @@
     <div class="fire-background"></div>
     <div class="ambient-particles"></div>
     <div class="content">
-      <div class="ai-thoughts-panel">
+      <!-- แสดง AI's Analysis เฉพาะเมื่อไม่ใช่โหมด friend -->
+      <div v-if="!isPvP" class="ai-thoughts-panel">
         <div class="panel-header">
           <div class="ai-icon">🤖</div>
           <h3 class="panel-title">AI's Analysis</h3>
@@ -31,7 +32,8 @@
           </div>
         </div>
       </div>
-      <div class="game-content">
+
+      <div class="game-content" :class="{ 'full-width': isPvP }">
         <div class="game-header">
           <h2 class="difficulty-display">
             <span class="difficulty-icon">⚔️</span>
@@ -55,7 +57,7 @@
                 <div class="info-content">
                   <div class="info-label">ถึงตา</div>
                   <div class="info-value player-name" :class="{ 'player-x': currentPlayer === 'X', 'player-o': currentPlayer === 'O' }">
-                    {{ currentPlayer === 'X' ? 'ผู้เล่น ⚫' : (isPvP ? 'ผู้เล่น 🔴' : 'AI (O) 🔴') }}
+                    {{ currentPlayer === 'X' ? 'ผู้เล่น ⚫' : (isPvP ? 'ผู้เล่น 🔴' : 'AI 🔴') }}
                   </div>
                 </div>
               </div>
@@ -125,30 +127,41 @@
         <div v-if="isGameOver" class="game-over-overlay">
           <div class="game-over-panel">
             <div class="game-over-icon">
-              <div v-if="winner === 'draw'" class="draw-icon">🤝</div>
+              <div v-if="!isPvP && winner === 'O'" class="loser-icon">💔</div>
+              <div v-else-if="!isPvP && winner === 'X'" class="winner-icon">🏆</div>
+              <div v-else-if="winner === 'draw'" class="draw-icon">🤝</div>
               <div v-else class="winner-icon">🏆</div>
             </div>
+            
             <h2 class="game-over-title">จบเกม</h2>
+            
             <div class="game-result">
-              <p v-if="winner === 'draw'" class="result-text draw">เสมอ!</p>
+              <!-- โหมดเล่นกับ AI -->
+              <p v-if="!isPvP && winner === 'O'" class="result-text loser">
+                คุณแพ้ AI 😢
+              </p>
+              <p v-else-if="!isPvP && winner === 'X'" class="result-text winner">
+                คุณชนะ AI! 🎉
+              </p>
+              <!-- โหมดเล่นกับเพื่อน -->
+              <p v-else-if="winner === 'draw'" class="result-text draw">
+                เสมอ!
+              </p>
               <p v-else class="result-text winner">
-                ผู้ชนะ: <span class="winner-name" :class="{ 'winner-x': winner === 'X', 'winner-o': winner === 'O' }">{{ winner }}</span>
+                ผู้ชนะ: {{ winner === 'X' ? 'ผู้เล่น ⚫' : 'ผู้เล่น 🔴' }}
               </p>
             </div>
+
             <div class="final-scores">
               <div class="final-score">
-                <span class="final-score-label">Player X:</span>
+                <span class="final-score-label">{{ !isPvP ? 'คุณ (⚫)' : 'ผู้เล่น ⚫' }}:</span>
                 <span class="final-score-value">{{ xScore }}</span>
               </div>
               <div class="final-score">
-                <span class="final-score-label">{{ isPvP ? 'Player O' : 'AI (O)' }}:</span>
+                <span class="final-score-label">{{ !isPvP ? 'AI (🔴)' : 'ผู้เล่น 🔴' }}:</span>
                 <span class="final-score-value">{{ oScore }}</span>
               </div>
             </div>
-            <button class="control-button game-over-button" @click="goBack">
-              <i class="icon">🏠</i>
-              <span>กลับเมนู</span>
-            </button>
           </div>
         </div>
       </div>
@@ -637,6 +650,10 @@ onUnmounted(() => {
   flex-direction: column;
   overflow: hidden; 
   transform: translateZ(0); 
+}
+
+.game-content.full-width {
+  grid-column: 1 / -1; /* ขยายให้เต็มความกว้างเมื่อไม่มี AI panel */
 }
 
 .game-header {

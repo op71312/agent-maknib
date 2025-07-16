@@ -26,6 +26,11 @@ const routes = [
         props: true
     },
     {
+        path: '/rules',
+        name: 'Rules',
+        component: () => import('../views/Rules.vue')
+    },
+    {
         path: '/:catchAll(.*)',
         redirect: '/home',
     }

@@ -231,17 +231,17 @@ export default {
 
 .level-options {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(2, 1fr); /* เปลี่ยนเป็น 2 คอลัมน์ */
+  grid-template-rows: repeat(2, 1fr);    /* กำหนด 2 แถว */
   gap: 2rem;
-  margin-bottom: 3rem;
-  max-width: 1000px;
-  margin-left: auto;
-  margin-right: auto;
+  max-width: 900px;  /* ปรับความกว้างสูงสุดให้เหมาะสม */
+  margin: 0 auto;
+  padding: 0 1rem;
 }
 
 .level-btn {
   position: relative;
-  height: 160px;
+  height: 180px;  /* เพิ่มความสูงปุ่มให้สมดุลกับ layout 2x2 */
   border: none;
   border-radius: 20px;
   cursor: pointer;
@@ -446,7 +446,8 @@ export default {
   }
   
   .level-options {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr;  /* มือถือให้เรียง 1 คอลัมน์ */
+    grid-template-rows: auto;
     gap: 1.5rem;
     max-width: 400px;
   }
