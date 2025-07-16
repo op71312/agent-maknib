@@ -166,7 +166,6 @@ export default {
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   overflow: hidden;
   min-width: 200px;
-  /* REMOVED: backdrop-filter: blur(10px); */
 }
 
 .button-content {
@@ -289,7 +288,6 @@ export default {
   }
 }
 
-/* Responsive adjustments */
 @media (max-width: 768px) {
   .main-content {
     padding: 1rem;
@@ -325,7 +323,6 @@ export default {
   }
 }
 
-/* Accessibility improvements */
 @media (prefers-reduced-motion: reduce) {
   .fire-background,
   .particles,
@@ -339,7 +336,6 @@ export default {
   }
 }
 
-/* Focus states for accessibility */
 .game-button:focus {
   outline: 3px solid rgba(255, 69, 0, 0.6);
   outline-offset: 2px;

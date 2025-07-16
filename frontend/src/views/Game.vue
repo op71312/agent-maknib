@@ -1,13 +1,8 @@
 <template>
   <div class="game-container">
-    <!-- Background elements are now fixed to the viewport -->
     <div class="fire-background"></div>
     <div class="ambient-particles"></div>
-    
-    <!-- REMOVED: Back Button (top one) as requested. The back button at the bottom of the board will be used instead. -->
-    
     <div class="content">
-      <!-- AI Thoughts Panel -->
       <div class="ai-thoughts-panel">
         <div class="panel-header">
           <div class="ai-icon">🤖</div>
@@ -36,8 +31,6 @@
           </div>
         </div>
       </div>
-
-      <!-- Game Content -->
       <div class="game-content">
         <div class="game-header">
           <h2 class="difficulty-display">
@@ -46,9 +39,7 @@
           </h2>
           
           <div class="game-info">
-            <!-- Game Status Bar -->
             <div class="game-status-bar">
-              <!-- เวลา -->
               <div class="info-card timer-card" :aria-label="'เวลาที่เหลือ: ' + Math.floor(timeLeft / 60) + ' นาที ' + (timeLeft % 60) + ' วินาที'">
                 <div class="info-icon">⏳</div>
                 <div class="info-content">
@@ -59,7 +50,6 @@
                 </div>
               </div>
               
-              <!-- ถึงตา -->
               <div class="info-card turn-card">
                 <div class="info-icon">👤</div>
                 <div class="info-content">
@@ -70,7 +60,6 @@
                 </div>
               </div>
               
-              <!-- คะแนน -->
               <div class="info-card score-card">
                 <div class="info-content">
                   <div class="info-label">คะแนน</div>
@@ -112,8 +101,6 @@
                   tabindex="0"
                   @keydown.enter.prevent="handleClick(rowIndex, colIndex)"
                 >
-                  <!-- ลบหรือคอมเมนต์บรรทัดนี้ในแต่ละ .cell -->
-                  <!-- <div class="cell-coordinates">{{ String.fromCharCode('a'.charCodeAt(0) + colIndex) }}{{ 8 - rowIndex }}</div> -->
                   <div v-if="cell"
                        class="piece"
                        :class="getPieceClasses(cell)"
@@ -129,14 +116,12 @@
             </div>
           </div>
 
-          <!-- ปุ่มกลับขวาล่าง -->
           <button class="control-button back-float-btn" @click="goBack" aria-label="กลับสู่เมนูระดับ">
             <i class="icon">🏠</i>
             <span>กลับ</span>
           </button>
         </div>
 
-        <!-- Game Over Panel -->
         <div v-if="isGameOver" class="game-over-overlay">
           <div class="game-over-panel">
             <div class="game-over-icon">
@@ -178,12 +163,12 @@ import axios from 'axios'
 
 const router = useRouter()
 const size = ref(8)
-const timeLeft = ref(900) // เปลี่ยนจาก 300 เป็น 900 วินาที (15 นาที)
+const timeLeft = ref(900) 
 const currentPlayer = ref('X')
 const selected = ref(null)
-const aiThoughts = ref('') // เพิ่มการเก็บความคิด AI
+const aiThoughts = ref('') 
 const aiThoughtHistory = ref([])
-const moveHistory = ref([]) // ประวัติการเดินหมาก
+const moveHistory = ref([]) 
 
 const difficulty = defineProps({
   difficulty: {
@@ -211,7 +196,7 @@ const oScore = ref(0)
 const isGameOver = ref(false)
 const winner = ref('')
 const xTotalTime = ref(0)
-const oTotalTime = ref(0) // ทุกครั้งที่จบตา ให้บวกเวลาที่ใช้ในตานั้นให้ฝั่งที่เดิน
+const oTotalTime = ref(0) 
 const turnStartTime = ref(timeLeft.value)
 
 function getBoardState() {
@@ -250,7 +235,6 @@ function isPathClear(r1, c1, r2, c2) {
 }
 
 function handleClick(row, col) {
-  // ถ้าเป็น PvP ให้ทั้ง X และ O เล่นได้
   if (!isPvP.value && currentPlayer.value !== 'X') return
   
   const piece = board.value[row][col]
@@ -267,17 +251,15 @@ function handleClick(row, col) {
       selected.value = null
       checkCapture(row, col)
       
-      // บันทึกการเดินลงในประวัติ
       const timeUsedSec = turnStartTime.value - timeLeft.value
       moveHistory.value.push({
         turn: moveHistory.value.length + 1,
         player: currentPlayer.value,
         from: toChessPos(fromRow, fromCol),
         to: toChessPos(row, col),
-        timeUsed: timeUsedSec // หรือ formatTimeUsed(timeUsedSec) ถ้าต้องการ string
+        timeUsed: timeUsedSec 
       })
       
-      // สะสมเวลาที่ใช้
       if (currentPlayer.value === 'X') {
         xTotalTime.value += timeUsedSec
       } else {
@@ -299,17 +281,16 @@ function inBounds(row, col) {
 
 function checkCapture(row, col) {
   const dirs = [
-    [0, 1],  // ขวา
-    [1, 0],  // ล่าง
-    [0, -1], // ซ้าย
-    [-1, 0], // บน
+    [0, 1],  
+    [1, 0],  
+    [0, -1], 
+    [-1, 0], 
   ];
 
   const enemy = currentPlayer.value === 'X' ? 'O' : 'X';
   let captured = 0;
 
   for (const [dr, dc] of dirs) {
-    // --- หนีบศัตรูหลายตัวระหว่างหมากเรา 2 ตัว (เช่น _ x x x o) ---
     let toCapture = [];
     let r = row + dr;
     let c = col + dc;
@@ -318,7 +299,6 @@ function checkCapture(row, col) {
       r += dr;
       c += dc;
     }
-    // ถ้ามีศัตรูคั่นกลางอย่างน้อย 1 ตัว และปลายทางเป็นหมากเรา
     if (
       toCapture.length > 0 &&
       inBounds(r, c) &&
@@ -330,26 +310,20 @@ function checkCapture(row, col) {
       }
     }
 
-    // --- กติกา "แทรก" ไม่จำกัดจำนวนช่อง ---
-    // เช่น x o o o _ o x แล้ว o มาแทรก
-    // ตรวจสอบฝั่งซ้าย/บนและขวา/ล่างเป็นศัตรู ตรงกลางเป็นหมากเรา
     let leftR = row - dr, leftC = col - dc;
     let rightR = row + dr, rightC = col + dc;
     let midCount = 0;
-    // เดินไปทางขวา/ล่าง นับหมากเรา
     while (inBounds(rightR, rightC) && board.value[rightR][rightC] === currentPlayer.value) {
       midCount++;
       rightR += dr;
       rightC += dc;
     }
-    // เดินไปทางซ้าย/บน นับหมากเรา
     let leftCount = 0;
     while (inBounds(leftR, leftC) && board.value[leftR][leftC] === currentPlayer.value) {
       leftCount++;
       leftR -= dr;
       leftC -= dc;
     }
-    // ถ้าทั้งสองฝั่งเป็นศัตรู และตรงกลางเป็นหมากเราอย่างน้อย 1 ตัว
     if (
       midCount + leftCount > 0 &&
       inBounds(leftR, leftC) && inBounds(rightR, rightC) &&
@@ -361,8 +335,6 @@ function checkCapture(row, col) {
       captured += 2;
     }
 
-    // --- เพิ่มกรณี sandwich สั้น (enemy - me - enemy) ---
-    // ใช้ชื่อใหม่เพื่อไม่ชนกับตัวแปรข้างบน
     const sLeftR = row - dr, sLeftC = col - dc;
     const sRightR = row + dr, sRightC = col + dc;
     if (
@@ -376,7 +348,6 @@ function checkCapture(row, col) {
     }
   }
 
-  // เพิ่มคะแนนให้ฝั่งที่เดิน
   if (captured > 0) {
     if (currentPlayer.value === 'X') {
       xScore.value += captured;
@@ -389,9 +360,7 @@ function checkCapture(row, col) {
 
 function switchPlayer() {
   currentPlayer.value = currentPlayer.value === 'X' ? 'O' : 'X'
-  turnStartTime.value = timeLeft.value // บันทึกเวลาตอนเริ่มเทิร์นใหม่
-  
-  // ถ้าไม่ใช่ PvP ให้ AI เดิน
+  turnStartTime.value = timeLeft.value 
   if (!isPvP.value && currentPlayer.value === 'O') {
     requestAIMove()
   }
@@ -401,14 +370,12 @@ async function requestAIMove() {
   try {
     const response = await axios.post('http://localhost:8000/ai-move', {
       board: getBoardState(),
-      current_player: 1 // ฝั่ง AI คือ 1 (O) ตาม convention ของโมเดล
+      current_player: 1 
     })
     const { from_row, from_col, to_row, to_col, action_id } = response.data
-    // เดินหมากตามที่ AI ตอบกลับ
     board.value[to_row][to_col] = board.value[from_row][from_col]
     board.value[from_row][from_col] = ''
     checkCapture(to_row, to_col)
-    // เพิ่มประวัติความคิด AI (ถ้ามี)
     aiThoughtHistory.value.unshift({
       turn: aiThoughtHistory.value.length + 1,
       thoughts: `AI เลือกเดินจาก (${from_row},${from_col}) ไป (${to_row},${to_col}) [action_id: ${action_id}]`,
@@ -421,18 +388,16 @@ async function requestAIMove() {
   }
 }
 
-// เรียกใช้เมื่อจบเกม
 async function saveGameHistory() {
-  // สมมติคุณเก็บประวัติการเดินไว้ใน moveHistory (array)
-  // และมีตัวแปร winner, xScore, oScore, xMoveCount, oMoveCount, xTotalTime, oTotalTime, difficultyText
+
   try {
     await axios.post('http://localhost:5000/save-history', {
       moves: moveHistory.value,
       winner: winner.value,
       xMoveCount: moveHistory.value.filter(m => m.player === 'X').length,
       oMoveCount: moveHistory.value.filter(m => m.player === 'O').length,
-      xScore: xScore.value, // <-- แต้มที่ X ทำได้
-      oScore: oScore.value, // <-- แต้มที่ O ทำได้
+      xScore: xScore.value,
+      oScore: oScore.value,
       xTotalTime: xTotalTime.value,
       oTotalTime: oTotalTime.value,
       level: difficulty.difficulty
@@ -530,7 +495,7 @@ const startTimer = () => {
   }, 1000)
 }
 
-// Ensure all hooks are called at the top level
+
 startTimer()
 
 onUnmounted(() => {
@@ -543,63 +508,57 @@ onUnmounted(() => {
 
 .game-container {
   font-family: 'Kanit', sans-serif;
-  /* Ensure it takes full viewport width and height */
-  position: fixed; /* ADDED: Fix position to viewport */
-  top: 0; /* ADDED: Align to top */
-  left: 0; /* ADDED: Align to left */
-  width: 100vw; /* ADDED: Take full viewport width */
-  height: 100vh; /* Changed from min-height to height for full coverage */
+  position: fixed;
+  top: 0; 
+  left: 0; 
+  width: 100vw; 
+  height: 100vh; 
   background: radial-gradient(ellipse at center, #1a0000 0%, #000000 70%);
-  overflow-y: auto; /* Allow scrolling on the main container */
-  display: flex; /* Use flexbox for main layout */
-  flex-direction: column; /* Stack children vertically */
-  justify-content: flex-start; /* Align content to the top */
-  align-items: center; /* Center content horizontally */
-  /* REMOVED: padding: 1rem; from here */
+  overflow-y: auto; 
+  display: flex; 
+  flex-direction: column; 
+  justify-content: flex-start; 
+  align-items: center; 
   box-sizing: border-box;
 }
 
 .fire-background,
 .ambient-particles {
-  position: fixed; /* Keep fixed for background */
+  position: fixed; 
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   z-index: -1;
-  transform: translateZ(0); /* Promote hardware acceleration */
+  transform: translateZ(0);
 }
-
-/* REMOVED: .back-btn and .back-btn-icon CSS rules as the top button is removed from template */
 
 .content {
   position: relative;
   z-index: 1;
-  width: 100%; /* Ensure it takes full width of its parent */
-  flex-grow: 1; /* Allow content to grow and fill vertical space */
-  display: grid; /* Desktop layout */
+  width: 100%; 
+  flex-grow: 1; 
+  display: grid; 
   grid-template-columns: 350px 1fr;
   gap: 2rem;
-  padding: 2rem; /* ADDED: Padding moved here for internal spacing */
-  /* REMOVED: max-width: 1800px; to allow full width stretch */
+  padding: 2rem; 
   transform: translateZ(0);
-  /* Ensure content area is at least viewport height minus padding */
-  min-height: calc(100vh - 4rem); /* Adjusted for 2rem padding on top/bottom */
+  min-height: calc(100vh - 4rem); 
 }
 
 .ai-thoughts-panel {
-  height: 100%; /* Make it stretch to the height of the content grid area */
-  background: linear-gradient(145deg,  rgba(97, 26, 26, 0.95), rgba(10, 0, 0, 0.98)); /* Increased opacity */
+  height: 100%; 
+  background: linear-gradient(145deg,  rgba(97, 26, 26, 0.95), rgba(10, 0, 0, 0.98)); 
   border-radius: 20px;
   padding: 2rem;
   box-shadow: 
-    0 10px 20px rgba(255, 0, 0, 0.15), /* Reduced shadow blur */
+    0 10px 20px rgba(255, 0, 0, 0.15), 
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 69, 0, 0.2);
   display: flex;
   flex-direction: column;
-  overflow: hidden; /* Keep hidden for the panel itself, thoughts-history handles scroll */
-  transform: translateZ(0); /* Promote hardware acceleration */
+  overflow: hidden; 
+  transform: translateZ(0); 
 }
 
 .panel-header {
@@ -626,7 +585,7 @@ onUnmounted(() => {
 
 .thoughts-history {
   flex: 1;
-  overflow-y: auto; /* This is the scrollbar for the AI thoughts content */
+  overflow-y: auto; 
   padding-right: 0.5rem;
 }
 
@@ -696,8 +655,8 @@ onUnmounted(() => {
 .dot:nth-child(2) { animation-delay: -0.16s; }
 
 .game-content {
-  height: 100%; /* Make it stretch to the height of the content grid area */
-  background: linear-gradient(145deg, rgba(97, 26, 26, 0.95), rgba(10, 0, 0, 0.98)); /* Increased opacity */
+  height: 100%; 
+  background: linear-gradient(145deg, rgba(97, 26, 26, 0.95), rgba(10, 0, 0, 0.98)); 
   border-radius: 20px;
   padding: 2rem;
   box-shadow: 
@@ -706,8 +665,8 @@ onUnmounted(() => {
   border: 1px solid rgba(255, 69, 0, 0.13);
   display: flex;
   flex-direction: column;
-  overflow: hidden; /* Keep hidden for the panel itself, board-container handles scroll */
-  transform: translateZ(0); /* Promote hardware acceleration */
+  overflow: hidden; 
+  transform: translateZ(0); 
 }
 
 .game-header {
@@ -837,8 +796,8 @@ onUnmounted(() => {
   flex-direction: column;
   align-items: center;
   gap: 2rem;
-  min-height: 0; /* Allow flex item to shrink */
-  overflow-y: auto; /* Allow internal scrolling for the board and controls if needed */
+  min-height: 0; 
+  overflow-y: auto; 
 }
 
 .board-wrapper {
@@ -881,8 +840,8 @@ onUnmounted(() => {
   background-size: 200% 200%;
   animation: boardGlow 4s ease-in-out infinite;
   z-index: -1;
-  filter: blur(4px); /* Reduced blur for performance */
-  transform: translateZ(0); /* Promote hardware acceleration */
+  filter: blur(4px); 
+  transform: translateZ(0); 
 }
 
 .row {
@@ -1087,21 +1046,21 @@ onUnmounted(() => {
   align-items: center;
   z-index: 1000;
   animation: fadeIn 0.3s ease;
-  transform: translateZ(0); /* Promote hardware acceleration */
+  transform: translateZ(0); 
 }
 
 .game-over-panel {
-  background: linear-gradient(145deg, rgba(30, 0, 0, 0.95), rgba(10, 0, 0, 0.98)); /* Increased opacity */
+  background: linear-gradient(145deg, rgba(30, 0, 0, 0.95), rgba(10, 0, 0, 0.98)); 
   border-radius: 24px;
   padding: 3rem;
   box-shadow: 
-    0 10px 20px rgba(255, 0, 0, 0.25), /* Reduced shadow blur */
+    0 10px 20px rgba(255, 0, 0, 0.25), 
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 69, 0, 0.3);
   text-align: center;
   min-width: 400px;
   animation: slideUp 0.4s ease;
-  transform: translateZ(0); /* Promote hardware acceleration */
+  transform: translateZ(0); 
 }
 
 .game-over-icon {
@@ -1181,7 +1140,6 @@ onUnmounted(() => {
   justify-content: center;
 }
 
-/* Custom Scrollbar */
 .thoughts-history::-webkit-scrollbar {
   width: 6px;
 }
@@ -1200,7 +1158,6 @@ onUnmounted(() => {
   background: rgba(255, 69, 0, 0.5);
 }
 
-/* Animations */
 @keyframes fireEffect1 {
   0%, 100% { background-position: 0% 50%, 0% 50%, 0% 50%, 0% 50%; }
   50% { background-position: 100% 50%, 100% 50%, 100% 50%, 100% 50%; }
@@ -1262,7 +1219,6 @@ onUnmounted(() => {
   to { transform: translateY(0); opacity: 1; }
 }
 
-/* Responsive Design */
 @media (max-width: 1400px) {
   .content {
     grid-template-columns: 320px 1fr;
@@ -1271,25 +1227,25 @@ onUnmounted(() => {
 
 @media (max-width: 1200px) {
   .content {
-    grid-template-columns: 1fr; /* Single column */
-    display: flex; /* Use flexbox for vertical stacking */
+    grid-template-columns: 1fr; 
+    display: flex; 
     flex-direction: column;
-    gap: 1.5rem; /* Adjust gap for mobile */
-    padding-top: 2rem; /* Adjusted padding as fixed back-btn is removed, keeping 2rem top padding */
-    height: auto; /* Allow content to define its height */
-    min-height: auto; /* Reset min-height for mobile flex layout */
-    overflow-y: auto; /* Allow content area to scroll on mobile */
+    gap: 1.5rem; 
+    padding-top: 2rem; 
+    height: auto; 
+    min-height: auto; 
+    overflow-y: auto; 
   }
   
   .ai-thoughts-panel,
   .game-content {
-    flex-shrink: 0; /* Prevent shrinking below content size */
-    flex-grow: 1; /* Allow them to grow */
-    min-height: 0; /* Crucial for flex items to shrink */
-    height: auto; /* Let content define height */
+    flex-shrink: 0; 
+    flex-grow: 1; 
+    min-height: 0; 
+    height: auto; 
   }
 
-  /* Make game-content scrollable on mobile */
+  
   .game-content {
     overflow-y: auto; 
   }
@@ -1297,9 +1253,9 @@ onUnmounted(() => {
 
 @media (max-width: 768px) {
   .content {
-    padding: 1rem; /* Adjusted padding for smaller screens */
+    padding: 1rem; 
     gap: 1rem;
-    padding-top: 1rem; /* Adjusted padding for smaller screens */
+    padding-top: 1rem; 
   }
   
   .game-content {
@@ -1368,7 +1324,6 @@ onUnmounted(() => {
   }
 }
 
-/* Accessibility improvements */
 @media (prefers-reduced-motion: reduce) {
   .fire-background,
   .ambient-particles,
@@ -1388,13 +1343,12 @@ onUnmounted(() => {
   }
 }
 
-/* Focus states for accessibility */
+
 .control-button:focus {
   outline: 3px solid rgba(255, 215, 0, 0.6);
   outline-offset: 2px;
 }
 
-/* High contrast mode support */
 @media (prefers-contrast: high) {
   .cell-light {
     background: #f5deb3;

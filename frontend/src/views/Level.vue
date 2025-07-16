@@ -59,8 +59,6 @@
         </div>
       </transition>
     </div>
-    
-    <!-- Back Button -->
     <button class="back-btn" @click="goBack" aria-label="กลับ">
       <div class="back-btn-icon">🏠</div>
       <span>กลับ</span>
@@ -150,14 +148,14 @@ export default {
   transform: translateX(-50%);
   display: flex;
   align-items: center;
-  gap: 1rem;                /* เพิ่มช่องว่างระหว่างไอคอนกับข้อความ */
+  gap: 1rem;                
   background: linear-gradient(135deg, #dc143c 0%, #8b0000 100%);
   border: none;
   color: white;
   font-weight: 650;
-  font-size: 1.2rem;          /* ขยายขนาดตัวอักษร */
-  padding: 1.2rem 1.5rem;     /* ขยาย padding */
-  border-radius: 60px;        /* ขยายความโค้ง */
+  font-size: 1.2rem;          
+  padding: 1.2rem 1.5rem;    
+  border-radius: 60px;        
   cursor: pointer;
   box-shadow: 
     0 12px 35px rgba(220, 20, 60, 0.5),
@@ -170,7 +168,7 @@ export default {
 
 
 .back-btn-icon {
-  font-size: 2.2rem;          /* ขยายขนาดไอคอน */
+  font-size: 2.2rem;         
   transition: transform 0.3s ease;
 }
 
@@ -355,7 +353,6 @@ export default {
   transform: translateY(-4px) scale(1.01);
 }
 
-/* Transitions */
 .fade-enter-active, .fade-leave-active {
   transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -370,7 +367,6 @@ export default {
   transform: translateY(-30px) scale(0.95);
 }
 
-/* Animations */
 @keyframes fireEffect1 {
   0%, 100% { background-position: 0% 50%, 0% 50%, 0% 50%, 0% 50%; }
   50% { background-position: 100% 50%, 100% 50%, 100% 50%, 100% 50%; }
@@ -424,7 +420,6 @@ export default {
   50% { transform: translateY(-5px); }
 }
 
-/* Responsive Design */
 @media (max-width: 1200px) {
   .level-options {
     grid-template-columns: repeat(2, 1fr);
@@ -513,7 +508,6 @@ export default {
   }
 }
 
-/* Accessibility improvements */
 @media (prefers-reduced-motion: reduce) {
   .fire-background,
   .ambient-particles,
@@ -529,14 +523,12 @@ export default {
   }
 }
 
-/* Focus states for accessibility */
 .level-btn:focus,
 .back-btn:focus {
   outline: 3px solid rgba(255, 69, 0, 0.6);
   outline-offset: 2px;
 }
 
-/* High contrast mode support */
 @media (prefers-contrast: high) {
   .level-btn.easy {
     background: #228b22;
@@ -564,7 +556,6 @@ export default {
   }
 }
 
-/* Hover effects for desktop */
 @media (hover: hover) {
   .level-btn:hover .btn-title {
     transform: translateX(5px);

@@ -2,10 +2,10 @@ const mongoose = require('mongoose')
 
 const MoveSchema = new mongoose.Schema({
   turn: Number,
-  player: String, // 'X' หรือ 'O'
-  from: String,   // เช่น 'a2'
-  to: String,     // เช่น 'c2'
-  timeUsed: Number // วินาทีที่ใช้ในแต่ละตา
+  player: String, 
+  from: String,   
+  to: String,    
+  timeUsed: Number 
 }, { _id: false })
 
 const GameHistorySchema = new mongoose.Schema({
