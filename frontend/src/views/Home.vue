@@ -11,14 +11,14 @@
         <div class="game-options">
           <button class="game-button start-button" @click="startGame">
             <div class="button-content">
-              <i class="play icon"></i>
+              <span class="button-icon">🎮</span>
               <span>เริ่มเกม</span>
             </div>
             <div class="button-glow"></div>
           </button>
           <button class="game-button rules-button" @click="showRules">
             <div class="button-content">
-              <i class="book icon"></i>
+              <span class="button-icon">📖</span>
               <span>กติกา</span>
             </div>
             <div class="button-glow"></div>
@@ -177,6 +177,11 @@ export default {
   gap: 0.8rem;
 }
 
+.button-icon {
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
 .button-glow {
   position: absolute;
   top: 0;
@@ -320,6 +325,10 @@ export default {
   
   .title-container {
     margin-bottom: 2.5rem;
+  }
+  
+  .button-icon {
+    font-size: 1.5rem;
   }
 }
 
