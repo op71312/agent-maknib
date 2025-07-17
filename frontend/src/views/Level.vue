@@ -55,6 +55,18 @@
               </div>
               <div class="btn-glow"></div>
             </button>
+            
+            <!-- เพิ่มโหมด Prompt -->
+            <button class="level-btn prompt" @click="selectLevel('prompt')">
+              <div class="btn-content">
+                <div class="btn-icon">💬</div>
+                <div class="btn-text">
+                  <div class="btn-title">สั่งผ่าน Prompt</div>
+                  <div class="btn-subtitle">Prompt Mode</div>
+                </div>
+              </div>
+              <div class="btn-glow"></div>
+            </button>
           </div>
 
           <button class="back-btn" @click="goBack" aria-label="กลับ">
@@ -333,6 +345,14 @@ export default {
   background: linear-gradient(135deg, #6495ed 0%, #4169e1 100%);
 }
 
+.level-btn.prompt {
+  background: linear-gradient(135deg, #9c27b0 0%, #6a0080 100%);
+}
+
+.level-btn.prompt .btn-glow {
+  background: linear-gradient(135deg, #ba68c8 0%, #9c27b0 100%);
+}
+
 .level-btn:hover {
   transform: translateY(-8px) scale(1.02);
   box-shadow: 
@@ -558,6 +578,11 @@ export default {
   
   .level-btn.friend {
     background: #4169e1;
+    border: 2px solid #fff;
+  }
+  
+  .level-btn.prompt {
+    background: #9c27b0;
     border: 2px solid #fff;
   }
   
