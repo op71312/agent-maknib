@@ -20,8 +20,8 @@
             <ul class="rule-list">
               <li>ใช้กระดานขนาด 8x8 ช่อง</li>
               <li>ผู้เล่นมี 2 ฝ่าย แต่ละฝ่ายมีหมาก 8 ตัว</li>
-              <li>ฝ่ายแรก (⚫) วางหมากแถวบนสุด</li>
-              <li>ฝ่ายสอง (🔴) วางหมากแถวล่างสุด</li>
+              <li>ฝ่ายแรก (⚫) วางหมากแถวล่างสุด</li>
+              <li>ฝ่ายสอง (🔴) วางหมากแถวบนสุด</li>
             </ul>
           </div>
 
@@ -158,8 +158,8 @@
               การชนะ-แพ้
             </h3>
             <ul class="rule-list">
-              <li>ฝ่ายที่หมากถูกกินจนหมด หรือไม่มีทางเดินเหลือ เป็นฝ่ายแพ้</li>
-              <li>ถ้าไม่มีการกินหมากติดต่อกัน 50 ตา จะถือว่าเสมอ</li>
+              <li>ฝ่ายที่หมากถูกกินจนหมด หรือหมากเหลือน้อยกว่าจะเป็นฝ่ายแพ้</li>
+              <li>ถ้าเวลาหมดลงแล้วหมากทั้งสองฝ่ายเหลือเท่ากัน จะถือว่าเสมอ</li>
             </ul>
           </div>
         </div>
@@ -293,12 +293,13 @@ export default {
 .rules-content {
   text-align: left;
   color: #e8eaed;
-  line-height: 1.6;
+  line-height: 1.8; /* เพิ่ม line-height เพื่อให้อ่านง่ายขึ้น */
+  font-size: 1.2rem; /* เพิ่มขนาดตัวอักษรพื้นฐาน */
 }
 
 .rule-section {
   margin-bottom: 3rem;
-  padding: 2rem;
+  padding: 2.5rem; /* เพิ่ม padding */
   background: linear-gradient(135deg, rgba(255, 69, 0, 0.08), rgba(139, 0, 0, 0.05));
   border-radius: 16px;
   border: 1px solid rgba(255, 69, 0, 0.15);
@@ -315,21 +316,21 @@ export default {
   align-items: center;
   gap: 1rem;
   color: #ff6b6b;
-  font-size: 1.5rem;
+  font-size: 1.8rem; /* เพิ่มขนาดตัวอักษร */
   font-weight: 600;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.8rem; /* เพิ่ม margin */
   text-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
 }
 
 .section-icon {
-  font-size: 2rem;
+  font-size: 2.2rem; /* เพิ่มขนาดไอคอน */
   animation: iconFloat 3s ease-in-out infinite;
 }
 
 .rule-description {
   color: #ffb74d;
-  font-size: 1.1rem;
-  margin-bottom: 1.5rem;
+  font-size: 1.5rem; /* เพิ่มขนาดตัวอักษร */
+  margin-bottom: 1.8rem; /* เพิ่ม margin */
   font-weight: 500;
 }
 
@@ -341,12 +342,13 @@ export default {
 
 .rule-list li {
   position: relative;
-  padding: 0.8rem 0 0.8rem 2rem;
-  margin-bottom: 0.5rem;
+  padding: 1.2rem 0 1.2rem 3rem; /* เพิ่ม padding */
+  margin-bottom: 1rem; /* เพิ่มระยะห่าง */
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
   border-radius: 8px;
   border-left: 3px solid rgba(255, 69, 0, 0.5);
   transition: all 0.3s ease;
+  font-size: 1.3rem; /* เพิ่มขนาดตัวอักษร */
 }
 
 .rule-list li:hover {
@@ -358,23 +360,23 @@ export default {
 .rule-list li::before {
   content: '🔥';
   position: absolute;
-  left: 0.5rem;
+  left: 0.8rem; /* ปรับตำแหน่งไอคอน */
   top: 50%;
   transform: translateY(-50%);
-  font-size: 1rem;
+  font-size: 1.2rem; /* เพิ่มขนาดไอคอน */
 }
 
 .examples-container {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
-  margin: 2rem 0;
+  gap: 2.5rem; /* เพิ่ม gap */
+  margin: 2.5rem 0; /* เพิ่ม margin */
 }
 
 .example-card {
   background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
   border-radius: 16px;
-  padding: 2rem;
+  padding: 2.5rem; /* เพิ่ม padding */
   box-shadow: 
     0 8px 25px rgba(0, 0, 0, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
@@ -391,9 +393,9 @@ export default {
 
 .example-title {
   color: #ffd700;
-  font-size: 1.3rem;
+  font-size: 1.7rem; /* เพิ่มขนาดตัวอักษร */
   font-weight: 600;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.8rem; /* เพิ่ม margin */
   text-align: center;
   text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
 }
@@ -402,24 +404,24 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
-  margin: 1.5rem 0;
+  gap: 0.8rem; /* เพิ่ม gap */
+  margin: 1.8rem 0; /* เพิ่ม margin */
 }
 
 .board-row {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.8rem; /* เพิ่ม gap */
 }
 
 .cell {
-  width: 45px;
-  height: 45px;
+  width: 55px; /* เพิ่มขนาด cell */
+  height: 55px; /* เพิ่มขนาด cell */
   border: 2px solid rgba(255, 69, 0, 0.4);
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
+  font-size: 1.8rem; /* เพิ่มขนาดตัวอักษรใน cell */
   position: relative;
   transition: all 0.3s ease;
 }
@@ -445,16 +447,17 @@ export default {
   box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
 }
 
-.example-caption {
+.step-caption {
   text-align: center;
-  font-size: 0.95rem;
+  font-size: 1.1rem; /* เพิ่มขนาดตัวอักษร */
   color: #ffb74d;
   font-weight: 500;
-  line-height: 1.4;
-  padding: 1rem;
-  background: rgba(255, 183, 77, 0.1);
+  line-height: 1.5; /* เพิ่ม line-height */
+  margin-top: 1.2rem; /* เพิ่ม margin */
+  padding: 1.2rem; /* เพิ่ม padding */
+  background: rgba(255, 183, 77, 0.08);
   border-radius: 8px;
-  border: 1px solid rgba(255, 183, 77, 0.2);
+  border: 1px solid rgba(255, 183, 77, 0.15);
 }
 
 .back-btn {
@@ -467,8 +470,8 @@ export default {
   border: none;
   color: white;
   font-weight: 600;
-  font-size: 1.2rem;
-  padding: 1.2rem 2.5rem;
+  font-size: 1.4rem; /* เพิ่มขนาดตัวอักษร */
+  padding: 1.5rem 3rem; /* เพิ่ม padding */
   border-radius: 50px;
   cursor: pointer;
   box-shadow: 
@@ -477,9 +480,9 @@ export default {
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   font-family: 'Kanit', sans-serif;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  margin: 2rem auto 0;
+  margin: 2.5rem auto 0; /* เพิ่ม margin */
   overflow: hidden;
-  min-width: 200px;
+  min-width: 220px; /* เพิ่ม min-width */
 }
 
 .btn-content {
@@ -518,7 +521,7 @@ export default {
 }
 
 .back-btn .icon {
-  font-size: 1.4rem;
+  font-size: 1.6rem; /* เพิ่มขนาดไอคอน */
   transition: transform 0.3s ease;
 }
 
@@ -613,7 +616,40 @@ export default {
   }
   
   .section-title {
-    font-size: 1.3rem;
+    font-size: 1.5rem; /* ปรับลดขนาดสำหรับมือถือ */
+  }
+  
+  .rule-description {
+    font-size: 1.2rem; /* ปรับลดขนาดสำหรับมือถือ */
+  }
+  
+  .rule-list li {
+    font-size: 1.1rem; /* ปรับลดขนาดสำหรับมือถือ */
+    padding: 1rem 0 1rem 2.5rem;
+  }
+  
+  .rule-list li::before {
+    left: 0.5rem;
+    font-size: 1rem;
+  }
+  
+  .example-card {
+    padding: 2rem;
+  }
+  
+  .example-title {
+    font-size: 1.4rem; /* ปรับลดขนาดสำหรับมือถือ */
+  }
+  
+  .cell {
+    width: 45px;
+    height: 45px;
+    font-size: 1.5rem;
+  }
+  
+  .step-caption {
+    font-size: 0.95rem; /* ปรับลดขนาดสำหรับมือถือ */
+    padding: 1rem;
   }
   
   .back-btn {
@@ -709,7 +745,7 @@ export default {
 
 .step-title {
   color: #ffd700;
-  font-size: 1.1rem;
+  font-size: 1.4rem; /* เพิ่มขนาดตัวอักษร */
   font-weight: 600;
   margin-bottom: 1rem;
   text-align: center;
@@ -718,12 +754,12 @@ export default {
 
 .step-caption {
   text-align: center;
-  font-size: 0.9rem;
+  font-size: 1.1rem; /* เพิ่มขนาดตัวอักษร */
   color: #ffb74d;
   font-weight: 500;
-  line-height: 1.4;
-  margin-top: 1rem;
-  padding: 0.8rem;
+  line-height: 1.5; /* เพิ่ม line-height */
+  margin-top: 1.2rem; /* เพิ่ม margin */
+  padding: 1.2rem; /* เพิ่ม padding */
   background: rgba(255, 183, 77, 0.08);
   border-radius: 8px;
   border: 1px solid rgba(255, 183, 77, 0.15);
