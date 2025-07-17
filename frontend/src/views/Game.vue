@@ -38,10 +38,21 @@
       <!-- Game Content (main area) -->
       <div class="game-content">
         <div class="game-header">
-          <h2 class="difficulty-display">
-            <span class="difficulty-icon">⚔️</span>
-            ระดับ: {{ difficultyText }}
-          </h2>
+          <!-- เพิ่ม container สำหรับ header ให้มีปุ่มกลับอยู่ชิดขวา -->
+          <div class="header-container">
+            <div class="difficulty-header">
+              <h2 class="difficulty-display">
+                <span class="difficulty-icon">⚔️</span>
+                ระดับ: {{ difficultyText }}
+              </h2>
+            </div>
+            
+            <!-- ย้ายปุ่มกลับมาไว้ชิดขวา -->
+            <button class="control-button back-btn corner" @click="goBack" aria-label="กลับสู่เมนูระดับ">
+              <i class="icon">🏠</i>
+              <span>กลับ</span>
+            </button>
+          </div>
           
           <div class="game-info">
             <!-- Game Status Bar -->
@@ -84,10 +95,12 @@
         </div>
 
         <div class="game-board-container">
+          <!-- ลบปุ่มกลับที่เคยอยู่ตรงนี้ -->
           <div class="board-wrapper">
+            <!-- กระดานเกม -->
             <div class="board" role="grid" aria-label="กระดานเกม">
               <div class="board-glow"></div>
-              <div 
+              <div
                 v-for="(row, rowIndex) in board"
                 :key="rowIndex"
                 class="row"
@@ -124,11 +137,6 @@
               </div>
             </div>
           </div>
-          <!-- ปุ่มกลับ ถูกย้ายกลับมาที่นี่ และจะจัดเรียงตาม Flexbox -->
-          <button class="control-button back-btn" @click="goBack" aria-label="กลับสู่เมนูระดับ">
-            <i class="icon">🏠</i>
-            <span>กลับ</span>
-          </button>
         </div>
 
         <!-- Game Over Panel -->
@@ -205,15 +213,18 @@
           </div>
           <div class="strategy-list">
             <div v-for="(strategy, index) in filteredStrategies" :key="index" class="strategy-item">
+              <!-- ย้ายปุ่ม "นำไปใช้" มาอยู่บนซ้ายของกล่อง -->
               <div class="strategy-header">
-                <span class="strategy-number">{{ index + 1 }}.</span>
-                <h4 class="strategy-title">{{ strategy.name }}</h4>
+                <button class="strategy-btn top-left" @click="applyStrategy(index)">นำไปใช้</button>
+                <div class="strategy-title-container">
+                  <span  class="strategy-title"><strong>{{strategy.name}}</strong></span>
+              </div>
               </div>
               <p class="strategy-description">
                 {{ strategy.description }}
               </p>
               <div class="strategy-category">{{ strategy.category }}</div>
-              <button class="strategy-btn" @click="applyStrategy(index)">นำไปใช้</button>
+              <!-- ลบปุ่ม "นำไปใช้" ที่อยู่ด้านล่างออก -->
             </div>
           </div>
         </div>
@@ -1025,30 +1036,46 @@ async function applyStrategy(index) {
   padding: 1rem;
   border-left: 3px solid #4caf50;
   transition: all 0.2s ease;
-}
-
-.strategy-item:hover {
-  background: rgba(30, 40, 100, 0.6);
-  transform: translateY(-2px);
+  position: relative; /* เพื่อให้สามารถจัดตำแหน่งองค์ประกอบภายในได้ */
 }
 
 .strategy-header {
   display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 0.8rem;
+  width: 100%;
+}
+
+.strategy-title-container {
+  display: flex;
   align-items: center;
-  margin-bottom: 0.5rem;
 }
 
-.strategy-number {
-  font-size: 0.9rem;
-  font-weight: bold;
+/* สไตล์สำหรับปุ่มนำไปใช้ที่อยู่ด้านบนซ้าย */
+.strategy-btn.top-left {
+  background: #4caf4f24;
   color: #4caf50;
-  margin-right: 0.5rem;
+  border: 1px solid #4caf50;
+  border-radius: 4px;
+  padding: 0.25rem 0.7rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-right: auto; /* ให้ปุ่มอยู่ทางซ้ายสุด */
 }
 
+.strategy-btn.top-left:hover {
+  background: #4caf50;
+  transform: translateY(-1px);
+}
+
+/* ปรับความกว้างของหัวข้อให้พอดีกับพื้นที่ที่เหลือ */
 .strategy-title {
   font-size: 1.1rem;
   color: #4caf50;
-  margin: 0;
+  margin: 0 0 0 0.5rem;
+  flex-grow: 1;
 }
 
 .strategy-description {
@@ -1229,6 +1256,15 @@ async function applyStrategy(index) {
   gap: 2rem;
   min-height: 0;
   overflow-y: auto;
+}
+
+.board-header {
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 1rem 0;
+  border-bottom: 1px solid rgba(255, 69, 0, 0.2);
 }
 
 .board-wrapper {
@@ -1617,184 +1653,6 @@ async function applyStrategy(index) {
 }
 
 @media (max-width: 480px) {
-  .game-over-buttons {
-    flex-direction: column;
-  }
-  
-  .game-over-buttons .back-btn, .game-over-buttons .replay-btn {
-    width: 100%;
-  }
-}
-
-/* Scrollbar styles for thoughts history */
-.thoughts-history::-webkit-scrollbar {
-  width: 6px;
-}
-
-.thoughts-history::-webkit-scrollbar-track {
-  background: rgba(255, 69, 0, 0.1);
-  border-radius: 3px;
-}
-
-.thoughts-history::-webkit-scrollbar-thumb {
-  background: rgba(255, 69, 0, 0.3);
-  border-radius: 3px;
-}
-
-.thoughts-history::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 69, 0, 0.5);
-}
-
-/* Animations */
-@keyframes fireEffect1 {
-  0%, 100% { background-position: 0% 50%, 0% 50%, 0% 50%, 0% 50%; }
-  50% { background-position: 100% 50%, 100% 50%, 100% 50%, 100% 50%; }
-}
-
-@keyframes fireEffect2 {
-  0%, 100% { background-position: 100% 0%, 0% 100%, 50% 50%, 25% 75%; }
-  50% { background-position: 0% 100%, 100% 0%, 75% 25%, 75% 25%; }
-}
-
-@keyframes fireEffect3 {
-  0%, 100% { background-position: 50% 0%, 50% 100%, 0% 50%, 100% 50%; }
-  50% { background-position: 0% 100%, 100% 0%, 100% 50%, 0% 50%; }
-}
-
-@keyframes sparkle {
-  0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.6; }
-  50% { transform: translateY(-10px) rotate(180deg); opacity: 1; }
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.8; transform: scale(1.05); }
-}
-
-@keyframes bounce {
-  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-  40% { transform: translateY(-8px); }
-  60% { transform: translateY(-4px); }
-}
-
-@keyframes thinking {
-  0%, 80%, 100% { transform: scale(0); opacity: 0.5; }
-  40% { transform: scale(1); opacity: 1; }
-}
-
-@keyframes boardGlow {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-}
-
-@keyframes possibleMove {
-  0%, 100% { box-shadow: inset 0 0 15px rgba(76, 175, 80, 0.7); }
-  50% { box-shadow: inset 0 0 25px rgba(76, 175, 80, 0.9); }
-}
-
-@keyframes moveDot {
-  0%, 100% { transform: scale(1); opacity: 0.8; }
-  50% { transform: scale(1.2); opacity: 1; }
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes slideUp {
-  from { transform: translateY(50px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
-
-/* Responsive Design */
-@media (max-width: 1400px) {
-  /* Adjust prompt mode columns for slightly smaller screens */
-  .content.prompt-mode {
-    grid-template-columns: 280px 1fr 280px;
-  }
-}
-
-@media (max-width: 1200px) {
-  /* Stack panels vertically on medium screens */
-  .content {
-    grid-template-columns: 1fr; /* Single column for all modes */
-    display: flex; /* Change to flex for vertical stacking */
-    flex-direction: column;
-    gap: 1.5rem;
-    padding-top: 1.5rem; /* Adjust padding */
-    height: auto; /* Allow content to define height */
-    min-height: auto; /* Remove min-height constraint */
-    overflow-y: auto; /* Allow main content area to scroll */
-  }
-  
-  /* Ensure panels take full width when stacked */
-  .ai-thoughts-panel,
-  .game-content,
-  .prompt-panel {
-    flex-shrink: 0;
-    flex-grow: 1;
-    min-height: 0;
-    height: auto;
-    width: 100%;
-  }
-
-  /* Reorder panels for prompt mode when stacked */
-  .content.prompt-mode {
-    grid-template-columns: 1fr; /* Override to single column */
-    grid-template-areas:
-      "game-content"
-      "prompt-panel"
-      "ai-panel"; /* Game, then Prompt, then AI */
-    display: grid; /* Keep grid for areas */
-    gap: 1.5rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .content {
-    padding: 1rem;
-    gap: 1rem;
-  }
-  
-  .ai-thoughts-panel, 
-  .prompt-panel, 
-  .game-content {
-    padding: 1.5rem;
-  }
-  
-  .board {
-    padding: 15px;
-  }
-  
-  .board-wrapper {
-    max-width: 400px;
-  }
-  
-  .game-status-bar {
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-  }
-  
-  .info-card {
-    min-width: 0;
-    width: 100%;
-    max-width: 300px;
-  }
-  
-  .difficulty-display {
-    font-size: 1.5rem;
-  }
-  
-  .game-over-panel {
-    margin: 1rem;
-    padding: 2rem;
-    min-width: auto;
-  }
-}
-
-@media (max-width: 480px) {
   .game-content {
     padding: 1rem;
   }
@@ -1827,9 +1685,8 @@ async function applyStrategy(index) {
   .prompt-panel {
     padding: 1.5rem;
   }
-}
+} /* ปิด media query ที่ขาดหายไป */
 
-/* Accessibility improvements */
 @media (prefers-reduced-motion: reduce) {
   .fire-background,
   .ambient-particles,
@@ -1856,5 +1713,66 @@ async function applyStrategy(index) {
 .prompt-panel button:focus {
   outline: 3px solid rgba(255, 215, 0, 0.6);
   outline-offset: 2px;
+}
+
+/* เพิ่ม container สำหรับจัดวางหัวข้อและปุ่ม */
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+  margin-bottom: 1.5rem;
+}
+
+/* ปรับ difficulty-header ให้อยู่ซ้าย */
+.difficulty-header {
+  flex-grow: 1;
+}
+
+/* รีเซ็ต margin ของ difficulty-display */
+.difficulty-display {
+  margin-bottom: 0;
+}
+
+/* ปรับแต่งปุ่มกลับให้อยู่บนขวาสุด */
+.back-btn.corner {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  margin: 0;
+  font-size: 0.85rem;
+  padding: 0.6rem 1.2rem;
+  z-index: 10;
+}
+
+/* ปรับ game-content ให้มี position เป็น relative เพื่อรองรับ absolute positioning ของปุ่ม */
+.game-content {
+  position: relative;
+  /* ...คงค่า properties อื่นไว้เหมือนเดิม... */
+}
+
+/* ปรับ header-container เพื่อไม่ให้ทับซ้อนกับปุ่ม */
+.header-container {
+  padding-top: 10px;
+  padding-right: 100px; /* เพิ่มระยะห่างทางขวาเพื่อไม่ให้ชนกับปุ่ม */
+}
+
+/* ปรับ responsive */
+@media (max-width: 768px) {
+  .back-btn.corner {
+    top: 15px;
+    right: 15px;
+    font-size: 0.8rem;
+    padding: 0.5rem 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .back-btn.corner {
+    top: 10px;
+    right: 10px;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.75rem;
+  }
 }
 </style>
