@@ -1,6 +1,5 @@
 <template>
   <div class="game-container">
-    <!-- Fire background effects matching other pages -->
     <div class="fire-background"></div>
     <div class="ambient-particles"></div>
     
@@ -46,11 +45,9 @@
             <p class="rule-description">กินได้ 3 แบบ:</p>
             
             <div class="examples-container">
-              <!-- การกินแบบประกบ -->
               <div class="example-card">
                 <h4 class="example-title">1. การกินแบบประกบ</h4>
-                
-                <!-- ก่อนเดิน -->
+
                 <div class="step-container">
                   <h5 class="step-title">ก่อนเดิน:</h5>
                   <div class="example-board">
@@ -63,7 +60,6 @@
                   <div class="step-caption">หมาก ⚫ จะเดินไปตำแหน่ง 📍</div>
                 </div>
 
-                <!-- หลังเดิน -->
                 <div class="step-container">
                   <h5 class="step-title">หลังเดิน:</h5>
                   <div class="example-board">
@@ -77,11 +73,9 @@
                 </div>
               </div>
 
-              <!-- การกินแบบเข้าไปแทรก -->
               <div class="example-card">
                 <h4 class="example-title">2. การกินแบบเข้าไปแทรก</h4>
-                
-                <!-- ก่อนเดิน -->
+
                 <div class="step-container">
                   <h5 class="step-title">ก่อนเดิน:</h5>
                   <div class="example-board">
@@ -99,7 +93,6 @@
                   <div class="step-caption">หมาก ⚫ จะเดินไปแทรกตรงกลางตำแหน่ง 📍</div>
                 </div>
 
-                <!-- หลังเดิน -->
                 <div class="step-container">
                   <h5 class="step-title">หลังเดิน:</h5>
                   <div class="example-board">
@@ -118,11 +111,9 @@
                 </div>
               </div>
 
-              <!-- การกินหลายตัวพร้อมกัน -->
               <div class="example-card full-width">
                 <h4 class="example-title">3. การกินหลายตัวพร้อมกัน</h4>
                 
-                <!-- ก่อนเดิน -->
                 <div class="step-container">
                   <h5 class="step-title">ก่อนเดิน:</h5>
                   <div class="example-board">
@@ -136,7 +127,6 @@
                   <div class="step-caption">หมาก ⚫ จะเดินไปตำแหน่ง 📍 เพื่อประกบหมาก 🔴 ทั้งสองตัว</div>
                 </div>
 
-                <!-- หลังเดิน -->
                 <div class="step-container">
                   <h5 class="step-title">หลังเดิน:</h5>
                   <div class="example-board">
@@ -246,7 +236,7 @@ export default {
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 1200px; /* เพิ่มจาก 900px เป็น 1200px */
+  max-width: 1200px; 
   margin: 2rem auto;
   padding: 0 2rem;
 }
@@ -292,15 +282,15 @@ export default {
 .rules-content {
   text-align: left;
   color: #e8eaed;
-  line-height: 1.9; /* เพิ่ม line-height เพื่อให้อ่านง่ายขึ้น */
-  font-size: 1.3rem; /* เพิ่มขนาดตัวอักษรพื้นฐาน */
+  line-height: 1.9; 
+  font-size: 1.3rem; 
 }
 
 .rule-section {
   margin-bottom: 4rem;
-  padding: 4rem; /* เพิ่มจาก 3rem เป็น 4rem */
+  padding: 4rem; 
   background: linear-gradient(135deg, rgba(255, 69, 0, 0.08), rgba(139, 0, 0, 0.05));
-  border-radius: 24px; /* เพิ่มจาก 16px เป็น 24px */
+  border-radius: 24px; 
   border: 1px solid rgba(255, 69, 0, 0.15);
   transition: all 0.3s ease;
 }
@@ -313,23 +303,23 @@ export default {
 .section-title {
   display: flex;
   align-items: center;
-  gap: 1.2rem; /* เพิ่ม gap */
+  gap: 1.2rem; 
   color: #ff6b6b;
-  font-size: 2rem; /* เพิ่มขนาดตัวอักษร */
+  font-size: 2rem; 
   font-weight: 600;
-  margin-bottom: 2rem; /* เพิ่ม margin */
+  margin-bottom: 2rem; 
   text-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
 }
 
 .section-icon {
-  font-size: 2.5rem; /* เพิ่มขนาดไอคอน */
+  font-size: 2.5rem; 
   animation: iconFloat 3s ease-in-out infinite;
 }
 
 .rule-description {
   color: #ffb74d;
-  font-size: 1.7rem; /* เพิ่มขนาดตัวอักษร */
-  margin-bottom: 2rem; /* เพิ่ม margin */
+  font-size: 1.7rem; 
+  margin-bottom: 2rem; 
   font-weight: 500;
 }
 
@@ -341,13 +331,13 @@ export default {
 
 .rule-list li {
   position: relative;
-  padding: 1.5rem 0 1.5rem 3.5rem; /* เพิ่ม padding */
-  margin-bottom: 1.2rem; /* เพิ่มระยะห่าง */
+  padding: 1.5rem 0 1.5rem 3.5rem; 
+  margin-bottom: 1.2rem; 
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
   border-radius: 8px;
   border-left: 3px solid rgba(255, 69, 0, 0.5);
   transition: all 0.3s ease;
-  font-size: 1.5rem; /* เพิ่มขนาดตัวอักษร */
+  font-size: 1.5rem; 
 }
 
 .rule-list li:hover {
@@ -359,15 +349,15 @@ export default {
 .rule-list li::before {
   content: '🔥';
   position: absolute;
-  left: 1rem; /* ปรับตำแหน่งไอคอน */
+  left: 1rem; 
   top: 50%;
   transform: translateY(-50%);
-  font-size: 1.4rem; /* เพิ่มขนาดไอคอน */
+  font-size: 1.4rem; 
 }
 
 .examples-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); /* เพิ่มจาก 300px เป็น 400px */
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));  
   gap: 3.5rem;
   margin: 3.5rem 0;
 }
@@ -375,7 +365,7 @@ export default {
 .example-card {
   background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
   border-radius: 16px;
-  padding: 3.5rem; /* เพิ่มจาก 3rem เป็น 3.5rem */
+  padding: 3.5rem; 
   box-shadow: 
     0 8px 25px rgba(0, 0, 0, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
@@ -392,9 +382,9 @@ export default {
 
 .example-title {
   color: #ffd700;
-  font-size: 1.9rem; /* เพิ่มขนาดตัวอักษร */
+  font-size: 1.9rem; 
   font-weight: 600;
-  margin-bottom: 2rem; /* เพิ่ม margin */
+  margin-bottom: 2rem;
   text-align: center;
   text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
 }
@@ -403,24 +393,24 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem; /* เพิ่ม gap */
-  margin: 2rem 0; /* เพิ่ม margin */
+  gap: 1rem; 
+  margin: 2rem 0; 
 }
 
 .board-row {
   display: flex;
-  gap: 1rem; /* เพิ่ม gap */
+  gap: 1rem; 
 }
 
 .cell {
-  width: 80px;  /* เพิ่มจาก 65px เป็น 80px */
-  height: 80px; /* เพิ่มจาก 65px เป็น 80px */
+  width: 80px; 
+  height: 80px; 
   border: 2px solid rgba(255, 69, 0, 0.4);
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2.5rem; /* เพิ่มจาก 2.2rem เป็น 2.5rem */
+  font-size: 2.5rem; 
   position: relative;
   transition: all 0.3s ease;
 }
@@ -448,12 +438,12 @@ export default {
 
 .step-caption {
   text-align: center;
-  font-size: 1.3rem; /* เพิ่มขนาดตัวอักษร */
+  font-size: 1.3rem; 
   color: #ffb74d;
   font-weight: 500;
-  line-height: 1.6; /* เพิ่ม line-height */
-  margin-top: 1.5rem; /* เพิ่ม margin */
-  padding: 1.5rem; /* เพิ่ม padding */
+  line-height: 1.6; 
+  margin-top: 1.5rem; 
+  padding: 1.5rem;
   background: rgba(255, 183, 77, 0.08);
   border-radius: 8px;
   border: 1px solid rgba(255, 183, 77, 0.15);
@@ -464,13 +454,13 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1.2rem; /* เพิ่ม gap */
+  gap: 1.2rem; 
   background: linear-gradient(135deg, #dc143c 0%, #8b0000 100%);
   border: none;
   color: white;
   font-weight: 600;
-  font-size: 1.6rem; /* เพิ่มขนาดตัวอักษร */
-  padding: 1.8rem 3.5rem; /* เพิ่ม padding */
+  font-size: 1.6rem; 
+  padding: 1.8rem 3.5rem;
   border-radius: 50px;
   cursor: pointer;
   box-shadow: 
@@ -478,9 +468,9 @@ export default {
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  margin: 3rem auto 0; /* เพิ่ม margin */
+  margin: 3rem auto 0; 
   overflow: hidden;
-  min-width: 250px; /* เพิ่ม min-width */
+  min-width: 250px; 
 }
 
 .btn-content {
@@ -519,7 +509,7 @@ export default {
 }
 
 .back-btn .icon {
-  font-size: 1.8rem; /* เพิ่มขนาดไอคอน */
+  font-size: 1.8rem; 
   transition: transform 0.3s ease;
 }
 
@@ -527,7 +517,6 @@ export default {
   transform: translateX(-3px);
 }
 
-/* Animations */
 @keyframes fireEffect1 {
   0%, 100% { background-position: 0% 50%, 0% 50%, 0% 50%, 0% 50%; }
   50% { background-position: 100% 50%, 100% 50%, 100% 50%, 100% 50%; }
@@ -585,7 +574,6 @@ export default {
   }
 }
 
-/* Responsive Design */
 @media (max-width: 1200px) {
   .examples-container {
     grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
@@ -626,7 +614,6 @@ export default {
   }
 }
 
-/* High contrast mode support */
 @media (prefers-contrast: high) {
   .rules-container {
     background: rgba(0, 0, 0, 0.9);
@@ -663,21 +650,21 @@ export default {
 
 .step-title {
   color: #ffd700;
-  font-size: 1.6rem; /* เพิ่มขนาดตัวอักษร */
+  font-size: 1.6rem; 
   font-weight: 600;
-  margin-bottom: 1.2rem; /* เพิ่ม margin */
+  margin-bottom: 1.2rem; 
   text-align: center;
   text-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
 }
 
 .step-caption {
   text-align: center;
-  font-size: 1.3rem; /* เพิ่มขนาดตัวอักษร */
+  font-size: 1.3rem;
   color: #ffb74d;
   font-weight: 500;
-  line-height: 1.6; /* เพิ่ม line-height */
-  margin-top: 1.5rem; /* เพิ่ม margin */
-  padding: 1.5rem; /* เพิ่ม padding */
+  line-height: 1.6; 
+  margin-top: 1.5rem; 
+  padding: 1.5rem; 
   background: rgba(255, 183, 77, 0.08);
   border-radius: 8px;
   border: 1px solid rgba(255, 183, 77, 0.15);
@@ -752,7 +739,6 @@ export default {
   }
 }
 
-/* Responsive adjustments for new examples */
 @media (max-width: 768px) {
   .step-container {
     padding: 0.8rem;

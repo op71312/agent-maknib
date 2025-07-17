@@ -3,7 +3,6 @@
     <div class="fire-background"></div>
     <div class="ambient-particles"></div>
     <div class="content">
-      <!-- แสดง AI's Analysis เฉพาะเมื่อไม่ใช่โหมด friend -->
       <div v-if="!isPvP" class="ai-thoughts-panel">
         <div class="panel-header">
           <div class="ai-icon">🤖</div>
@@ -118,7 +117,6 @@
             </div>
           </div>
 
-          <!-- ปุ่มกลับ -->
           <button class="control-button back-btn" @click="goBack" aria-label="กลับสู่เมนูระดับ">
             <i class="icon">🏠</i>
             <span>กลับ</span>
@@ -137,14 +135,12 @@
             <h2 class="game-over-title">จบเกม</h2>
             
             <div class="game-result">
-              <!-- โหมดเล่นกับ AI -->
               <p v-if="!isPvP && winner === 'O'" class="result-text loser">
                 คุณแพ้ AI 😢
               </p>
               <p v-else-if="!isPvP && winner === 'X'" class="result-text winner">
                 คุณชนะ AI! 🎉
               </p>
-              <!-- โหมดเล่นกับเพื่อน -->
               <p v-else-if="winner === 'draw'" class="result-text draw">
                 เสมอ!
               </p>
@@ -164,7 +160,6 @@
               </div>
             </div>
 
-            <!-- เพิ่มปุ่มกลับ -->
             <div class="game-over-buttons">
               <button class="control-button back-btn" @click="goBack">
                 <i class="icon">🏠</i>
@@ -313,7 +308,6 @@ function checkCapture(row, col) {
   let capturedSet = new Set();
 
   for (const [dr, dc] of dirs) {
-    // Sandwich capture
     let toCapture = [];
     let r = row + dr, c = col + dc;
     while (inBounds(r, c) && board.value[r][c] === enemy) {
@@ -326,7 +320,6 @@ function checkCapture(row, col) {
       }
     }
 
-    // Immediate adjacent capture (สองข้าง)
     const adj1 = [row - dr, col - dc];
     const adj2 = [row + dr, col + dc];
     if (
@@ -339,7 +332,6 @@ function checkCapture(row, col) {
     }
   }
 
-  // Remove captured pieces
   let captured = 0;
   for (const pos of capturedSet) {
     const [r, c] = pos.split(',').map(Number);
@@ -366,7 +358,7 @@ async function requestAIMove() {
   try {
     const response = await axios.post('http://localhost:8000/ai-move', {
       board: getBoardState(),
-      current_player: -1 // ฝั่ง AI (O)
+      current_player: -1 
     })
     const { from_row, from_col, to_row, to_col, action_id } = response.data
     board.value[to_row][to_col] = board.value[from_row][from_col]
@@ -499,7 +491,6 @@ onUnmounted(() => {
 })
 
 function restartGame() {
-  // Reset game state
   board.value = [
     ['O', 'O', 'O', 'O', 'O', 'O', 'O', 'O'],
     ...Array(6).fill().map(() => Array(size.value).fill('')),
@@ -682,7 +673,7 @@ function restartGame() {
 }
 
 .game-content.full-width {
-  grid-column: 1 / -1; /* ขยายให้เต็มความกว้างเมื่อไม่มี AI panel */
+  grid-column: 1 / -1; 
 }
 
 .game-header {
@@ -1053,14 +1044,14 @@ function restartGame() {
 
 .back-btn {
   position: absolute;
-  bottom: 0.5rem; /* ลดระยะห่างจากขอบล่าง */
-  right: 0.5rem; /* ลดระยะห่างจากขอบขวา */
+  bottom: 0.5rem; 
+  right: 0.5rem; 
   background: linear-gradient(135deg, #ff6b6b, #dc143c);
   color: white;
   font-weight: 600;
   font-size: 0.9rem;
   padding: 1.5rem 0.1rem;
-  border-radius: 50px; /* ความโค้งมน */
+  border-radius: 50px; 
   box-shadow: 0 4px 15px rgba(220, 20, 60, 0.3);
   transition: all 0.3s ease;
   display: flex;
@@ -1142,11 +1133,10 @@ function restartGame() {
   color: #4caf50;
 }
 
-/* เพิ่มสีใหม่สำหรับกรณีแพ้ */
 .result-text.loser {
-  color: #ff6b6b;  /* เปลี่ยนจากสีเดิมเป็นสีแดงอ่อนที่สว่างขึ้น */
-  text-shadow: 0 0 10px rgba(255, 107, 107, 0.5);  /* เพิ่ม text shadow ให้เด่นขึ้น */
-  font-weight: bold;  /* เพิ่มความหนาตัวอักษร */
+  color: #ff6b6b;  
+  text-shadow: 0 0 10px rgba(255, 107, 107, 0.5);  
+  font-weight: bold; 
 }
 
 .winner-name {
@@ -1422,7 +1412,6 @@ function restartGame() {
     transition: none;
   }
 }
-
 
 .control-button:focus {
   outline: 3px solid rgba(255, 215, 0, 0.6);
