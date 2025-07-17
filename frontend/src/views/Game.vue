@@ -214,7 +214,7 @@ const turnStartTime = ref(timeLeft.value)
 
 function getBoardState() {
   return board.value.map(row =>
-    row.map(cell => (cell === 'O' ? 1 : cell === 'X' ? -1 : 0))
+    row.map(cell => (cell === 'O' ? -1 : cell === 'X' ? 1 : 0))
   )
 }
 
@@ -353,7 +353,7 @@ async function requestAIMove() {
   try {
     const response = await axios.post('http://localhost:8000/ai-move', {
       board: getBoardState(),
-      current_player: 1 
+      current_player: -1 // ฝั่ง AI (O)
     })
     const { from_row, from_col, to_row, to_col, action_id } = response.data
     board.value[to_row][to_col] = board.value[from_row][from_col]

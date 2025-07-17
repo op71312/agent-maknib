@@ -25,7 +25,7 @@
     @"%SystemRoot%\System32\chcp.com" 65001 > nul
 )
 
-@for %%i in ("C:\university\งานแข่ง\nsc\agent-maknib\.venv") do @set "VIRTUAL_ENV=%%~fi"
+@for %%i in ("C:\university\nsc\agent-maknib\.venv") do @set "VIRTUAL_ENV=%%~fi"
 
 @set "VIRTUAL_ENV_PROMPT=agent-maknib"
 @if NOT DEFINED VIRTUAL_ENV_PROMPT (

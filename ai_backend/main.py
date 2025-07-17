@@ -330,7 +330,7 @@ class AIMoveResponse(BaseModel):
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 MODEL_PATH = "ai_backend/maknib_simulation.pth"
 model = MakNeebNet(action_size=4096).to(DEVICE)
-checkpoint = torch.load(MODEL_PATH, map_location=DEVICE)
+checkpoint = torch.load(MODEL_PATH, map_location=DEVICE, weights_only=False)
 model.load_state_dict(checkpoint['model_state_dict'])
 model.eval()
 

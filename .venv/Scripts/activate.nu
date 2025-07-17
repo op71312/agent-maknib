@@ -53,7 +53,7 @@ export-env {
       }
     }
 
-    let virtual_env = 'C:\university\งานแข่ง\nsc\agent-maknib\.venv'
+    let virtual_env = 'C:\university\nsc\agent-maknib\.venv'
     let bin = 'Scripts'
 
     let is_windows = ($nu.os-info.family) == 'windows'
