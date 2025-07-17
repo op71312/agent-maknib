@@ -56,13 +56,15 @@
               <div class="btn-glow"></div>
             </button>
           </div>
+
+          <!-- ปุ่ม "กลับ" ถูกย้ายมาอยู่ภายใน main-content -->
+          <button class="back-btn" @click="goBack" aria-label="กลับ">
+            <div class="back-btn-icon">🏠</div>
+            <span>กลับ</span>
+          </button>
         </div>
       </transition>
     </div>
-    <button class="back-btn" @click="goBack" aria-label="กลับ">
-      <div class="back-btn-icon">🏠</div>
-      <span>กลับ</span>
-    </button>
   </div>
 </template>
 
@@ -141,21 +143,26 @@ export default {
   opacity: 0.6;
 }
 
+/* ปรับ CSS ของปุ่ม "กลับ" */
 .back-btn {
-  position: absolute;
-  left: 50%;
-  bottom: 2.5rem;
-  transform: translateX(-50%);
+  /* ลบตำแหน่ง absolute เดิมออก */
+  /* position: absolute; */
+  /* left: 50%; */
+  /* bottom: 2.5rem; */
+  /* transform: translateX(-50%); */
+  /* z-index: 10; */
+
   display: flex;
   align-items: center;
-  gap: 1rem;                
+  justify-content: center; /* จัดกึ่งกลางเมื่อเป็น flex */
+  gap: 1rem;
   background: linear-gradient(135deg, #dc143c 0%, #8b0000 100%);
   border: none;
   color: white;
   font-weight: 650;
-  font-size: 1.2rem;          
-  padding: 1.2rem 1.5rem;    
-  border-radius: 60px;        
+  font-size: 1.2rem;
+  padding: 1.2rem 1.5rem;
+  border-radius: 60px;
   cursor: pointer;
   box-shadow: 
     0 12px 35px rgba(220, 20, 60, 0.5),
@@ -163,12 +170,15 @@ export default {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   font-family: 'Kanit', sans-serif;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  z-index: 10;
+  
+  /* เพิ่ม margin เพื่อจัดตำแหน่งและระยะห่าง */
+  margin-top: 3rem; /* ระยะห่างจากปุ่มเลือกระดับความยาก */
+  margin-left: auto;
+  margin-right: auto;
 }
 
-
 .back-btn-icon {
-  font-size: 2.2rem;         
+  font-size: 1.5rem; /* ปรับขนาดไอคอนให้เล็กลง */
   transition: transform 0.3s ease;
 }
 
@@ -194,11 +204,14 @@ export default {
   background: linear-gradient(145deg, rgba(30, 0, 0, 0.85), rgba(10, 0, 0, 0.9));
   backdrop-filter: blur(20px);
   border-radius: 24px;
-  padding: 4rem 3rem;
+  padding: 4rem 3rem; /* ปรับ padding หลัก */
   box-shadow: 
     0 20px 40px rgba(255, 0, 0, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 69, 0, 0.2);
+  /* เพิ่ม overflow-y: auto; เพื่อให้ main-content สามารถ scroll ได้ถ้าเนื้อหาเกิน */
+  overflow-y: auto; 
+  max-height: 90vh; /* จำกัดความสูงเพื่อไม่ให้เกิน viewport มากไป */
 }
 
 .title-container {
@@ -231,23 +244,22 @@ export default {
 
 .level-options {
   display: grid;
-  grid-template-columns: repeat(2, 1fr); /* เปลี่ยนเป็น 2 คอลัมน์ */
-  grid-template-rows: repeat(2, 1fr);    /* กำหนด 2 แถว */
+  grid-template-columns: repeat(2, 1fr);
   gap: 2rem;
-  max-width: 900px;  /* ปรับความกว้างสูงสุดให้เหมาะสม */
+  max-width: 900px;
   margin: 0 auto;
-  padding: 0 1rem;
+  margin-bottom: 3rem; /* เพิ่ม margin-bottom เพื่อให้มีระยะห่างจากปุ่มกลับ */
 }
 
 .level-btn {
   position: relative;
-  height: 180px;  /* เพิ่มความสูงปุ่มให้สมดุลกับ layout 2x2 */
+  height: 180px;
   border: none;
   border-radius: 20px;
   cursor: pointer;
   overflow: hidden;
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  font-family: 'Kanit', sans-serif;
+  font-family: 'Kanit', sans-serif; /* เพิ่ม font-family */
   box-shadow: 
     0 10px 30px rgba(0, 0, 0, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
@@ -262,13 +274,13 @@ export default {
   align-items: center;
   justify-content: center;
   gap: 1.5rem;
-  padding: 1.5rem;
+  padding: 1.5rem; /* เพิ่ม padding */
 }
 
 .btn-icon {
   font-size: 3rem;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
-  animation: iconFloat 3s ease-in-out infinite;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3)); /* เพิ่ม drop-shadow */
+  animation: iconFloat 3s ease-in-out infinite; /* เพิ่ม animation */
 }
 
 .btn-text {
@@ -279,15 +291,13 @@ export default {
   font-size: 1.8rem;
   font-weight: 700;
   color: #fff;
-  margin-bottom: 0.25rem;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); /* เพิ่ม text-shadow */
 }
 
 .btn-subtitle {
   font-size: 1rem;
   color: rgba(255, 255, 255, 0.8);
-  font-weight: 400;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3); /* เพิ่ม text-shadow */
 }
 
 .btn-glow {
@@ -353,6 +363,7 @@ export default {
   transform: translateY(-4px) scale(1.01);
 }
 
+/* Transitions */
 .fade-enter-active, .fade-leave-active {
   transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -367,6 +378,7 @@ export default {
   transform: translateY(-30px) scale(0.95);
 }
 
+/* Animations */
 @keyframes fireEffect1 {
   0%, 100% { background-position: 0% 50%, 0% 50%, 0% 50%, 0% 50%; }
   50% { background-position: 100% 50%, 100% 50%, 100% 50%, 100% 50%; }
@@ -420,6 +432,7 @@ export default {
   50% { transform: translateY(-5px); }
 }
 
+/* Responsive Design */
 @media (max-width: 1200px) {
   .level-options {
     grid-template-columns: repeat(2, 1fr);
@@ -429,12 +442,12 @@ export default {
 
 @media (max-width: 768px) {
   .back-btn {
-    font-size: 1.2rem;
-    padding: 1.1rem 2rem;
-    border-radius: 40px;
+    font-size: 1.1rem; /* ปรับขนาดตัวอักษรปุ่มกลับสำหรับมือถือ */
+    padding: 1rem 1.8rem; /* ปรับ padding ปุ่มกลับสำหรับมือถือ */
+    border-radius: 50px;
   }
   .back-btn-icon {
-    font-size: 1.5rem;
+    font-size: 1.4rem; /* ปรับขนาดไอคอนปุ่มกลับสำหรับมือถือ */
   }
   
   .content {
@@ -442,18 +455,19 @@ export default {
   }
   
   .main-content {
-    padding: 3rem 2rem;
+    padding: 3.5rem 2.5rem; /* ปรับ padding กรอบหลักสำหรับมือถือ */
+    max-height: 95vh; /* เพิ่ม max-height สำหรับมือถือ */
   }
   
   .level-options {
-    grid-template-columns: 1fr;  /* มือถือให้เรียง 1 คอลัมน์ */
+    grid-template-columns: 1fr; /* มือถือให้เรียง 1 คอลัมน์ */
     grid-template-rows: auto;
     gap: 1.5rem;
     max-width: 400px;
   }
   
   .level-btn {
-    height: 140px;
+    height: 150px; /* ปรับความสูงปุ่มระดับสำหรับมือถือ */
   }
   
   .btn-content {
@@ -461,21 +475,21 @@ export default {
   }
   
   .btn-icon {
-    font-size: 2.5rem;
+    font-size: 2.8rem; /* ปรับขนาดไอคอนปุ่มระดับสำหรับมือถือ */
   }
   
   .btn-title {
-    font-size: 1.5rem;
+    font-size: 1.6rem; /* ปรับขนาดตัวอักษรปุ่มระดับสำหรับมือถือ */
   }
   
   .btn-subtitle {
-    font-size: 0.9rem;
+    font-size: 0.95rem; /* ปรับขนาดตัวอักษรปุ่มระดับสำหรับมือถือ */
   }
 }
 
 @media (max-width: 480px) {
   .main-content {
-    padding: 2rem 1.5rem;
+    padding: 2.5rem 1.5rem; /* ปรับ padding กรอบหลักสำหรับมือถือเล็ก */
   }
   
   .title-container {
@@ -483,7 +497,7 @@ export default {
   }
   
   .level-btn {
-    height: 120px;
+    height: 130px; /* ปรับความสูงปุ่มระดับสำหรับมือถือเล็ก */
   }
   
   .btn-content {
@@ -497,18 +511,28 @@ export default {
   }
   
   .btn-icon {
-    font-size: 2rem;
+    font-size: 2.2rem; /* ปรับขนาดไอคอนปุ่มระดับสำหรับมือถือเล็ก */
   }
   
   .btn-title {
-    font-size: 1.3rem;
+    font-size: 1.4rem; /* ปรับขนาดตัวอักษรปุ่มระดับสำหรับมือถือเล็ก */
   }
   
   .btn-subtitle {
-    font-size: 0.8rem;
+    font-size: 0.85rem; /* ปรับขนาดตัวอักษรปุ่มระดับสำหรับมือถือเล็ก */
+  }
+  
+  .back-btn {
+    padding: 0.9rem 1.6rem;
+    font-size: 1rem;
+    min-width: 160px;
+  }
+  .back-btn-icon {
+    font-size: 1.2rem;
   }
 }
 
+/* Accessibility improvements */
 @media (prefers-reduced-motion: reduce) {
   .fire-background,
   .ambient-particles,
@@ -524,12 +548,14 @@ export default {
   }
 }
 
+/* Focus states for accessibility */
 .level-btn:focus,
 .back-btn:focus {
   outline: 3px solid rgba(255, 69, 0, 0.6);
   outline-offset: 2px;
 }
 
+/* High contrast mode support */
 @media (prefers-contrast: high) {
   .level-btn.easy {
     background: #228b22;
@@ -557,6 +583,7 @@ export default {
   }
 }
 
+/* Hover effects for desktop */
 @media (hover: hover) {
   .level-btn:hover .btn-title {
     transform: translateX(5px);

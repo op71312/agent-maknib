@@ -118,7 +118,8 @@
             </div>
           </div>
 
-          <button class="control-button back-float-btn" @click="goBack" aria-label="กลับสู่เมนูระดับ">
+          <!-- ปุ่มกลับ -->
+          <button class="control-button back-btn" @click="goBack" aria-label="กลับสู่เมนูระดับ">
             <i class="icon">🏠</i>
             <span>กลับ</span>
           </button>
@@ -518,21 +519,18 @@ function restartGame() {
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap');
-
 .game-container {
-  font-family: 'Kanit', sans-serif;
   position: fixed;
-  top: 0; 
-  left: 0; 
-  width: 100vw; 
-  height: 100vh; 
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
   background: radial-gradient(ellipse at center, #1a0000 0%, #000000 70%);
-  overflow-y: auto; 
-  display: flex; 
-  flex-direction: column; 
-  justify-content: flex-start; 
-  align-items: center; 
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
   box-sizing: border-box;
 }
 
@@ -809,6 +807,7 @@ function restartGame() {
 }
 
 .game-board-container {
+  position: relative;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -1049,6 +1048,37 @@ function restartGame() {
 }
 
 .control-button .icon {
+  font-size: 1.2rem;
+}
+
+.back-btn {
+  position: absolute;
+  bottom: 0.5rem; /* ลดระยะห่างจากขอบล่าง */
+  right: 0.5rem; /* ลดระยะห่างจากขอบขวา */
+  background: linear-gradient(135deg, #ff6b6b, #dc143c);
+  color: white;
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 1.5rem 0.1rem;
+  border-radius: 50px; /* ความโค้งมน */
+  box-shadow: 0 4px 15px rgba(220, 20, 60, 0.3);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.back-btn:hover {
+  background: linear-gradient(135deg, #ff1744, #dc143c);
+  box-shadow: 0 8px 25px rgba(220, 20, 60, 0.4);
+  transform: translateY(-3px);
+}
+
+.back-btn:active {
+  transform: translateY(-1px);
+}
+
+.back-btn .icon {
   font-size: 1.2rem;
 }
 
@@ -1397,58 +1427,5 @@ function restartGame() {
 .control-button:focus {
   outline: 3px solid rgba(255, 215, 0, 0.6);
   outline-offset: 2px;
-}
-
-@media (prefers-contrast: high) {
-  .cell-light {
-    background: #f5deb3;
-    border: 2px solid #000;
-  }
-  
-  .cell-dark {
-    background: #8b4513;
-    border: 2px solid #000;
-  }
-  
-  .piece-black {
-    background: #000;
-    border: 3px solid #fff;
-  }
-  
-  .piece-red {
-    background: #ff0000;
-    border: 3px solid #fff;
-  }
-}
-
-.back-float-btn {
-  position: absolute;
-  right: 2rem;
-  bottom: 2rem;
-  z-index: 20;
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  background: linear-gradient(135deg, #dc143c, #8b0000);
-  border: none;
-  color: white;
-  font-weight: 600;
-  font-size: 1.1rem;
-  padding: 1rem 2rem;
-  border-radius: 50px;
-  cursor: pointer;
-  box-shadow: 0 4px 15px rgba(220, 20, 60, 0.3);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  font-family: 'Kanit', sans-serif;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-@media (max-width: 768px) {
-  .back-float-btn {
-    right: 1rem;
-    bottom: 1rem;
-    padding: 0.8rem 1.5rem;
-    font-size: 1rem;
-  }
 }
 </style>

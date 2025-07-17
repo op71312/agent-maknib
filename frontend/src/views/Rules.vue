@@ -184,10 +184,7 @@ export default {
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap');
-
 .game-container {
-  font-family: 'Kanit', sans-serif;
   position: fixed;
   top: 0;
   left: 0;
@@ -480,7 +477,6 @@ export default {
     0 8px 25px rgba(220, 20, 60, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  font-family: 'Kanit', sans-serif;
   border: 1px solid rgba(255, 255, 255, 0.1);
   margin: 3rem auto 0; /* เพิ่ม margin */
   overflow: hidden;
@@ -545,11 +541,6 @@ export default {
 @keyframes fireEffect3 {
   0%, 100% { background-position: 50% 0%, 50% 100%, 0% 50%, 100% 50%; }
   50% { background-position: 0% 100%, 100% 0%, 100% 50%, 0% 50%; }
-}
-
-@keyframes sparkle {
-  0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.6; }
-  50% { transform: translateY(-10px) rotate(180deg); opacity: 1; }
 }
 
 @keyframes titleGlow {
@@ -633,30 +624,6 @@ export default {
     height: 45px;
     font-size: 1.8rem;
   }
-}
-
-/* Accessibility improvements */
-@media (prefers-reduced-motion: reduce) {
-  .fire-background,
-  .ambient-particles,
-  .title,
-  .title-underline,
-  .section-icon {
-    animation: none;
-  }
-  
-  .back-btn,
-  .rule-section,
-  .example-card,
-  .cell {
-    transition: none;
-  }
-}
-
-/* Focus states for accessibility */
-.back-btn:focus {
-  outline: 3px solid rgba(255, 69, 0, 0.6);
-  outline-offset: 2px;
 }
 
 /* High contrast mode support */

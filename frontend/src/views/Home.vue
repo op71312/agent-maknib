@@ -44,8 +44,6 @@ export default {
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;700&display=swap');
-
 .home-container {
   position: fixed;
   top: 0;
@@ -57,7 +55,6 @@ export default {
   align-items: center;
   background: radial-gradient(ellipse at center, #1a0000 0%, #000000 70%);
   overflow: hidden;
-  font-family: 'Kanit', sans-serif;
 }
 
 .fire-background {
