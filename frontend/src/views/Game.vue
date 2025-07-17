@@ -162,6 +162,18 @@
                 <span class="final-score-value">{{ oScore }}</span>
               </div>
             </div>
+
+            <!-- เพิ่มปุ่มกลับ -->
+            <div class="game-over-buttons">
+              <button class="control-button back-btn" @click="goBack">
+                <i class="icon">🏠</i>
+                <span>กลับหน้าหลัก</span>
+              </button>
+              <button class="control-button replay-btn" @click="restartGame">
+                <i class="icon">🔄</i>
+                <span>เล่นอีกครั้ง</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -484,6 +496,25 @@ startTimer()
 onUnmounted(() => {
   clearInterval(timerInterval.value)
 })
+
+function restartGame() {
+  // Reset game state
+  board.value = [
+    ['O', 'O', 'O', 'O', 'O', 'O', 'O', 'O'],
+    ...Array(6).fill().map(() => Array(size.value).fill('')),
+    ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X']
+  ]
+  xScore.value = 0
+  oScore.value = 0
+  currentPlayer.value = 'X'
+  selected.value = null
+  isGameOver.value = false
+  winner.value = ''
+  timeLeft.value = 900
+  aiThoughtHistory.value = []
+  moveHistory.value = []
+  turnStartTime.value = timeLeft.value
+}
 </script>
 
 <style scoped>
@@ -1081,6 +1112,13 @@ onUnmounted(() => {
   color: #4caf50;
 }
 
+/* เพิ่มสีใหม่สำหรับกรณีแพ้ */
+.result-text.loser {
+  color: #ff6b6b;  /* เปลี่ยนจากสีเดิมเป็นสีแดงอ่อนที่สว่างขึ้น */
+  text-shadow: 0 0 10px rgba(255, 107, 107, 0.5);  /* เพิ่ม text shadow ให้เด่นขึ้น */
+  font-weight: bold;  /* เพิ่มความหนาตัวอักษร */
+}
+
 .winner-name {
   font-weight: 700;
   font-size: 1.8rem;
@@ -1122,9 +1160,34 @@ onUnmounted(() => {
   font-weight: 700;
 }
 
-.game-over-button {
-  width: 100%;
+.game-over-buttons {
+  display: flex;
+  gap: 1rem;
   justify-content: center;
+  margin-top: 2rem;
+}
+
+.back-btn, .replay-btn {
+  min-width: 160px;
+  justify-content: center;
+}
+
+.back-btn {
+  background: linear-gradient(135deg, #dc143c, #8b0000);
+}
+
+.replay-btn {
+  background: linear-gradient(135deg, #4caf50, #2e7d32);
+}
+
+@media (max-width: 480px) {
+  .game-over-buttons {
+    flex-direction: column;
+  }
+  
+  .back-btn, .replay-btn {
+    width: 100%;
+  }
 }
 
 .thoughts-history::-webkit-scrollbar {

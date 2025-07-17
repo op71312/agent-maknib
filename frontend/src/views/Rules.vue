@@ -42,7 +42,7 @@
               <span class="section-icon">⚔️</span>
               การกินหมาก
             </h3>
-            <p class="rule-description">กินได้ 2 แบบ:</p>
+            <p class="rule-description">กินได้ 3 แบบ:</p>
             
             <div class="examples-container">
               <!-- การกินแบบประกบ -->
