@@ -288,6 +288,7 @@ function handleClick(row, col) {
       }
       
       switchPlayer()
+      analyzeStrategyIfNeeded()
     } else {
       selected.value = null
     }
@@ -515,6 +516,30 @@ function restartGame() {
   aiThoughtHistory.value = []
   moveHistory.value = []
   turnStartTime.value = timeLeft.value
+}
+
+async function analyzeStrategyIfNeeded() {
+  if (moveHistory.value.length > 0 && moveHistory.value.length % 10 === 0) {
+    // สร้าง string ประวัติการเดิน
+    const movesText = moveHistory.value.map((m, idx) => {
+      const player = m.player === 'X' ? 'P1' : 'P2'
+      // สมมติ m.from_row, m.from_col, m.to_row, m.to_col มีอยู่
+      return `[${idx + 1}] ${player}: (${m.from_row},${m.from_col})→(${m.to_row},${m.to_col})`
+    }).join('\n')
+
+    try {
+      const res = await axios.post('http://localhost:8000/analyze-strategy', {
+        move_history: movesText
+      })
+      aiThoughtHistory.value.unshift({
+        turn: moveHistory.value.length,
+        thoughts: res.data.analysis,
+        timestamp: new Date().toLocaleTimeString()
+      })
+    } catch (err) {
+      console.error('AI strategy analysis error:', err)
+    }
+  }
 }
 </script>
 
