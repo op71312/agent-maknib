@@ -1,8 +1,11 @@
 <template>
   <div class="game-container">
+    <!-- Background elements are now fixed to the viewport -->
     <div class="fire-background"></div>
     <div class="ambient-particles"></div>
-    <div class="content">
+    
+    <div class="content" :class="{ 'pvp-mode': isPvP, 'prompt-mode': isPromptMode }">
+      <!-- AI Thoughts Panel (แสดงเฉพาะเมื่อไม่ใช่ PvP) -->
       <div v-if="!isPvP" class="ai-thoughts-panel">
         <div class="panel-header">
           <div class="ai-icon">🤖</div>
@@ -12,7 +15,7 @@
           <div v-for="(entry, index) in aiThoughtHistory"
                :key="index"
                class="thought-entry"
-               :class="{ 'latest': index === 0 }">
+               :class="{ 'latest': index === 0, 'processing': entry.isProcessing }">
             <div class="thought-header">
               <span class="turn-number">Turn {{entry.turn}}</span>
               <span class="timestamp">{{entry.timestamp}}</span>
@@ -32,7 +35,8 @@
         </div>
       </div>
 
-      <div class="game-content" :class="{ 'full-width': isPvP }">
+      <!-- Game Content (main area) -->
+      <div class="game-content">
         <div class="game-header">
           <h2 class="difficulty-display">
             <span class="difficulty-icon">⚔️</span>
@@ -40,7 +44,9 @@
           </h2>
           
           <div class="game-info">
+            <!-- Game Status Bar -->
             <div class="game-status-bar">
+              <!-- เวลา -->
               <div class="info-card timer-card" :aria-label="'เวลาที่เหลือ: ' + Math.floor(timeLeft / 60) + ' นาที ' + (timeLeft % 60) + ' วินาที'">
                 <div class="info-icon">⏳</div>
                 <div class="info-content">
@@ -51,6 +57,7 @@
                 </div>
               </div>
               
+              <!-- ถึงตา -->
               <div class="info-card turn-card">
                 <div class="info-icon">👤</div>
                 <div class="info-content">
@@ -61,6 +68,7 @@
                 </div>
               </div>
               
+              <!-- คะแนน -->
               <div class="info-card score-card">
                 <div class="info-content">
                   <div class="info-label">คะแนน</div>
@@ -116,13 +124,14 @@
               </div>
             </div>
           </div>
-
+          <!-- ปุ่มกลับ ถูกย้ายกลับมาที่นี่ และจะจัดเรียงตาม Flexbox -->
           <button class="control-button back-btn" @click="goBack" aria-label="กลับสู่เมนูระดับ">
             <i class="icon">🏠</i>
             <span>กลับ</span>
           </button>
         </div>
 
+        <!-- Game Over Panel -->
         <div v-if="isGameOver" class="game-over-overlay">
           <div class="game-over-panel">
             <div class="game-over-icon">
@@ -131,16 +140,16 @@
               <div v-else-if="winner === 'draw'" class="draw-icon">🤝</div>
               <div v-else class="winner-icon">🏆</div>
             </div>
-            
             <h2 class="game-over-title">จบเกม</h2>
-            
             <div class="game-result">
+              <!-- โหมดเล่นกับ AI -->
               <p v-if="!isPvP && winner === 'O'" class="result-text loser">
                 คุณแพ้ AI 😢
               </p>
               <p v-else-if="!isPvP && winner === 'X'" class="result-text winner">
                 คุณชนะ AI! 🎉
               </p>
+              <!-- โหมดเล่นกับเพื่อน -->
               <p v-else-if="winner === 'draw'" class="result-text draw">
                 เสมอ!
               </p>
@@ -148,7 +157,6 @@
                 ผู้ชนะ: {{ winner === 'X' ? 'ผู้เล่น ⚫' : 'ผู้เล่น 🔴' }}
               </p>
             </div>
-
             <div class="final-scores">
               <div class="final-score">
                 <span class="final-score-label">{{ !isPvP ? 'คุณ (⚫)' : 'ผู้เล่น ⚫' }}:</span>
@@ -159,7 +167,7 @@
                 <span class="final-score-value">{{ oScore }}</span>
               </div>
             </div>
-
+            <!-- เพิ่มปุ่มกลับ -->
             <div class="game-over-buttons">
               <button class="control-button back-btn" @click="goBack">
                 <i class="icon">🏠</i>
@@ -173,38 +181,84 @@
           </div>
         </div>
       </div>
+
+      <!-- Prompt Panel (แสดงเฉพาะโหมด prompt) -->
+      <div v-if="isPromptMode" class="prompt-panel">
+        <div class="panel-header">
+          <div class="prompt-icon">💡</div>
+          <h3 class="panel-title">กลยุทธ์พิเศษ</h3>
+        </div>
+        <div class="prompt-content">
+          <div class="strategies-filter">
+            <select v-model="selectedCategory" class="strategy-select">
+              <option value="all">ทั้งหมด</option>
+              <option value="ชนะศึก">กลยุทธ์ชนะศึก</option>
+              <option value="เผชิญศึก">กลยุทธ์เผชิญศึก</option>
+              <option value="เข้าตี">กลยุทธ์เข้าตี</option>
+              <option value="ติดพัน">กลยุทธ์ติดพัน</option>
+              <option value="ร่วมรบ">กลยุทธ์ร่วมรบ</option>
+              <option value="ยามพ่าย">กลยุทธ์ยามพ่าย</option>
+            </select>
+            <div class="strategy-search">
+              <input type="text" v-model="strategySearch" placeholder="ค้นหากลยุทธ์..." class="strategy-search-input">
+            </div>
+          </div>
+          <div class="strategy-list">
+            <div v-for="(strategy, index) in filteredStrategies" :key="index" class="strategy-item">
+              <div class="strategy-header">
+                <span class="strategy-number">{{ index + 1 }}.</span>
+                <h4 class="strategy-title">{{ strategy.name }}</h4>
+              </div>
+              <p class="strategy-description">
+                {{ strategy.description }}
+              </p>
+              <div class="strategy-category">{{ strategy.category }}</div>
+              <button class="strategy-btn" @click="applyStrategy(index)">นำไปใช้</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onUnmounted } from 'vue'
+import { ref, computed, onUnmounted, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 
 const router = useRouter()
 const size = ref(8)
-const timeLeft = ref(900) 
+const timeLeft = ref(900) // เปลี่ยนจาก 300 เป็น 900 วินาที (15 นาที)
 const currentPlayer = ref('X')
 const selected = ref(null)
-const aiThoughts = ref('') 
+const aiThoughts = ref('') // เพิ่มการเก็บความคิด AI
 const aiThoughtHistory = ref([])
-const moveHistory = ref([]) 
+const moveHistory = ref([]) // ประวัติการเดินหมาก
 
 const difficulty = defineProps({
   difficulty: {
     type: String,
     required: true,
-    validator: (val) => ['easy', 'medium', 'hard', 'friend'].includes(val)
+    validator: (val) => ['easy', 'medium', 'hard', 'prompt', 'friend'].includes(val) // Added 'prompt'
   }
 })
 
 const difficultyText = computed(() => {
-  const map = { easy: 'ง่าย', medium: 'กลาง', hard: 'ยาก', friend: 'เล่นกับเพื่อน' }
+  const map = {
+    easy: 'ง่าย',
+    medium: 'กลาง',
+    hard: 'ยาก',
+    prompt: 'พรอมต์', // Added 'prompt'
+    friend: 'เล่นกับเพื่อน'
+  }
   return map[difficulty.difficulty]
 })
 
 const isPvP = computed(() => difficulty.difficulty === 'friend')
+const isPromptMode = computed(() => difficulty.difficulty === 'prompt')
+
+const userPrompt = ref('') // New ref for prompt input
 
 const board = ref([
   ['O', 'O', 'O', 'O', 'O', 'O', 'O', 'O'],
@@ -217,8 +271,29 @@ const oScore = ref(0)
 const isGameOver = ref(false)
 const winner = ref('')
 const xTotalTime = ref(0)
-const oTotalTime = ref(0) 
+const oTotalTime = ref(0) // ทุกครั้งที่จบตา ให้บวกเวลาที่ใช้ในตานั้นให้ฝั่งที่เดิน
 const turnStartTime = ref(timeLeft.value)
+
+const timerInterval = ref(null)
+
+const startTimer = () => {
+  timerInterval.value = setInterval(() => {
+    if (timeLeft.value > 0) {
+      timeLeft.value--
+      if (timeLeft.value === 0) checkGameEnd()
+    }
+  }, 1000)
+}
+
+const initializeGame = () => {
+  startTimer()
+}
+
+initializeGame()
+
+onUnmounted(() => {
+  clearInterval(timerInterval.value)
+})
 
 function getBoardState() {
   return board.value.map(row =>
@@ -240,13 +315,13 @@ function isPathClear(r1, c1, r2, c2) {
   if (r1 === r2) {
     const start = Math.min(c1, c2) + 1;
     const end = Math.max(c1, c2);
-    for (let c = start + 1; c < end; c++) {
+    for (let c = start; c < end; c++) {
       if (board.value[r1][c] !== '') return false;
     }
   } else if (c1 === c2) {
     const start = Math.min(r1, r2) + 1;
     const end = Math.max(r1, r2);
-    for (let r = start + 1; r < end; r++) {
+    for (let r = start; r < end; r++) {
       if (board.value[r][c1] !== '') return false;
     }
   } else {
@@ -256,7 +331,8 @@ function isPathClear(r1, c1, r2, c2) {
 }
 
 function handleClick(row, col) {
-  if (!isPvP.value && currentPlayer.value !== 'X') return
+  // ถ้าเป็น PvP หรือ Prompt Mode ให้ทั้ง X และ O เล่นได้
+  if (!isPvP.value && !isPromptMode.value && currentPlayer.value !== 'X') return
   
   const piece = board.value[row][col]
   
@@ -272,15 +348,17 @@ function handleClick(row, col) {
       selected.value = null
       checkCapture(row, col)
       
+      // บันทึกการเดินลงในประวัติ
       const timeUsedSec = turnStartTime.value - timeLeft.value
       moveHistory.value.push({
         turn: moveHistory.value.length + 1,
         player: currentPlayer.value,
         from: toChessPos(fromRow, fromCol),
         to: toChessPos(row, col),
-        timeUsed: timeUsedSec 
+        timeUsed: timeUsedSec
       })
       
+      // สะสมเวลาที่ใช้
       if (currentPlayer.value === 'X') {
         xTotalTime.value += timeUsedSec
       } else {
@@ -288,7 +366,9 @@ function handleClick(row, col) {
       }
       
       switchPlayer()
-      analyzeStrategyIfNeeded()
+      if (!isPromptMode.value) { // Only analyze strategy if not in prompt mode
+        analyzeStrategyIfNeeded();
+      }
     } else {
       selected.value = null
     }
@@ -303,63 +383,78 @@ function inBounds(row, col) {
 
 function checkCapture(row, col) {
   const directions = [
-    [0, 1], [1, 0], [0, -1], [-1, 0]
-  ];
-  const currentPiece = currentPlayer.value;
-  const enemy = currentPiece === 'X' ? 'O' : 'X';
-  const capturedPositions = new Set();
+    [0, 1],  // ขวา
+    [1, 0],  // ล่าง
+    [0, -1], // ซ้าย
+    [-1, 0], // บน
+  ]
 
-  // กรณีที่ 1: ตรวจสอบการกินแบบขนาบทั้งสองด้าน (ทั้งแนวนอนและแนวตั้ง)
+  const currentPiece = currentPlayer.value
+  const enemy = currentPiece === 'X' ? 'O' : 'X'
+  let capturedSet = new Set() // ใช้ Set เพื่อป้องกันการนับซ้ำ
+
   for (const [dr, dc] of directions) {
-    // ตรวจสอบหมากฝ่ายตรงข้ามทั้งสองฝั่งของตำแหน่งที่วาง
-    const leftOrUp = [row - dr, col - dc];
-    const rightOrDown = [row + dr, col + dc];
+    // --- รูปแบบที่ 1: เดินเข้าไปตรงกลางระหว่างศัตรู 2 ตัว (Sandwich capture) ---
+    const r1 = row - dr, c1 = col - dc
+    const r2 = row + dr, c2 = col + dc
     
-    // ถ้าทั้งสองฝั่งมีหมากฝ่ายตรงข้าม ให้กินทั้งสองตัว
     if (
-      inBounds(leftOrUp[0], leftOrUp[1]) && 
-      inBounds(rightOrDown[0], rightOrDown[1]) && 
-      board.value[leftOrUp[0]][leftOrUp[1]] === enemy && 
-      board.value[rightOrDown[0]][rightOrDown[1]] === enemy
+      inBounds(r1, c1) && inBounds(r2, c2) &&
+      board.value[r1][c1] === enemy &&
+      board.value[r2][c2] === enemy
     ) {
-      capturedPositions.add(`${leftOrUp[0]},${leftOrUp[1]}`);
-      capturedPositions.add(`${rightOrDown[0]},${rightOrDown[1]}`);
+      capturedSet.add(`${r1},${c1}`)
+      capturedSet.add(`${r2},${c2}`)
     }
     
-    // กรณีที่ 2: ตรวจสอบการกินแบบลากยาว
-    const toCapture = [];
-    let r = row + dr, c = col + dc;
+    // --- รูปแบบที่ 2: หนีบศัตรูหลายตัวระหว่างหมากเรา 2 ตัว (Line capture) ---
+    let toCapture = []
+    let r = row + dr
+    let c = col + dc
     
     while (inBounds(r, c) && board.value[r][c] === enemy) {
-      toCapture.push([r, c]);
-      r += dr;
-      c += dc;
+      toCapture.push([r, c])
+      r += dr
+      c += dc
     }
     
-    if (toCapture.length > 0 && inBounds(r, c) && board.value[r][c] === currentPiece) {
-      toCapture.forEach(([cr, cc]) => capturedPositions.add(`${cr},${cc}`));
+    // ถ้ามีศัตรูคั่นกลางอย่างน้อย 1 ตัว และปลายทางเป็นหมากเรา
+    if (
+      toCapture.length > 0 &&
+      inBounds(r, c) &&
+      board.value[r][c] === currentPiece
+    ) {
+      for (const [cr, cc] of toCapture) {
+        capturedSet.add(`${cr},${cc}`)
+      }
     }
   }
 
   // ลบหมากที่ถูกกินออกจากกระดาน
-  let capturedCount = 0;
-  capturedPositions.forEach(pos => {
-    const [r, c] = pos.split(',').map(Number);
-    board.value[r][c] = '';
-    capturedCount++;
-  });
+  let capturedCount = 0
+  for (const pos of capturedSet) {
+    const [r, c] = pos.split(',').map(Number)
+    board.value[r][c] = ''
+    capturedCount++
+  }
 
+  // เพิ่มคะแนนให้ฝั่งที่เดิน
   if (capturedCount > 0) {
-    if (currentPlayer.value === 'X') xScore.value += capturedCount;
-    else oScore.value += capturedCount;
-    checkGameEnd();
+    if (currentPlayer.value === 'X') {
+      xScore.value += capturedCount
+    } else {
+      oScore.value += capturedCount
+    }
+    checkGameEnd()
   }
 }
 
 function switchPlayer() {
   currentPlayer.value = currentPlayer.value === 'X' ? 'O' : 'X'
-  turnStartTime.value = timeLeft.value 
-  if (!isPvP.value && currentPlayer.value === 'O') {
+  turnStartTime.value = timeLeft.value // บันทึกเวลาตอนเริ่มเทิร์นใหม่
+
+  // ถ้าไม่ใช่ PvP และไม่ใช่ Prompt Mode ให้ AI เดิน
+  if (!isPvP.value && !isPromptMode.value && currentPlayer.value === 'O') {
     requestAIMove()
   }
 }
@@ -368,12 +463,16 @@ async function requestAIMove() {
   try {
     const response = await axios.post('http://localhost:8000/ai-move', {
       board: getBoardState(),
-      current_player: -1 
+      current_player: -1 // ฝั่ง AI (O)
     })
+    
     const { from_row, from_col, to_row, to_col, action_id } = response.data
+    
     board.value[to_row][to_col] = board.value[from_row][from_col]
     board.value[from_row][from_col] = ''
     checkCapture(to_row, to_col)
+    
+    // เพิ่มความคิดใหม่เข้าไปในประวัติ
     aiThoughtHistory.value.unshift({
       turn: aiThoughtHistory.value.length + 1,
       thoughts: `AI เลือกเดินจาก (${from_row},${from_col}) ไป (${to_row},${to_col}) [action_id: ${action_id}]`,
@@ -386,16 +485,18 @@ async function requestAIMove() {
   }
 }
 
+// เรียกใช้เมื่อจบเกม
 async function saveGameHistory() {
-
+  // สมมติคุณเก็บประวัติการเดินไว้ใน moveHistory (array)
+  // และมีตัวแปร winner, xScore, oScore, xMoveCount, oMoveCount, xTotalTime, oTotalTime, difficultyText
   try {
     await axios.post('http://localhost:5000/save-history', {
       moves: moveHistory.value,
       winner: winner.value,
       xMoveCount: moveHistory.value.filter(m => m.player === 'X').length,
       oMoveCount: moveHistory.value.filter(m => m.player === 'O').length,
-      xScore: xScore.value,
-      oScore: oScore.value,
+      xScore: xScore.value, // <-- แต้มที่ X ทำได้
+      oScore: oScore.value, // <-- แต้มที่ O ทำได้
       xTotalTime: xTotalTime.value,
       oTotalTime: oTotalTime.value,
       level: difficulty.difficulty
@@ -411,15 +512,15 @@ function goBack() {
 
 function isPossibleMove(row, col) {
   if (!selected.value || board.value[row][col] !== '') return false
-  
+
   const [selectedRow, selectedCol] = selected.value
   const currentPiece = board.value[selectedRow][selectedCol]
-  
+
   if (currentPiece !== currentPlayer.value) return false
-  
+
   const isHorizontal = selectedRow === row && selectedCol !== col
   const isVertical = selectedCol === col && selectedRow !== row
-  
+
   if (isHorizontal) {
     const start = Math.min(selectedCol, col)
     const end = Math.max(selectedCol, col)
@@ -428,7 +529,7 @@ function isPossibleMove(row, col) {
     }
     return true
   }
-  
+
   if (isVertical) {
     const start = Math.min(selectedRow, row)
     const end = Math.max(selectedRow, row)
@@ -437,7 +538,7 @@ function isPossibleMove(row, col) {
     }
     return true
   }
-  
+
   return false
 }
 
@@ -482,25 +583,8 @@ function formatTimeUsed(seconds) {
   }
 }
 
-const timerInterval = ref(null)
-
-const startTimer = () => {
-  timerInterval.value = setInterval(() => {
-    if (timeLeft.value > 0) {
-      timeLeft.value--
-      if (timeLeft.value === 0) checkGameEnd()
-    }
-  }, 1000)
-}
-
-
-startTimer()
-
-onUnmounted(() => {
-  clearInterval(timerInterval.value)
-})
-
 function restartGame() {
+  // Reset game state
   board.value = [
     ['O', 'O', 'O', 'O', 'O', 'O', 'O', 'O'],
     ...Array(6).fill().map(() => Array(size.value).fill('')),
@@ -526,7 +610,6 @@ async function analyzeStrategyIfNeeded() {
       // สมมติ m.from_row, m.from_col, m.to_row, m.to_col มีอยู่
       return `[${idx + 1}] ${player}: (${m.from_row},${m.from_col})→(${m.to_row},${m.to_col})`
     }).join('\n')
-
     try {
       const res = await axios.post('http://localhost:8000/analyze-strategy', {
         move_history: movesText
@@ -541,10 +624,128 @@ async function analyzeStrategyIfNeeded() {
     }
   }
 }
+
+// เพิ่ม refs สำหรับกลยุทธ์
+const selectedCategory = ref('all')
+const strategySearch = ref('')
+
+// กำหนดข้อมูลกลยุทธ์ทั้ง 36 รายการ
+const allStrategies = ref([
+  // กลยุทธ์ชนะศึก
+  { name: "ปิดฟ้าข้ามทะเล", category: "กลยุทธ์ชนะศึก", description: "ทำให้ศัตรูสบายใจ คิดว่าไม่มีแผน แล้วโจมตีทันที" },
+  { name: "ล้อมเวยช่วยจ้าว", category: "กลยุทธ์ชนะศึก", description: "บุกตีจุดสำคัญที่ศัตรูเผลอให้กำลังแตก" },
+  { name: "ยืมดาบฆ่าคน", category: "กลยุทธ์ชนะศึก", description: "ใช้กำลังหรือทรัพยากรของคนอื่นแทนตัวเอง" },
+  { name: "รอซ้ำยามเปลี้ย", category: "กลยุทธ์ชนะศึก", description: "รอให้ศัตรูเหนื่อยแล้วจึงลงมือ" },
+  { name: "ตีชิงตามไฟ", category: "กลยุทธ์ชนะศึก", description: "ฉวยโอกาสตอนศัตรูกำลังวุ่นวาย" },
+  { name: "ส่งเสียงบูรพาฝ่าตีประจิม", category: "กลยุทธ์ชนะศึก", description: "ล่อให้ศัตรูสนใจด้านหนึ่ง แล้วโจมตีอีกด้าน" },
+  
+  // กลยุทธ์เผชิญศึก
+  { name: "มีในไม่มี", category: "กลยุทธ์เผชิญศึก", description: "สร้างเรื่องลวงให้ศัตรูสับสน" },
+  { name: "ลอบตีเฉินชาง", category: "กลยุทธ์เผชิญศึก", description: "ทำทีจะเข้าทางหลัก แต่บุกทางลับ" },
+  { name: "ดูไฟชายฝั่ง", category: "กลยุทธ์เผชิญศึก", description: "รอดูให้ศัตรูแตกกันเองก่อนค่อยลงมือ" },
+  { name: "ซ่อนดาบในรอยยิ้ม", category: "กลยุทธ์เผชิญศึก", description: "แสร้งเป็นมิตร แล้วยิงทีหลัง" },
+  { name: "หลี่ตายแทนถาว", category: "กลยุทธ์เผชิญศึก", description: "เสียของเล็กน้อยเพื่อได้กำไรใหญ่" },
+  { name: "จูงแพะติดมือ", category: "กลยุทธ์เผชิญศึก", description: "ฉกเอาสิ่งเล็กๆ ตอนศัตรูไม่ทันระวัง" },
+  
+  // กลยุทธ์เข้าตี
+  { name: "ตีหญ้าให้งูตื่น", category: "กลยุทธ์เข้าตี", description: "ส่งคนสอดแนมดูความเคลื่อนไหวก่อนบุก" },
+  { name: "ยืมซากคืนชีพ", category: "กลยุทธ์เข้าตี", description: "ใช้สิ่งที่ยังพอใช้งานสร้างประโยชน์ใหม่" },
+  { name: "ล่อเสือออกจากถ้ำ", category: "กลยุทธ์เข้าตี", description: "หลอกล่อให้ศัตรูหลุดจากป้อม แล้วบุก" },
+  { name: "แสร้งปล่อยเพื่อจับ", category: "กลยุทธ์เข้าตี", description: "ปล่อยให้หนีแล้วไล่บี้จนอ่อนกำลัง" },
+  { name: "โยนกระเบื้องล่อหยก", category: "กลยุทธ์เข้าตี", description: "ใช้สิ่งไม่สำคัญล่อให้หลง ยึดจริงทีหลัง" },
+  { name: "จับโจรเอาหัวโจก", category: "กลยุทธ์เข้าตี", description: "มุ่งโจมตีผู้นำศัตรูให้ล่มทั้งกอง" },
+  
+  // กลยุทธ์ติดพัน
+  { name: "ถอนฟืนใต้กระทะ", category: "กลยุทธ์ติดพัน", description: "ตัดกำลังใจศัตรูให้หมดแรงสู้" },
+  { name: "กวนน้ำจับปลา", category: "กลยุทธ์ติดพัน", description: "ใช้อาการวุ่นวายของศัตรูให้เป็นประโยชน์" },
+  { name: "จักจั่นลอกคราบ", category: "กลยุทธ์ติดพัน", description: "ทำเหมือนไม่ขยับ ก่อนเปลี่ยนแผนฉับพลัน" },
+  { name: "ปิดประตูจับโจร", category: "กลยุทธ์ติดพัน", description: "ล้อมรอบจนศัตรูหนีไม่ได้" },
+  { name: "คบไกลตีใกล้", category: "กลยุทธ์ติดพัน", description: "ผูกไมตรีกับที่ไกล แล้วตีที่ใกล้" },
+  { name: "ยืมทางพรางกล", category: "กลยุทธ์ติดพัน", description: "ขอผ่านแล้วใช้เส้นทางโจมตี" },
+  
+  // กลยุทธ์ร่วมรบ
+  { name: "ลักขื่อเปลี่ยนเสา", category: "กลยุทธ์ร่วมรบ", description: "สลับตำแหน่งสำคัญของศัตรู" },
+  { name: "ชี้ต้นหม่อนด่าต้นไหว", category: "กลยุทธ์ร่วมรบ", description: "ขู่ให้ฝ่ายอื่นเกรงใจแทนเป้าหมายจริง" },
+  { name: "แสร้งทำบอแต่ไม่บ้า", category: "กลยุทธ์ร่วมรบ", description: "ทำเป็นโง่ก่อนแล้วออกหมัดหนัก" },
+  { name: "ขึ้นบ้านชักบันได", category: "กลยุทธ์ร่วมรบ", description: "ตัดหนทางถอยหลังเมื่อศัตรูเข้ามา" },
+  { name: "ต้นไม้ผลิดอก", category: "กลยุทธ์ร่วมรบ", description: "เสริมกำลังเล็กให้ดูเข้มแข็ง" },
+  { name: "สลับแขกเป็นเจ้าบ้าน", category: "กลยุทธ์ร่วมรบ", description: "เปลี่ยนฝ่ายให้ดูเหมือนเราเป็นเจ้าคุม" },
+  
+  // กลยุทธ์ยามพ่าย
+  { name: "สาวงาม", category: "กลยุทธ์ยามพ่าย", description: "ใช้เสน่ห์หลอกใจศัตรูให้สับสน" },
+  { name: "เปิดเมือง", category: "กลยุทธ์ยามพ่าย", description: "แสร้งอ่อนแอให้ศัตรูลังเลก่อนบุก" },
+  { name: "ไส้ศึก", category: "กลยุทธ์ยามพ่าย", description: "ใช้คนในกองทัพศัตรูสร้างความแตกแยก" },
+  { name: "ทุกข์กาย", category: "กลยุทธ์ยามพ่าย", description: "ทำตัวเจ็บเพื่อเรียกให้ศัตรูไว้ใจ" },
+  { name: "ลูกโซ่", category: "กลยุทธ์ยามพ่าย", description: "ผูกแผนหลายขั้นให้ศัตรูตามไม่ทัน" },
+  { name: "หลบหนี", category: "กลยุทธ์ยามพ่าย", description: "ถอยเพื่อรอเวลาที่ดีกว่า" },
+])
+
+// สร้าง computed properties สำหรับกรองข้อมูล
+const filteredStrategies = computed(() => {
+  let filtered = [...allStrategies.value]
+  
+  // กรองตามหมวดหมู่
+  if (selectedCategory.value !== 'all') {
+    filtered = filtered.filter(strategy => strategy.category.includes(selectedCategory.value))
+  }
+  
+  // กรองตามคำค้นหา
+  if (strategySearch.value) {
+    const searchLower = strategySearch.value.toLowerCase()
+    filtered = filtered.filter(strategy => 
+      strategy.name.toLowerCase().includes(searchLower) || 
+      strategy.description.toLowerCase().includes(searchLower)
+    )
+  }
+  
+  return filtered
+})
+
+// ฟังก์ชันสำหรับการใช้กลยุทธ์
+async function applyStrategy(index) {
+  const strategy = filteredStrategies.value[index]
+  
+  try {
+    // แสดง Loading ใน AI Thoughts Panel
+    const processingEntry = {
+      turn: aiThoughtHistory.value.length + 1,
+      thoughts: `กำลังวิเคราะห์กลยุทธ์: ${strategy.name}...`,
+      timestamp: new Date().toLocaleTimeString(),
+      isProcessing: true
+    }
+    aiThoughtHistory.value.unshift(processingEntry)
+    
+    // ส่งข้อมูลไปยัง API
+    const response = await axios.post('http://localhost:8000/analyze-strategy', {
+      strategy_name: strategy.name,
+      strategy_category: strategy.category,
+      strategy_description: strategy.description,
+      board: getBoardState(),
+      current_player: currentPlayer.value === 'X' ? 1 : -1
+    })
+    
+    // อัพเดทผลลัพธ์
+    processingEntry.thoughts = response.data.analysis || `การวิเคราะห์กลยุทธ์: ${strategy.name}\n\n${strategy.description}`
+    processingEntry.isProcessing = false
+  } catch (error) {
+    console.error('Error applying strategy:', error)
+    
+    // แสดงข้อผิดพลาดใน AI Thoughts Panel
+    aiThoughtHistory.value.unshift({
+      turn: aiThoughtHistory.value.length + 1,
+      thoughts: `เกิดข้อผิดพลาดในการวิเคราะห์กลยุทธ์: ${strategy.name}`,
+      timestamp: new Date().toLocaleTimeString(),
+      isProcessing: false
+    })
+  }
+}
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap');
+
 .game-container {
+  font-family: 'Kanit', sans-serif;
   position: fixed;
   top: 0;
   left: 0;
@@ -561,7 +762,7 @@ async function analyzeStrategyIfNeeded() {
 
 .fire-background,
 .ambient-particles {
-  position: fixed; 
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
@@ -570,22 +771,24 @@ async function analyzeStrategyIfNeeded() {
   transform: translateZ(0);
 }
 
+/* Default layout for AI modes (Easy, Medium, Hard) */
 .content {
   position: relative;
   z-index: 1;
-  width: 100%; 
-  flex-grow: 1; 
-  display: grid; 
-  grid-template-columns: 350px 1fr;
+  width: 100%;
+  flex-grow: 1;
+  display: grid;
+  grid-template-columns: 350px 1fr; /* AI Panel left, Game Content right */
   gap: 2rem;
-  padding: 2rem; 
+  padding: 2rem;
   transform: translateZ(0);
-  min-height: calc(100vh - 4rem); 
+  min-height: calc(100vh - 4rem);
 }
 
 .ai-thoughts-panel {
-  height: 100%; 
-  background: linear-gradient(145deg,  rgba(97, 26, 26, 0.95), rgba(10, 0, 0, 0.98)); 
+  grid-column: 1 / 2; /* Explicitly place AI panel */
+  height: 100%;
+  background: linear-gradient(145deg, rgba(97, 26, 26, 0.95), rgba(10, 0, 0, 0.98));
   border-radius: 20px;
   padding: 2rem;
   box-shadow: 
@@ -594,9 +797,60 @@ async function analyzeStrategyIfNeeded() {
   border: 1px solid rgba(255, 69, 0, 0.2);
   display: flex;
   flex-direction: column;
-  overflow: hidden; 
-  transform: translateZ(0); 
+  overflow: hidden;
+  transform: translateZ(0);
 }
+
+.game-content {
+  grid-column: 2 / 3; /* Explicitly place Game content */
+  height: 100%;
+  background: linear-gradient(145deg, rgba(97, 26, 26, 0.95), rgba(10, 0, 0, 0.98));
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 
+    0 10px 20px rgba(186, 41, 41, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 69, 0, 0.13);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transform: translateZ(0);
+}
+
+/* Layout for PvP Mode */
+.content.pvp-mode {
+  grid-template-columns: 1fr; /* Game content takes full width */
+}
+.content.pvp-mode .game-content {
+  grid-column: 1 / -1; /* Ensure it spans full width */
+}
+
+/* Layout for Prompt Mode */
+.content.prompt-mode {
+  grid-template-columns: 320px 1fr 320px;
+  grid-template-areas: "ai-panel game-content prompt-panel";
+  overflow: auto; /* เพิ่ม overflow: auto เพื่อให้สามารถเลื่อนได้ */
+  max-height: 100vh; /* กำหนดความสูงสูงสุด */
+}
+.content.prompt-mode .ai-thoughts-panel,
+.content.prompt-mode .game-content,
+.content.prompt-mode .prompt-panel {
+  height: auto;
+  min-height: 80vh; /* ให้มีความสูงขั้นต่ำ */
+  overflow-y: auto; /* ให้แต่ละส่วนสามารถเลื่อนได้เมื่อเนื้อหาเกิน */
+}
+.content.prompt-mode .game-content {
+  display: flex;
+  flex-direction: column;
+}
+.content.prompt-mode .game-board-container {
+  flex: 1;
+  min-height: 400px; /* กำหนดความสูงขั้นต่ำให้กระดาน */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 
 .panel-header {
   display: flex;
@@ -622,7 +876,7 @@ async function analyzeStrategyIfNeeded() {
 
 .thoughts-history {
   flex: 1;
-  overflow-y: auto; 
+  overflow-y: auto;
   padding-right: 0.5rem;
 }
 
@@ -638,6 +892,12 @@ async function analyzeStrategyIfNeeded() {
 .thought-entry.latest {
   border-color: rgba(255, 215, 0, 0.4);
   box-shadow: 0 0 15px rgba(255, 215, 0, 0.15);
+}
+
+.thought-entry.processing {
+  background: linear-gradient(135deg, rgba(0, 128, 0, 0.1), rgba(0, 100, 0, 0.05));
+  border-color: rgba(0, 255, 0, 0.4);
+  box-shadow: 0 0 15px rgba(0, 255, 0, 0.15);
 }
 
 .thought-header {
@@ -691,23 +951,152 @@ async function analyzeStrategyIfNeeded() {
 .dot:nth-child(1) { animation-delay: -0.32s; }
 .dot:nth-child(2) { animation-delay: -0.16s; }
 
-.game-content {
-  height: 100%; 
-  background: linear-gradient(145deg, rgba(97, 26, 26, 0.95), rgba(10, 0, 0, 0.98)); 
-  border-radius: 20px;
-  padding: 2rem;
-  box-shadow: 
-    0 10px 20px rgba(186, 41, 41, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 69, 0, 0.13);
+/* ปรับแต่ง Prompt Panel ให้เหมือนกับในภาพ */
+.prompt-panel {
+  background: linear-gradient(145deg, rgba(23, 32, 68, 0.95), rgba(5, 10, 30, 0.98));
+  padding: 1.5rem;
+  height: 100%;
   display: flex;
   flex-direction: column;
-  overflow: hidden; 
-  transform: translateZ(0); 
 }
 
-.game-content.full-width {
-  grid-column: 1 / -1; 
+.prompt-panel .panel-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.2rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid rgba(100, 149, 237, 0.2);
+}
+
+.prompt-icon {
+  font-size: 1.8rem;
+  margin-right: 0.8rem;
+  color: #4caf50;
+}
+
+.panel-title {
+  color: #4caf50;
+  font-size: 1.4rem;
+  margin: 0;
+}
+
+/* เพิ่ม CSS สำหรับแสดงรายการกลยุทธ์ */
+.strategies-filter {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  gap: 0.5rem;
+}
+
+.strategy-select {
+  background: rgba(20, 30, 70, 0.7);
+  border: 1px solid rgba(76, 175, 80, 0.4);
+  color: white;
+  padding: 0.5rem;
+  border-radius: 6px;
+  flex: 1;
+}
+
+.strategy-search {
+  flex: 1;
+}
+
+.strategy-search-input {
+  background: rgba(20, 30, 70, 0.7);
+  border: 1px solid rgba(76, 175, 80, 0.4);
+  color: white;
+  padding: 0.5rem;
+  border-radius: 6px;
+  width: 100%;
+}
+
+.strategy-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-height: 70vh;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+.strategy-item {
+  background: rgba(30, 40, 100, 0.4);
+  border-radius: 10px;
+  padding: 1rem;
+  border-left: 3px solid #4caf50;
+  transition: all 0.2s ease;
+}
+
+.strategy-item:hover {
+  background: rgba(30, 40, 100, 0.6);
+  transform: translateY(-2px);
+}
+
+.strategy-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.strategy-number {
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: #4caf50;
+  margin-right: 0.5rem;
+}
+
+.strategy-title {
+  font-size: 1.1rem;
+  color: #4caf50;
+  margin: 0;
+}
+
+.strategy-description {
+  font-size: 0.85rem;
+  color: #e0e0e0;
+  line-height: 1.4;
+  margin-bottom: 0.8rem;
+}
+
+.strategy-category {
+  font-size: 0.75rem;
+  color: #aaa;
+  margin-bottom: 0.8rem;
+  font-style: italic;
+}
+
+.strategy-btn {
+  background: rgba(76, 175, 80, 0.2);
+  color: #4caf50;
+  border: 1px solid #4caf50;
+  border-radius: 4px;
+  padding: 0.3rem 0.8rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.strategy-btn:hover {
+  background: rgba(76, 175, 80, 0.4);
+}
+
+/* สไตล์ scrollbar ของ strategy-list */
+.strategy-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.strategy-list::-webkit-scrollbar-track {
+  background: rgba(76, 175, 80, 0.1);
+  border-radius: 3px;
+}
+
+.strategy-list::-webkit-scrollbar-thumb {
+  background: rgba(76, 175, 80, 0.3);
+  border-radius: 3px;
+}
+
+.strategy-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(76, 175, 80, 0.5);
 }
 
 .game-header {
@@ -838,8 +1227,8 @@ async function analyzeStrategyIfNeeded() {
   flex-direction: column;
   align-items: center;
   gap: 2rem;
-  min-height: 0; 
-  overflow-y: auto; 
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .board-wrapper {
@@ -882,8 +1271,8 @@ async function analyzeStrategyIfNeeded() {
   background-size: 200% 200%;
   animation: boardGlow 4s ease-in-out infinite;
   z-index: -1;
-  filter: blur(4px); 
-  transform: translateZ(0); 
+  filter: blur(4px);
+  transform: translateZ(0);
 }
 
 .row {
@@ -1038,12 +1427,6 @@ async function analyzeStrategyIfNeeded() {
   animation: moveDot 1s ease-in-out infinite;
 }
 
-.game-controls {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-}
-
 .control-button {
   display: flex;
   align-items: center;
@@ -1076,21 +1459,20 @@ async function analyzeStrategyIfNeeded() {
   font-size: 1.2rem;
 }
 
+/* Adjusted back-btn to flow with flexbox */
 .back-btn {
-  position: absolute;
-  bottom: 0.5rem; 
-  right: 0.5rem; 
+  margin-top: auto; /* Pushes the button to the bottom within its flex container */
   background: linear-gradient(135deg, #ff6b6b, #dc143c);
   color: white;
   font-weight: 600;
   font-size: 0.9rem;
-  padding: 1.5rem 0.1rem;
-  border-radius: 50px; 
+  padding: 0.8rem 1.5rem;
+  border-radius: 50px;
   box-shadow: 0 4px 15px rgba(220, 20, 60, 0.3);
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
-  gap: 0.3rem;
+  gap: 0.5rem;
 }
 
 .back-btn:hover {
@@ -1119,11 +1501,11 @@ async function analyzeStrategyIfNeeded() {
   align-items: center;
   z-index: 1000;
   animation: fadeIn 0.3s ease;
-  transform: translateZ(0); 
+  transform: translateZ(0);
 }
 
 .game-over-panel {
-  background: linear-gradient(145deg, rgba(30, 0, 0, 0.95), rgba(10, 0, 0, 0.98)); 
+  background: linear-gradient(145deg, rgba(30, 0, 0, 0.95), rgba(10, 0, 0, 0.98));
   border-radius: 24px;
   padding: 3rem;
   box-shadow: 
@@ -1133,7 +1515,7 @@ async function analyzeStrategyIfNeeded() {
   text-align: center;
   min-width: 400px;
   animation: slideUp 0.4s ease;
-  transform: translateZ(0); 
+  transform: translateZ(0);
 }
 
 .game-over-icon {
@@ -1168,9 +1550,9 @@ async function analyzeStrategyIfNeeded() {
 }
 
 .result-text.loser {
-  color: #ff6b6b;  
-  text-shadow: 0 0 10px rgba(255, 107, 107, 0.5);  
-  font-weight: bold; 
+  color: #ff6b6b;
+  text-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
+  font-weight: bold;
 }
 
 .winner-name {
@@ -1221,16 +1603,16 @@ async function analyzeStrategyIfNeeded() {
   margin-top: 2rem;
 }
 
-.back-btn, .replay-btn {
+.game-over-buttons .control-button {
   min-width: 160px;
   justify-content: center;
 }
 
-.back-btn {
+.game-over-buttons .back-btn {
   background: linear-gradient(135deg, #dc143c, #8b0000);
 }
 
-.replay-btn {
+.game-over-buttons .replay-btn {
   background: linear-gradient(135deg, #4caf50, #2e7d32);
 }
 
@@ -1239,11 +1621,12 @@ async function analyzeStrategyIfNeeded() {
     flex-direction: column;
   }
   
-  .back-btn, .replay-btn {
+  .game-over-buttons .back-btn, .game-over-buttons .replay-btn {
     width: 100%;
   }
 }
 
+/* Scrollbar styles for thoughts history */
 .thoughts-history::-webkit-scrollbar {
   width: 6px;
 }
@@ -1262,6 +1645,7 @@ async function analyzeStrategyIfNeeded() {
   background: rgba(255, 69, 0, 0.5);
 }
 
+/* Animations */
 @keyframes fireEffect1 {
   0%, 100% { background-position: 0% 50%, 0% 50%, 0% 50%, 0% 50%; }
   50% { background-position: 100% 50%, 100% 50%, 100% 50%, 100% 50%; }
@@ -1323,45 +1707,58 @@ async function analyzeStrategyIfNeeded() {
   to { transform: translateY(0); opacity: 1; }
 }
 
+/* Responsive Design */
 @media (max-width: 1400px) {
-  .content {
-    grid-template-columns: 320px 1fr;
+  /* Adjust prompt mode columns for slightly smaller screens */
+  .content.prompt-mode {
+    grid-template-columns: 280px 1fr 280px;
   }
 }
 
 @media (max-width: 1200px) {
+  /* Stack panels vertically on medium screens */
   .content {
-    grid-template-columns: 1fr; 
-    display: flex; 
+    grid-template-columns: 1fr; /* Single column for all modes */
+    display: flex; /* Change to flex for vertical stacking */
     flex-direction: column;
-    gap: 1.5rem; 
-    padding-top: 2rem; 
-    height: auto; 
-    min-height: auto; 
-    overflow-y: auto; 
+    gap: 1.5rem;
+    padding-top: 1.5rem; /* Adjust padding */
+    height: auto; /* Allow content to define height */
+    min-height: auto; /* Remove min-height constraint */
+    overflow-y: auto; /* Allow main content area to scroll */
   }
   
+  /* Ensure panels take full width when stacked */
   .ai-thoughts-panel,
-  .game-content {
-    flex-shrink: 0; 
-    flex-grow: 1; 
-    min-height: 0; 
-    height: auto; 
+  .game-content,
+  .prompt-panel {
+    flex-shrink: 0;
+    flex-grow: 1;
+    min-height: 0;
+    height: auto;
+    width: 100%;
   }
 
-  
-  .game-content {
-    overflow-y: auto; 
+  /* Reorder panels for prompt mode when stacked */
+  .content.prompt-mode {
+    grid-template-columns: 1fr; /* Override to single column */
+    grid-template-areas:
+      "game-content"
+      "prompt-panel"
+      "ai-panel"; /* Game, then Prompt, then AI */
+    display: grid; /* Keep grid for areas */
+    gap: 1.5rem;
   }
 }
 
 @media (max-width: 768px) {
   .content {
-    padding: 1rem; 
+    padding: 1rem;
     gap: 1rem;
-    padding-top: 1rem; 
   }
   
+  .ai-thoughts-panel, 
+  .prompt-panel, 
   .game-content {
     padding: 1.5rem;
   }
@@ -1426,8 +1823,13 @@ async function analyzeStrategyIfNeeded() {
   .cell-coordinates {
     font-size: 0.5rem;
   }
+
+  .prompt-panel {
+    padding: 1.5rem;
+  }
 }
 
+/* Accessibility improvements */
 @media (prefers-reduced-motion: reduce) {
   .fire-background,
   .ambient-particles,
@@ -1436,18 +1838,22 @@ async function analyzeStrategyIfNeeded() {
   .thinking-animation,
   .board-glow,
   .possible-move,
-  .move-dot {
+  .move-dot,
+  .prompt-icon {
     animation: none;
   }
   
   .cell,
   .piece,
-  .control-button {
+  .control-button,
+  .prompt-panel button {
     transition: none;
   }
 }
 
-.control-button:focus {
+/* Focus states for accessibility */
+.control-button:focus,
+.prompt-panel button:focus {
   outline: 3px solid rgba(255, 215, 0, 0.6);
   outline-offset: 2px;
 }
