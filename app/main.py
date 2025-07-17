@@ -8,6 +8,7 @@ from typing import List
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
 from app.llm.backend.llm_strategy import analyze_strategy_llm
+import requests
 
 # ====== ENVIRONMENT CLASS ======
 class MakNeebRLEnv:
@@ -366,8 +367,8 @@ class AnalyzeStrategyResponse(BaseModel):
 
 @app.post("/analyze-strategy", response_model=AnalyzeStrategyResponse)
 def analyze_strategy(req: AnalyzeStrategyRequest):
-    # เรียกใช้ LLM วิเคราะห์
-    result = analyze_strategy_llm(req.move_history)
-    return AnalyzeStrategyResponse(analysis=result)
+    # ส่ง request ไปหา LLM service
+    resp = requests.post("http://localhost:8001/analyze-strategy", json={"move_history": req.move_history})
+    return AnalyzeStrategyResponse(analysis=resp.json()["analysis"])
 
 # สำหรับรันด้วย: uvicorn ai_backend.main:app --reload
