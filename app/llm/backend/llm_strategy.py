@@ -1,22 +1,28 @@
 import os
 from llama_cpp import Llama
 
-llm = None
+class LLMStrategySingleton:
+    _llm = None
 
-def get_llm():
-    global llm
-    if llm is None:
-        model_path = "app/llm/model/ollama/unsloth.Q4_K_M.gguf"
-        if not os.path.exists(model_path):
-            raise ValueError(f"Model path does not exist: {model_path}")
-        llm = Llama(
-            model_path=model_path,
-            n_ctx=4096,
-            n_threads=8,
-            n_gpu_layers=-1,
-            n_batch=512
-        )
-    return llm
+    @classmethod
+    def load_model(cls, model_path):
+        if cls._llm is None:
+            if not os.path.exists(model_path):
+                raise ValueError(f"Model path does not exist: {model_path}")
+            cls._llm = Llama(
+                model_path=model_path,
+                n_ctx=4096,
+                n_threads=8,
+                n_gpu_layers=-1,
+                n_batch=512
+            )
+        return cls._llm
+
+    @classmethod
+    def get_llm(cls):
+        if cls._llm is None:
+            raise RuntimeError("LLM model not loaded! Call load_model() first.")
+        return cls._llm
 
 list_of_strategies = [
     'ปิดฟ้าข้ามทะเล', 'ล้อมเวยช่วยจ้าว', 'ยืมดาบฆ่าคน', 'รอซ้ำยามเปลี้ย',
@@ -30,7 +36,7 @@ list_of_strategies = [
 ]
 
 def analyze_strategy_llm(move_history: str) -> str:
-    llama = get_llm()
+    llama = LLMStrategySingleton.get_llm()
     strategies_text = ", ".join(list_of_strategies)
     game_rules_summary = """กฎกติกาเกมหมากหนีบ:
 * **วัตถุประสงค์:** ผู้เล่นแต่ละฝ่ายมีหมาก 8 ตัวบนกระดาน 8x8 วัตถุประสงค์คือการ \"หนีบ\" กินหมากฝ่ายตรงข้ามให้เหลือน้อยที่สุดหรือจนหมดเพื่อชนะ

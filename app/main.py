@@ -8,7 +8,9 @@ from typing import List
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
 from app.llm.backend.llm_strategy import analyze_strategy_llm
-import requests
+from app.llm.backend.llm_strategy import LLMStrategySingleton
+from fastapi import FastAPI
+from fastapi.responses import JSONResponse
 
 # ====== ENVIRONMENT CLASS ======
 class MakNeebRLEnv:
@@ -307,6 +309,14 @@ class MCTS:
 # ====== FASTAPI SETUP ======
 app = FastAPI()
 
+# ตัวแปร global สำหรับสถานะ
+import threading
+startup_status = {"progress": 0, "message": "กำลังเริ่มต้น..."}
+
+@app.get("/status")
+def get_status():
+    return JSONResponse(content=startup_status)
+
 # เพิ่ม CORS middleware
 app.add_middleware(
     CORSMiddleware,
@@ -315,6 +325,27 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.on_event("startup")
+def load_llm_model():
+    global startup_status
+    startup_status["progress"] = 10
+    startup_status["message"] = "Import library..."
+    import time
+    time.sleep(0.5)  # จำลอง
+
+    startup_status["progress"] = 30
+    startup_status["message"] = "กำลังโหลดโมเดล LLM..."
+    model_path = "app/llm/model/ollama/unsloth.Q4_K_M.gguf"
+    from app.llm.backend.llm_strategy import LLMStrategySingleton
+    LLMStrategySingleton.load_model(model_path)
+
+    startup_status["progress"] = 90
+    startup_status["message"] = "กำลังเตรียมระบบ..."
+    time.sleep(0.5)  # จำลอง
+
+    startup_status["progress"] = 100
+    startup_status["message"] = "พร้อมใช้งานแล้ว!"
 
 class AIMoveRequest(BaseModel):
     board: List[List[int]]
@@ -367,8 +398,8 @@ class AnalyzeStrategyResponse(BaseModel):
 
 @app.post("/analyze-strategy", response_model=AnalyzeStrategyResponse)
 def analyze_strategy(req: AnalyzeStrategyRequest):
-    # ส่ง request ไปหา LLM service
-    resp = requests.post("http://localhost:8001/analyze-strategy", json={"move_history": req.move_history})
-    return AnalyzeStrategyResponse(analysis=resp.json()["analysis"])
+    # เรียกใช้ LLM วิเคราะห์
+    result = analyze_strategy_llm(req.move_history)
+    return AnalyzeStrategyResponse(analysis=result)
 
 # สำหรับรันด้วย: uvicorn ai_backend.main:app --reload
