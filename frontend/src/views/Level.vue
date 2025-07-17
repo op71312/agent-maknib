@@ -56,7 +56,6 @@
               <div class="btn-glow"></div>
             </button>
             
-            <!-- เพิ่มโหมด Prompt -->
             <button class="level-btn prompt" @click="selectLevel('prompt')">
               <div class="btn-content">
                 <div class="btn-icon">💬</div>
@@ -83,12 +82,15 @@
 export default {
   name: 'Level',
   methods: {
+    // ฟังก์ชันเลือกระดับความยากและส่งค่าไปยังหน้าเกม
     selectLevel(level) {
       this.$router.push({
         name: 'Game',
-        params: { difficulty: level }
+        params: { difficulty: level } // ส่งพารามิเตอร์ difficulty ไปยังหน้า Game
       })
     },
+
+    // ฟังก์ชันกลับไปยังหน้าหลัก
     goBack() {
       this.$router.push('/home')
     }
@@ -202,7 +204,7 @@ export default {
 .main-content {
   text-align: center;
   width: 100%;
-  max-width: 1200px;
+  max-width: 1400px; 
   background: linear-gradient(145deg, rgba(30, 0, 0, 0.85), rgba(10, 0, 0, 0.9));
   backdrop-filter: blur(20px);
   border-radius: 24px;
@@ -211,7 +213,6 @@ export default {
     0 20px 40px rgba(255, 0, 0, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 69, 0, 0.2);
-  
   overflow-y: auto; 
   max-height: 90vh; 
 }
@@ -245,10 +246,11 @@ export default {
 }
 
 .level-options {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  display: flex; 
+  flex-wrap: wrap;
+  justify-content: center; 
   gap: 2rem;
-  max-width: 900px;
+  max-width: 1200px; 
   margin: 0 auto;
   margin-bottom: 3rem; 
 }
@@ -266,6 +268,8 @@ export default {
     0 10px 30px rgba(0, 0, 0, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.1);
+  
+  flex: 0 0 calc((100% - 4rem) / 3); 
 }
 
 .btn-content {
@@ -440,14 +444,16 @@ export default {
   50% { transform: translateY(-5px); }
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 1400px) { 
   .level-options {
-    grid-template-columns: repeat(2, 1fr);
-    max-width: 800px;
+    max-width: 900px; 
+  }
+  .level-btn {
+    flex: 0 0 calc((100% - 2rem) / 2); 
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px) { 
   .back-btn {
     font-size: 1.1rem; 
     padding: 1rem 1.8rem; 
@@ -467,14 +473,10 @@ export default {
   }
   
   .level-options {
-    grid-template-columns: 1fr; 
-    grid-template-rows: auto;
-    gap: 1.5rem;
-    max-width: 400px;
+    max-width: 400px; 
   }
-  
   .level-btn {
-    height: 150px; 
+    flex: 0 0 100%; 
   }
   
   .btn-content {
@@ -525,7 +527,7 @@ export default {
     font-size: 1.4rem; 
   }
   
-  .btn-subtitle {
+.btn-subtitle {
     font-size: 0.85rem; 
   }
   
@@ -538,6 +540,7 @@ export default {
     font-size: 1.2rem;
   }
 }
+
 
 @media (prefers-reduced-motion: reduce) {
   .fire-background,
@@ -553,6 +556,7 @@ export default {
     transition: none;
   }
 }
+
 
 .level-btn:focus,
 .back-btn:focus {

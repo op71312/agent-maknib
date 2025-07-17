@@ -155,7 +155,7 @@
           </div>
         </div>
         
-        <button @click="$router.push('/')" class="back-btn">
+        <button @click="goBack" class="back-btn">
           <div class="btn-content">
             <i class="icon">🏠</i>
             <span>กลับหน้าหลัก</span>
@@ -167,9 +167,14 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'Rules'
+<script setup>
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+// ฟังก์ชันกลับไปยังหน้าหลัก
+function goBack() {
+  router.push('/')
 }
 </script>
 
