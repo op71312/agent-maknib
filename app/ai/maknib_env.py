@@ -2,11 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from typing import List
-import uvicorn
-from fastapi.middleware.cors import CORSMiddleware
+import math
 
 # ====== ENVIRONMENT CLASS ======
 class MakNeebRLEnv:
@@ -95,31 +91,23 @@ class MakNeebRLEnv:
                 to_capture.append((r, c))
                 r += dr
                 c += dc
-            
             # Capture if enemies are sandwiched by boundary or own piece
             if to_capture:
                 if not self._in_bounds(r, c) or self.board[r][c] == my:
                     captured.update(to_capture)
-
             # Pattern 2: Immediate adjacent capture
             adj_r1, adj_c1 = row - dr, col - dc
             adj_r2, adj_c2 = row + dr, col + dc
-            
-            # Check both adjacent positions
             if (self._in_bounds(adj_r1, adj_c1) and 
                 self._in_bounds(adj_r2, adj_c2) and
                 self.board[adj_r1][adj_c1] == enemy and
                 self.board[adj_r2][adj_c2] == enemy):
                 captured.add((adj_r1, adj_c1))
                 captured.add((adj_r2, adj_c2))
-
         # Remove captured pieces
         for r, c in captured:
             self.board[r][c] = 0
-
         return len(captured)
-
-
 
     def get_game_status(self):
         player1_pieces = np.sum(self.board == 1)
@@ -208,7 +196,6 @@ class MakNeebNet(nn.Module):
         return F.log_softmax(policy, dim=1), value
 
 # ====== MCTS (Minimal for 1 move) ======
-import math
 class MCTSNode:
     def __init__(self, parent=None, prior_p=1.0):
         self.parent = parent
@@ -300,61 +287,4 @@ class MCTS:
         if visit_counts.sum() == 0:
             return np.ones(env.action_space_n) / env.action_space_n, root.value()
         action_probs = visit_counts / visit_counts.sum()
-        return action_probs, root.value()
-
-# ====== FASTAPI SETUP ======
-app = FastAPI()
-
-# เพิ่ม CORS middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-class AIMoveRequest(BaseModel):
-    board: List[List[int]]
-    current_player: int
-    difficulty: str = "medium"  # เพิ่มพารามิเตอร์
-
-class AIMoveResponse(BaseModel):
-    from_row: int
-    from_col: int
-    to_row: int
-    to_col: int
-    action_id: int
-
-# โหลดโมเดล
-DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-MODEL_PATH = "ai_backend/maknib_simulation.pth"
-model = MakNeebNet(action_size=4096).to(DEVICE)
-checkpoint = torch.load(MODEL_PATH, map_location=DEVICE, weights_only=False)
-model.load_state_dict(checkpoint['model_state_dict'])
-model.eval()
-
-@app.post("/ai-move", response_model=AIMoveResponse)
-def ai_move(req: AIMoveRequest):
-    env = MakNeebRLEnv()
-    env.reset(board=req.board, current_player=req.current_player)
-    # กำหนดจำนวน simulation ตามระดับ
-    if req.difficulty == "easy":
-        num_sim = 10
-    elif req.difficulty == "medium":
-        num_sim = 50
-    else:  # hard
-        num_sim = 200
-    mcts = MCTS(model, DEVICE, c_puct=1.5, num_simulations=num_sim)
-    action_probs, _ = mcts.search(env)
-    best_action = int(np.argmax(action_probs))
-    (from_row, from_col), (to_row, to_col) = env._decode_action(best_action)
-    return AIMoveResponse(
-        from_row=from_row,
-        from_col=from_col,
-        to_row=to_row,
-        to_col=to_col,
-        action_id=best_action
-    )
-
-# สำหรับรันด้วย: uvicorn ai_backend.main:app --reload
+        return action_probs, root.value() 

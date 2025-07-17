@@ -24,7 +24,7 @@ uv pip install torch numpy fastapi pydantic uvicorn
 ## 4. รัน FastAPI server
 
 ```sh
-uvicorn ai_backend.main:app --reload
+uvicorn app.main:app --reload
 ```
 
 - API จะรันที่ http://127.0.0.1:8000
