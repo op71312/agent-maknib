@@ -301,47 +301,56 @@ function inBounds(row, col) {
 }
 
 function checkCapture(row, col) {
-  const dirs = [
+  const directions = [
     [0, 1], [1, 0], [0, -1], [-1, 0]
   ];
-  const enemy = currentPlayer.value === 'X' ? 'O' : 'X';
-  let capturedSet = new Set();
+  const currentPiece = currentPlayer.value;
+  const enemy = currentPiece === 'X' ? 'O' : 'X';
+  const capturedPositions = new Set();
 
-  for (const [dr, dc] of dirs) {
-    let toCapture = [];
+  // กรณีที่ 1: ตรวจสอบการกินแบบขนาบทั้งสองด้าน (ทั้งแนวนอนและแนวตั้ง)
+  for (const [dr, dc] of directions) {
+    // ตรวจสอบหมากฝ่ายตรงข้ามทั้งสองฝั่งของตำแหน่งที่วาง
+    const leftOrUp = [row - dr, col - dc];
+    const rightOrDown = [row + dr, col + dc];
+    
+    // ถ้าทั้งสองฝั่งมีหมากฝ่ายตรงข้าม ให้กินทั้งสองตัว
+    if (
+      inBounds(leftOrUp[0], leftOrUp[1]) && 
+      inBounds(rightOrDown[0], rightOrDown[1]) && 
+      board.value[leftOrUp[0]][leftOrUp[1]] === enemy && 
+      board.value[rightOrDown[0]][rightOrDown[1]] === enemy
+    ) {
+      capturedPositions.add(`${leftOrUp[0]},${leftOrUp[1]}`);
+      capturedPositions.add(`${rightOrDown[0]},${rightOrDown[1]}`);
+    }
+    
+    // กรณีที่ 2: ตรวจสอบการกินแบบลากยาว
+    const toCapture = [];
     let r = row + dr, c = col + dc;
+    
     while (inBounds(r, c) && board.value[r][c] === enemy) {
       toCapture.push([r, c]);
-      r += dr; c += dc;
+      r += dr;
+      c += dc;
     }
-    if (toCapture.length > 0 && inBounds(r, c) && board.value[r][c] === currentPlayer.value) {
-      for (const [cr, cc] of toCapture) {
-        capturedSet.add(`${cr},${cc}`);
-      }
-    }
-
-    const adj1 = [row - dr, col - dc];
-    const adj2 = [row + dr, col + dc];
-    if (
-      inBounds(adj1[0], adj1[1]) && inBounds(adj2[0], adj2[1]) &&
-      board.value[adj1[0]][adj1[1]] === enemy &&
-      board.value[adj2[0]][adj2[1]] === enemy
-    ) {
-      capturedSet.add(`${adj1[0]},${adj1[1]}`);
-      capturedSet.add(`${adj2[0]},${adj2[1]}`);
+    
+    if (toCapture.length > 0 && inBounds(r, c) && board.value[r][c] === currentPiece) {
+      toCapture.forEach(([cr, cc]) => capturedPositions.add(`${cr},${cc}`));
     }
   }
 
-  let captured = 0;
-  for (const pos of capturedSet) {
+  // ลบหมากที่ถูกกินออกจากกระดาน
+  let capturedCount = 0;
+  capturedPositions.forEach(pos => {
     const [r, c] = pos.split(',').map(Number);
     board.value[r][c] = '';
-    captured++;
-  }
+    capturedCount++;
+  });
 
-  if (captured > 0) {
-    if (currentPlayer.value === 'X') xScore.value += captured;
-    else oScore.value += captured;
+  if (capturedCount > 0) {
+    if (currentPlayer.value === 'X') xScore.value += capturedCount;
+    else oScore.value += capturedCount;
     checkGameEnd();
   }
 }
