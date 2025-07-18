@@ -29,17 +29,18 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'Home',
-  methods: {
-    startGame() {
-      this.$router.push('/level')
-    },
-    showRules() {
-      this.$router.push('/rules');
-    }
-  }
+<script setup>
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+// สำหรับ router navigation
+function startGame() {
+  router.push('/level') // นำผู้ใช้ไปยังหน้าเลือกระดับความยาก
+}
+
+function showRules() {
+  router.push('/rules') // นำผู้ใช้ไปยังหน้ากติกา
 }
 </script>
 
