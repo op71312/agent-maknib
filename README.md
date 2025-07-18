@@ -1,4 +1,4 @@
-
+ 
 
 ---
 
@@ -44,11 +44,17 @@ pip install fastapi uvicorn numpy torch pydantic llama-cpp-python
 ### 2.3 ตรวจสอบไฟล์โมเดล
 - ไฟล์โมเดล AI: `app/ai/maknib_simulation.pth`
 - ไฟล์ LLM: `app/llm/model/unsloth.Q4_K_M.gguf`
+- ดาวน์โหลดได้จาก `https://drive.google.com/drive/folders/1Jy6pipi_2Boujo4sB7CX2dY2CPSQonGX?usp=sharing`
 
 ## 3. ติดตั้ง Frontend (Vue.js)
 ```bash
 cd ../frontend
 npm install
+```
+หากรันไม่ได้ลอง
+```bash
+cd ../frontend
+npm install vite
 ```
 
 ## 4. รัน Backend (FastAPI)
@@ -60,26 +66,24 @@ uvicorn main:app --reload --host 0.0.0.0 --port 8000
 - API จะรันที่ http://localhost:8000
 
 ## 5. รัน Frontend (Vue.js)
+- เปิดเพิ่มอีก terminal
 ```bash
 cd ../frontend
 npm run dev
 ```
 - เว็บจะรันที่ http://localhost:5173
 
-## 6. (ถ้ามี) ติดตั้ง Python AI/เกม logic เพิ่มเติม
-- ถ้าใช้ `mak_nib_python/` สำหรับรัน AI/เกม logic เพิ่มเติม ให้เข้าไปติดตั้ง dependencies ตามที่มีในโฟลเดอร์นั้น (ถ้ามี requirements.txt)
-
-## 7. การใช้งาน
+## 6. การใช้งาน
 - เปิดเบราว์เซอร์ไปที่ http://localhost:5173
 - เล่นเกมผ่าน UI ได้เลย
 - Backend จะประมวลผล AI, LLM, กลยุทธ์ ฯลฯ
 
-## 8. หมายเหตุ
+## 7. หมายเหตุ
 - ถ้าใช้ GPU ให้ติดตั้ง torch เวอร์ชันที่รองรับ CUDA (`pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118`)
 - ถ้า LLM ช้า ให้ตรวจสอบว่า llama-cpp-python รองรับ GPU หรือไม่
 - ถ้าเจอปัญหาไฟล์โมเดลไม่เจอ ให้ตรวจสอบ path ให้ตรงกับที่โค้ดระบุ
 
-## 9. TL;DR (สรุปคำสั่ง)
+## 8. TL;DR (สรุปคำสั่ง)
 ```bash
 # Backend
 cd app
