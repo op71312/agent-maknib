@@ -336,7 +336,7 @@ def load_llm_model():
 
     startup_status["progress"] = 30
     startup_status["message"] = "กำลังโหลดโมเดล LLM..."
-    model_path = "app/llm/model/ollama/unsloth.Q4_K_M.gguf"
+    model_path = "app/llm/model/unsloth.Q4_K_M.gguf"
     from app.llm.backend.llm_strategy import LLMStrategySingleton
     LLMStrategySingleton.load_model(model_path)
 
