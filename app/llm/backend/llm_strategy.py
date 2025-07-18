@@ -37,48 +37,21 @@ list_of_strategies = [
 
 def analyze_strategy_llm(move_history: str) -> str:
     llama = LLMStrategySingleton.get_llm()
-    strategies_text = ", ".join(list_of_strategies)
-    game_rules_summary = """กฎกติกาเกมหมากหนีบ:
-* **วัตถุประสงค์:** ผู้เล่นแต่ละฝ่ายมีหมาก 8 ตัวบนกระดาน 8x8 วัตถุประสงค์คือการ \"หนีบ\" กินหมากฝ่ายตรงข้ามให้เหลือน้อยที่สุดหรือจนหมดเพื่อชนะ
-* **การเดินหมาก:** เดินได้ครั้งละ 1 ตัว ในแนวตรง (ขึ้น-ลง-ซ้าย-ขวา) กี่ช่องก็ได้ ห้ามเดินเฉียงหรือข้ามหมาก
-* **การหนีบ (จับกิน):**
-    * **รูปแบบ 1:** ใช้หมากของเรา 1 ตัวอยู่ตรงกลางระหว่างหมากฝ่ายตรงข้าม 2 ตัวเพื่อกินหมาก 2 ตัวนั้น
-    * **รูปแบบ 2:** ใช้หมากของเรา 2 ตัว \"หนีบ\" ล้อมรอบหมากฝ่ายตรงข้าม 1-2 ตัวเพื่อกินหมากที่ถูกหนีบ
-* **เงื่อนไขการชนะ:** กินหมากฝ่ายตรงข้ามหมด หรือทำให้คู่แข่งเดินหมากไม่ได้ หรือมีหมากเหลือน้อยที่สุดเมื่อจบเกม หากเหลือหมากเท่ากันถือว่าเสมอ
-"""
-    instruction_with_input = f"""{game_rules_summary}
-
-จากท่าเดินหมากที่กำหนดให้ จงวิเคราะห์และเลือกกลยุทธ์สามก๊กที่ตรงที่สุดจากรายการต่อไปนี้เท่านั้น:
-
-{strategies_text}
-
-ท่าเดินหมาก:
-{move_history}
-
-จงตอบในรูปแบบ:
-กลยุทธ์: [ชื่อกลยุทธ์ที่คุณเลือก]
-เหตุผล: [สรุปสั้นๆว่าท่าเดินหมากสอดคล้องกับกลยุทธ์ที่เลือกอย่างไร]"""
-
-    alpaca_prompt = """Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.
-
-### Instruction:
-{}
-
-### Input:
-
-### Response:
-{}"""
-    full_prompt = alpaca_prompt.format(instruction_with_input, "")
+    # สร้าง situation แบบละเอียด
+    situation = f"สถานการณ์เกมหมากหนีบ:\n{move_history}\n\nโปรดแนะนำกลยุทธ์ที่เหมาะสมจากสถานการณ์นี้"
+    # system prompt ตามที่ใช้ finetune
+    system_prompt = "คุณเป็นผู้เชี่ยวชาญการวิเคราะห์กลยุทธ์หมากหนีบ โปรดวิเคราะห์สถานการณ์การเดินหมากและแนะนำกลยุทธ์ที่เหมาะสม"
+    # สร้าง prompt ตาม format ที่ใช้ train
+    full_prompt = f"""<|im_start|>system\n{system_prompt}\n<|im_end|>\n<|im_start|>user\n{situation}\n<|im_end|>\n<|im_start|>assistant\n"""
 
     response = llama(
         prompt=full_prompt,
         max_tokens=130,
-        stop=["###", "\n\n", '<', '>', '-', '\n\n\n'],
+        stop=["<|im_end|>", "\n\n", "###", "\n"],
         echo=False,
         temperature=0.7,
         stream=False
     )
-    # ถ้า response เป็น iterator ให้ใช้ next()
     if not isinstance(response, dict):
         response = next(response)
     return response['choices'][0]['text'].strip() 

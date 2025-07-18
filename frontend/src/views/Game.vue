@@ -615,15 +615,37 @@ function restartGame() {
 
 async function analyzeStrategyIfNeeded() {
   if (moveHistory.value.length > 0 && moveHistory.value.length % 10 === 0) {
-    // สร้าง string ประวัติการเดิน
-    const movesText = moveHistory.value.map((m, idx) => {
-      const player = m.player === 'X' ? 'P1' : 'P2'
-      // สมมติ m.from_row, m.from_col, m.to_row, m.to_col มีอยู่
-      return `[${idx + 1}] ${player}: (${m.from_row},${m.from_col})→(${m.to_row},${m.to_col})`
-    }).join('\n')
+    // --- สรุปข้อมูล ---
+    const totalMoves = moveHistory.value.length;
+    const player1Moves = moveHistory.value.filter(m => m.player === 'X').length;
+    const player2Moves = moveHistory.value.filter(m => m.player === 'O').length;
+    let horizontalMoves = 0;
+    let verticalMoves = 0;
+    let totalDistance = 0;
+    // นับแนวนอน/แนวตั้ง และระยะทาง
+    moveHistory.value.forEach(m => {
+      if (m.from && m.to) {
+        const [fromRow, fromCol] = chessPosToRC(m.from);
+        const [toRow, toCol] = chessPosToRC(m.to);
+        if (fromRow === toRow) horizontalMoves++;
+        if (fromCol === toCol) verticalMoves++;
+        totalDistance += Math.abs(fromRow - toRow) + Math.abs(fromCol - toCol);
+      }
+    });
+    const avgDistance = totalMoves > 0 ? (totalDistance / totalMoves) : 0;
+    // --- สร้างข้อความตาม format finetune ---
+    let situation = `สถานการณ์เกมหมากหนีบ:\n- จำนวนการเดินหมาก: ${totalMoves} ตา\n- ผู้เล่น 1: ${player1Moves} ตา, ผู้เล่น 2: ${player2Moves} ตา\n- การเดินแนวนอน: ${horizontalMoves} ตา\n- การเดินแนวตั้ง: ${verticalMoves} ตา\n- ระยะทางเฉลี่ย: ${avgDistance.toFixed(1)} ช่อง`;
+    // เพิ่มรายละเอียดการเดิน
+    moveHistory.value.forEach((m, idx) => {
+      const [fromRow, fromCol] = chessPosToRC(m.from);
+      const [toRow, toCol] = chessPosToRC(m.to);
+      const playerNum = m.player === 'X' ? 1 : -1;
+      situation += `\nตาที่ ${idx + 1}: ผู้เล่น ${playerNum} เดิน (${fromRow},${fromCol}) → (${toRow},${toCol})`;
+    });
+    situation += '\nโปรดแนะนำกลยุทธ์ที่เหมาะสมจากสถานการณ์นี้';
     try {
       const res = await axios.post('http://localhost:8000/analyze-strategy', {
-        move_history: movesText
+        move_history: situation
       })
       aiThoughtHistory.value.unshift({
         turn: moveHistory.value.length,
@@ -634,6 +656,15 @@ async function analyzeStrategyIfNeeded() {
       console.error('AI strategy analysis error:', err)
     }
   }
+}
+
+// helper function แปลง chess pos (เช่น 'a8') กลับเป็น row,col
+function chessPosToRC(pos) {
+  if (!pos || typeof pos !== 'string') return [0, 0];
+  // pos เช่น 'a8' หรือ 'b3'
+  const col = pos.charCodeAt(0) - 'a'.charCodeAt(0);
+  const row = 8 - parseInt(pos[1]);
+  return [row, col];
 }
 
 // เพิ่ม refs สำหรับกลยุทธ์
