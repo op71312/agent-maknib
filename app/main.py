@@ -7,10 +7,14 @@ from pydantic import BaseModel
 from typing import List
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
-from app.llm.backend.llm_strategy import analyze_strategy_llm
+from app.llm.backend.llm_strategy import analyze_strategy_llm, LLMStrategySingleton, analyze_strategy_and_plan_llm
 from app.llm.backend.llm_strategy import LLMStrategySingleton
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
+from fastapi import Query
+import csv
+import random
+from typing import Optional
 
 # ====== ENVIRONMENT CLASS ======
 class MakNeebRLEnv:
@@ -367,6 +371,17 @@ checkpoint = torch.load(MODEL_PATH, map_location=DEVICE, weights_only=False)
 model.load_state_dict(checkpoint['model_state_dict'])
 model.eval()
 
+def validate_action_sequence(env, action_ids):
+    valid_actions = []
+    for action_id in action_ids:
+        legal = env.get_legal_actions()
+        if action_id in legal:
+            valid_actions.append(action_id)
+            env.step(action_id)
+        else:
+            break  # หยุดทันทีถ้าเจอ action ผิดกติกา
+    return valid_actions
+
 @app.post("/ai-move", response_model=AIMoveResponse)
 def ai_move(req: AIMoveRequest):
     env = MakNeebRLEnv()
@@ -401,5 +416,79 @@ def analyze_strategy(req: AnalyzeStrategyRequest):
     # เรียกใช้ LLM วิเคราะห์
     result = analyze_strategy_llm(req.move_history)
     return AnalyzeStrategyResponse(analysis=result)
+
+class HardLLMPlanRequest(BaseModel):
+    board: List[List[int]]
+    current_player: int
+    move_history: str
+
+class HardLLMPlanResponse(BaseModel):
+    strategy: str
+    actions: List[int]
+    raw: str
+
+@app.post("/hard-llm-plan", response_model=HardLLMPlanResponse)
+def hard_llm_plan(req: HardLLMPlanRequest):
+    result = analyze_strategy_and_plan_llm(req.move_history, req.board, req.current_player)
+    # ตรวจสอบ action id ว่าไม่ผิดกติกา
+    env = MakNeebRLEnv()
+    env.reset(board=req.board, current_player=req.current_player)
+    valid_actions = validate_action_sequence(env, result['actions'])
+    return HardLLMPlanResponse(strategy=result['strategy'], actions=valid_actions, raw=result['raw'])
+
+class ApplyStrategySequenceRequest(BaseModel):
+    strategy_name: str
+
+class ApplyStrategySequenceResponse(BaseModel):
+    action_sequence: list
+    game_number: int
+
+@app.post("/apply-strategy-sequence", response_model=ApplyStrategySequenceResponse)
+def apply_strategy_sequence(req: ApplyStrategySequenceRequest):
+    csv_path = "app/llm/dataset/game_strategy_analysis_llm_limited.csv"
+    matches = []
+    with open(csv_path, encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            if row.get("strategy", "").strip() == req.strategy_name.strip():
+                # action_sequence อาจเป็น "227,3600,138,1072,40"
+                seq = [int(x) for x in row["action_sequence"].split(",") if x.strip().isdigit()]
+                matches.append({"action_sequence": seq, "game_number": int(row.get("game_number", 0))})
+    if not matches:
+        return ApplyStrategySequenceResponse(action_sequence=[], game_number=-1)
+    chosen = random.choice(matches[:3]) if len(matches) >= 3 else random.choice(matches)
+    return ApplyStrategySequenceResponse(action_sequence=chosen["action_sequence"], game_number=chosen["game_number"])
+
+class ApplyActionSequenceRequest(BaseModel):
+    board: List[List[int]]
+    action_sequence: List[int]
+    current_player: int
+
+class ApplyActionSequenceResponse(BaseModel):
+    board: List[List[int]]
+    move_history: List[int]
+    x_score: int
+    o_score: int
+
+@app.post("/apply-action-sequence", response_model=ApplyActionSequenceResponse)
+def apply_action_sequence(req: ApplyActionSequenceRequest):
+    env = MakNeebRLEnv()
+    env.reset(board=req.board, current_player=req.current_player)
+    move_history = []
+    for action_id in req.action_sequence:
+        legal = env.get_legal_actions()
+        if action_id in legal:
+            env.step(action_id)
+            move_history.append(action_id)
+        else:
+            break
+    x_score = int(np.sum(env.board == 1))
+    o_score = int(np.sum(env.board == -1))
+    return ApplyActionSequenceResponse(
+        board=env.board.tolist(),
+        move_history=move_history,
+        x_score=x_score,
+        o_score=o_score
+    )
 
 # สำหรับรันด้วย: uvicorn ai_backend.main:app --reload
