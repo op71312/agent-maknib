@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>กระบวนการวิเคราะห์กลยุทธ์สามก๊กสำหรับเกมหมากหนีบ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Kanit', sans-serif;
+            background-color: #f3f4f6; /* Gray background */
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            overflow-y: auto; /* Enable vertical scrolling */
+            font-size: 17px; /* Base font size */
+        }
+        .aspect-16-9 {
+            position: relative;
+            width: 22cm;
+            min-height: 44.1cm; /* Use min-height instead of fixed height */
+            margin: 1cm auto; /* Center the poster with margin */
+            overflow: visible; /* Remove internal scrolling */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Add subtle shadow for definition */
+            background: white; /* Ensure white background */
+        }
+        .aspect-content {
+            position: relative;
+            width: 100%;
+            height: auto; /* Change to auto height */
+            padding: 0.5cm; /* Adjust padding for print margins */
+            box-sizing: border-box;
+        }
+        .flow-item {
+            position: relative;
+            transition: all 0.3s ease;
+            margin-bottom: 1cm; /* Reduce spacing to fit in smaller height */
+        }
+        .flow-item:hover {
+            transform: translateY(-5px);
+        }
+        .connector {
+            position: absolute;
+            z-index: -1;
+        }
+        .vertical-connector {
+            width: 4px;
+            background: linear-gradient(to bottom, #dc2626, #991b1b);
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .icon-container {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.5rem;
+            background: linear-gradient(135deg, #dc2626, #991b1b);
+            box-shadow: 0 2px 6px rgba(220, 38, 38, 0.3);
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(220, 38, 38, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(220, 38, 38, 0);
+            }
+        }
+        .card {
+            border-radius: 12px;
+            background: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        .framework-item {
+            transition: all 0.3s ease;
+        }
+        .framework-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 12px;
+            height: 12px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #dc2626;
+            border-radius: 10px;
+            border: 2px solid #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #991b1b;
+        }
+
+        /* For Firefox */
+        html {
+            scrollbar-width: thin;
+            scrollbar-color: #dc2626 #f1f1f1;
+        }
+
+        /* Custom font sizes */
+        .text-17 {
+            font-size: 17px;
+        }
+        .text-20 {
+            font-size: 20px;
+        }
+        
+        /* Step indicator */
+        .step-indicator {
+            position: absolute;
+            top: -10px;
+            left: 15px;
+            background: #991b1b;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+        }
+        
+        /* Print styles */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .aspect-16-9 {
+                width: 22cm;
+                height: 44.1cm;
+                margin: 0;
+                box-shadow: none;
+                page-break-inside: avoid;
+            }
+            .aspect-content {
+                padding: 0.3cm;
+            }
+        }
+        
+        /* Responsive adjustments for smaller screens */
+        @media screen and (max-width: 768px) {
+            .aspect-16-9 {
+                width: 95vw;
+                min-height: auto;
+                margin: 0.5cm auto;
+            }
+            .aspect-content {
+                padding: 0.3cm;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="aspect-16-9">
+        <div class="aspect-content">
+            <div class="max-w-5xl mx-auto">
+                <!-- Main Header -->
+                <div class="text-center mb-6">
+                    <h1 class="text-20 font-bold text-gray-800 mb-2">การดำเนินการ</h1>
+                </div>
+                
+                <!-- Main Infographic -->
+                <div class="relative">
+                    <!-- Phase 1: Data Preparation -->
+                    <div class="flow-item card p-4 mb-6 max-w-4xl mx-auto">
+                        <div class="step-indicator">1</div>
+                        <div class="absolute -top-6 left-1/2 transform -translate-x-1/2">
+                            <div class="icon-container pulse" style="width: 40px; height: 40px;">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        
+                        <h2 class="text-20 font-bold text-center text-gray-800 mb-3">1. การเตรียมชุดข้อมูล</h2>
+                        
+                        <div class="grid grid-cols-1 gap-6 mb-6">
+                            <div class="bg-red-50 rounded-lg p-4 border-l-4 border-red-800">
+                                <h3 class="font-bold text-red-800 mb-3 text-20 text-center">รวบรวม 36 กลยุทธ์สามก๊ก</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-17 text-gray-700">
+                                    <div class="bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg p-3 shadow-sm border border-blue-300">
+                                        <div class="flex items-center justify-center">
+                                            <svg class="w-5 h-5 text-blue-700 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                            </svg>
+                                            <span class="font-medium text-blue-800">รวบรวมชื่อกลยุทธ์</span>
+                                        </div>
+                                    </div>
+                                    <div class="bg-gradient-to-br from-green-100 to-green-200 rounded-lg p-3 shadow-sm border border-green-300">
+                                        <div class="flex items-center justify-center">
+                                            <svg class="w-5 h-5 text-green-700 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                            </svg>
+                                            <span class="font-medium text-green-800">จัดหมวดหมู่กลยุทธ์</span>
+                                        </div>
+                                    </div>
+                                    <div class="bg-gradient-to-br from-purple-100 to-purple-200 rounded-lg p-3 shadow-sm border border-purple-300">
+                                        <div class="flex items-center justify-center">
+                                            <svg class="w-5 h-5 text-purple-700 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                            </svg>
+                                            <span class="font-medium text-purple-800">บันทึกรายละเอียดกลยุทธ์</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 6 Steps of Data Preparation -->
+                        <div class="bg-gray-100 rounded-lg p-4 mb-6">
+                            <div class="bg-yellow-50 rounded-lg p-3 border-l-4 border-yellow-600 mb-4">
+                                <h4 class="font-semibold text-yellow-800 text-20 mb-1">แปลงกลยุทธ์และตรวจสอบความถูกต้อง</h4>
+                                <p class="text-17 text-gray-700">ระบบจะให้คะแนน (Score) จากการเปรียบเทียบวิธีการเดินหมากหนีบกับกลยุทธ์เป้าหมาย หาก Score ออกมาสูง แสดงว่าวิธีการเดินหมากหนีบสอดคล้องกับกลยุทธ์เป้าหมายมากขึ้น</p>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="bg-white rounded-lg p-3 shadow-sm">
+                                    <h4 class="font-semibold text-red-800 text-20 mb-1">1. การตั้งค่าระบบและโหลดโมเดล</h4>
+                                    <p class="text-17 text-gray-700">ติดตั้งไลบรารี่สำคัญ: pandas, numpy, attacut, sentence_transformers, scikit-learn และโหลดโมเดล Qwen/Qwen3-Embedding-0.6B สำหรับสร้าง embeddings ภาษาไทย</p>
+                                </div>
+                                
+                                <div class="bg-white rounded-lg p-3 shadow-sm">
+                                    <h4 class="font-semibold text-red-800 text-20 mb-1">2. สร้าง 6C Framework</h4>
+                                    <p class="text-17 text-gray-700">กำหนดกรอบการวิเคราะห์ 6 มิติสำหรับเกมหมากหนีบ: ความสามารถในการรุก, ความสามารถในการรับ, การประสานงานระหว่างหมาก, ทรัพยากรที่ยังไม่ใช้, ความได้เปรียบด้านเวลา, ความเหมาะสมกับสถานการณ์</p>
+                                </div>
+                                
+                                <div class="bg-white rounded-lg p-3 shadow-sm">
+                                    <h4 class="font-semibold text-red-800 text-20 mb-1">3. การโหลดและประมวลผลข้อมูลกลยุทธ์</h4>
+                                    <p class="text-17 text-gray-700">โหลดข้อมูลวิธีเดินหมากหนีบที่สอดคล้องกับ 36 กลยุทธ์จากไฟล์ CSV, รวมข้อความ (หมวด + ลักษณะ) เป็น combined_text และตัดคำภาษาไทยด้วย attacut สำหรับการประมวลผลที่แม่นยำ</p>
+                                </div>
+                                
+                                <div class="bg-white rounded-lg p-3 shadow-sm">
+                                    <h4 class="font-semibold text-red-800 text-20 mb-1">4. การสร้าง Vector Database</h4>
+                                    <p class="text-17 text-gray-700">คำนวณ 6C Vector สำหรับแต่ละกลยุทธ์โดยการสร้าง embedding ของข้อความกลยุทธ์, คำนวณ cosine similarity กับ 6C definitions, Normalize เป็นสัดส่วนรวม 100% และบันทึกเป็น pickle file</p>
+                                </div>
+                                
+                                <div class="bg-white rounded-lg p-3 shadow-sm">
+                                    <h4 class="font-semibold text-red-800 text-20 mb-1">5. การสร้างระบบ Semantic Search</h4>
+                                    <p class="text-17 text-gray-700">พัฒนา 2 ระดับการค้นหา: Semantic Search (แปลง query เป็น embedding, คำนวณ cosine similarity) และ Reranking ด้วย 6C Framework (คำนวณ 6C pattern ของ query, เปรียบเทียบกับกลยุทธ์)</p>
+                                </div>
+                                
+                                <div class="bg-white rounded-lg p-3 shadow-sm">
+                                    <h4 class="font-semibold text-red-800 text-20 mb-1">6. การคำนวณ Metrics แบบครอบคลุม</h4>
+                                    <p class="text-17 text-gray-700">สร้างระบบประเมินผลที่วัดได้หลายมิติ: Semantic Similarity, 6C Similarity, Selection Score, Confidence Score, KL Divergence และ Match Ratio</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+
+                        
+                    
+                    <!-- Phase 2: Model Development -->
+                    <div class="flow-item card p-4 mb-6 max-w-4xl mx-auto">
+                        <div class="step-indicator">2</div>
+                        <div class="absolute -top-6 left-1/2 transform -translate-x-1/2">
+                            <div class="icon-container" style="width: 40px; height: 40px;">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        
+                        <h2 class="text-20 font-bold text-center text-gray-800 mb-3">2. การพัฒนาโมเดลเกมหมากหนีบ</h2>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-yellow-50 rounded-lg p-3 border-l-4 border-yellow-600">
+                                <h3 class="font-bold text-yellow-800 mb-2 text-20">การฝึกฝนโมเดล AI</h3>
+                                <div class="flex items-center mb-2">
+                                    <svg class="w-6 h-6 text-yellow-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
+                                    </svg>
+                                    <div>
+                                        <p class="font-medium text-17">Reinforcement Learning (RL)</p>
+                                        <p class="text-17 text-gray-600">Proximal Policy Optimization (PPO)</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center">
+                                    <svg class="w-6 h-6 text-yellow-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                    </svg>
+                                    <div>
+                                        <p class="font-medium text-17">Monte Carlo Tree Search</p>
+                                        <p class="text-17 text-gray-600">Framework: Gymnasium</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-yellow-50 rounded-lg p-3 border-l-4 border-yellow-600">
+                                <h3 class="font-bold text-yellow-800 mb-2 text-20">การบันทึกข้อมูล</h3>
+                                <ul class="text-17 text-gray-700 space-y-1">
+                                    <li class="flex items-start">
+                                        <svg class="w-6 h-6 text-yellow-600 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        <span>บันทึกโมเดลเป็น <strong>maknib_simulation.pth</strong></span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <svg class="w-6 h-6 text-yellow-600 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        <span>บันทึกประวัติการเดินหมาก</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <svg class="w-6 h-6 text-yellow-600 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        <span>บันทึกสถิติผลแพ้ชนะในแต่ละรอบ</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- Remove Flow Arrow -->
+                    </div>
+                    
+                    <!-- Phase 3: LLM Analysis -->
+                    <div class="flow-item card p-4 mb-6 max-w-4xl mx-auto">
+                        <div class="step-indicator">3</div>
+                        <div class="absolute -top-6 left-1/2 transform -translate-x-1/2">
+                            <div class="icon-container" style="width: 40px; height: 40px;">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        
+                        <h2 class="text-20 font-bold text-center text-gray-800 mb-3">3. การวิเคราะห์ด้วย LLM</h2>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-blue-50 rounded-lg p-3 border-l-4 border-blue-600">
+                                <h3 class="font-bold text-blue-800 mb-2 text-20">การวิเคราะห์กลยุทธ์</h3>
+                                <div class="flex items-center mb-2">
+                                    <svg class="w-6 h-6 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                    <div>
+                                        <p class="font-medium text-17">scb10x/llama3.2-typhoon2-t1-3b</p>
+                                        <p class="text-17 text-gray-600">วิเคราะห์ประวัติการเดินหมาก</p>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col space-y-1">
+                                    <div class="flex items-center">
+                                        <svg class="w-6 h-6 text-blue-600 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>
+                                        </svg>
+                                        <span class="text-17">อ่านไฟล์ CSV ประวัติการเดินหมาก</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <svg class="w-6 h-6 text-blue-600 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                            <path fill-rule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        <span class="text-17">วิเคราะห์วิธีเดินหมากของแต่ละกลยุทธ์</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <svg class="w-6 h-6 text-blue-600 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        <span class="text-17">บันทึกเป็น game_strategy_analysis_llm_limited.csv</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-blue-50 rounded-lg p-3 border-l-4 border-blue-600">
+                                <h3 class="font-bold text-blue-800 mb-2 text-20">การปรับแต่งโมเดล</h3>
+                                <div class="flex items-center mb-2">
+                                    <svg class="w-6 h-6 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    </svg>
+                                    <div>
+                                        <p class="font-medium text-17">Fine-tune LLM</p>
+                                        <p class="text-17 text-gray-600">unsloth/Llama-3.2-1B-Instruct</p>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col space-y-1">
+                                    <div class="flex items-center">
+                                        <svg class="w-6 h-6 text-blue-600 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        <span class="text-17">นำไฟล์ game_strategy_analysis_llm_limited.csv มาใช้</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <svg class="w-6 h-6 text-blue-600 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                            <path fill-rule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2h-2.22l.123.489.804.804A1 1 0 0113 18H7a1 1 0 01-.707-1.707l.804-.804L7.22 15H5a2 2 0 01-2-2V5zm5.771 7H5V5h10v7H8.771z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        <span class="text-17">บันทึกในรูปแบบ Quantization Q4_K_M</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <svg class="w-6 h-6 text-blue-600 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                            <path fill-rule="evenodd" d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm3.293 1.293a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 01-1.414-1.414L7.586 10 5.293 7.707a1 1 0 010-1.414zM11 12a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        <span class="text-17">รันบนเครื่อง Local ด้วย llm.cpp</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <svg class="w-6 h-6 text-blue-600 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                            <path fill-rule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        <span class="text-17">เชื่อมต่อกับเว็บด้วย FastAPI</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Website Architecture Section -->
+                    <div class="flow-item card p-4 mb-6 max-w-4xl mx-auto">
+                        <div class="step-indicator">4</div>
+                        <div class="absolute -top-6 left-1/2 transform -translate-x-1/2">
+                            <div class="icon-container" style="width: 40px; height: 40px;">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        
+                        <h2 class="text-20 font-bold text-center text-gray-800 mb-3">4. สถาปัตยกรรมเว็บแอปพลิเคชัน</h2>
+                        
+                        <!-- Architecture Overview -->
+                        <div class="bg-purple-50 rounded-lg p-4 border-l-4 border-purple-600 mb-4">
+                            <h3 class="font-bold text-purple-800 mb-2 text-20">โครงสร้างระบบแบบ Multi-Tier Architecture</h3>
+                            <p class="text-17 text-gray-700">ระบบประกอบด้วย 3 ชั้นหลัก: Frontend (Vue.js), Backend Services (FastAPI + Express.js), และ AI/ML Layer</p>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                            <!-- Frontend Layer -->
+                            <div class="bg-blue-50 rounded-lg p-3 border-l-4 border-blue-600">
+                                <div class="flex items-center mb-2">
+                                    <svg class="w-6 h-6 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                    </svg>
+                                    <h3 class="font-bold text-blue-800 text-20">Frontend Layer</h3>
+                                </div>
+                                <ul class="text-17 text-gray-700 space-y-1">
+                                    <li class="flex items-start">
+                                        <span class="text-blue-600 mr-1">•</span>
+                                        <span><strong>Vue.js 3</strong> - Modern JavaScript Framework</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="text-blue-600 mr-1">•</span>
+                                        <span><strong>Vite</strong> - Build Tool & Dev Server</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="text-blue-600 mr-1">•</span>
+                                        <span><strong>Vue Router 4</strong> - Client-side Routing</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="text-blue-600 mr-1">•</span>
+                                        <span><strong>Fomantic UI</strong> - CSS Framework</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="text-blue-600 mr-1">•</span>
+                                        <span><strong>Axios</strong> - HTTP Client</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <!-- Backend Services -->
+                            <div class="bg-orange-50 rounded-lg p-3 border-l-4 border-orange-600">
+                                <div class="flex items-center mb-2">
+                                    <svg class="w-6 h-6 text-orange-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"></path>
+                                    </svg>
+                                    <h3 class="font-bold text-orange-800 text-20">Backend Services</h3>
+                                </div>
+                                <ul class="text-17 text-gray-700 space-y-1">
+                                    <li class="flex items-start">
+                                        <span class="text-orange-600 mr-1">•</span>
+                                        <span><strong>FastAPI</strong> - Primary Python API</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="text-orange-600 mr-1">•</span>
+                                        <span><strong>Express.js</strong> - Secondary Node.js API</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="text-orange-600 mr-1">•</span>
+                                        <span><strong>CORS</strong> - Cross-Origin Resource Sharing</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="text-orange-600 mr-1">•</span>
+                                        <span><strong>Uvicorn</strong> - ASGI Server</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="text-orange-600 mr-1">•</span>
+                                        <span><strong>Mongoose</strong> - MongoDB ODM</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <!-- AI/ML Layer -->
+                            <div class="bg-green-50 rounded-lg p-3 border-l-4 border-green-600">
+                                <div class="flex items-center mb-2">
+                                    <svg class="w-6 h-6 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
+                                    </svg>
+                                    <h3 class="font-bold text-green-800 text-20">AI/ML Layer</h3>
+                                </div>
+                                <ul class="text-17 text-gray-700 space-y-1">
+                                    <li class="flex items-start">
+                                        <span class="text-green-600 mr-1">•</span>
+                                        <span><strong>PyTorch</strong> - Deep Learning Framework</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="text-green-600 mr-1">•</span>
+                                        <span><strong>Llama 3.2-1B</strong> - Language Model</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="text-green-600 mr-1">•</span>
+                                        <span><strong>NumPy</strong> - Numerical Computing</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="text-green-600 mr-1">•</span>
+                                        <span><strong>Gymnasium</strong> - RL Environment</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="text-green-600 mr-1">•</span>
+                                        <span><strong>llama-cpp-python</strong> - Local Inference</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- Data Flow Architecture -->
+                        <div class="bg-gray-100 rounded-lg p-4">
+                            <h4 class="font-semibold text-gray-800 text-20 mb-3 text-center">Data Flow และ Component Communication</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="bg-white rounded-lg p-3 shadow-sm">
+                                    <h4 class="font-semibold text-purple-800 text-20 mb-2">Client-Server Communication</h4>
+                                    <div class="space-y-2 text-17 text-gray-700">
+                                        <div class="flex items-center">
+                                            <span class="text-purple-600 mr-2">→</span>
+                                            <span>Frontend (Port 5173) ↔ FastAPI (Port 8000)</span>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <span class="text-purple-600 mr-2">→</span>
+                                            <span>REST API endpoints for game logic</span>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <span class="text-purple-600 mr-2">→</span>
+                                            <span>Real-time AI strategy analysis</span>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <span class="text-purple-600 mr-2">→</span>
+                                            <span>Express.js (Port 5000) for auxiliary services</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white rounded-lg p-3 shadow-sm">
+                                    <h4 class="font-semibold text-purple-800 text-20 mb-2">AI Processing Pipeline</h4>
+                                    <div class="space-y-2 text-17 text-gray-700">
+                                        <div class="flex items-center">
+                                            <span class="text-purple-600 mr-2">→</span>
+                                            <span>Game State → AI Model Inference</span>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <span class="text-purple-600 mr-2">→</span>
+                                            <span>Strategy Analysis → LLM Processing</span>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <span class="text-purple-600 mr-2">→</span>
+                                            <span>Vector Database → Semantic Search</span>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <span class="text-purple-600 mr-2">→</span>
+                                            <span>Results → Frontend Display</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Results Section -->
+                    <div class="flow-item card p-4 mb-6 max-w-4xl mx-auto">
+                        <div class="text-center mb-4">
+                            <h2 class="text-20 font-bold text-gray-800 mb-3">ผลลัพธ์: ระบบวิเคราะห์กลยุทธ์สามก๊กสำหรับเกมหมากหนีบ</h2>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="bg-green-50 rounded-lg p-4 border-l-4 border-green-600">
+                                <div class="flex items-center mb-2">
+                                    <svg class="w-6 h-6 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    <h3 class="font-bold text-green-800 text-20">36 กลยุทธ์สามก๊ก</h3>
+                                </div>
+                                <p class="text-17 text-gray-700">วิเคราะห์และแปลงเป็นวิธีเดินหมากหนีบ</p>
+                            </div>
+                            
+                            <div class="bg-green-50 rounded-lg p-4 border-l-4 border-green-600">
+                                <div class="flex items-center mb-2">
+                                    <svg class="w-6 h-6 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                    </svg>
+                                    <h3 class="font-bold text-green-800 text-20">โมเดล AI</h3>
+                                </div>
+                                <p class="text-17 text-gray-700">ฝึกฝนด้วย RL + MCTS</p>
+                            </div>
+                            
+                            <div class="bg-green-50 rounded-lg p-4 border-l-4 border-green-600">
+                                <div class="flex items-center mb-2">
+                                    <svg class="w-6 h-6 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                                    </svg>
+                                    <h3 class="font-bold text-green-800 text-20">Agent วิเคราะห์</h3>
+                                </div>
+                                <p class="text-17 text-gray-700">วิเคราะห์สถานการณ์กระดานและเชื่อมโยงกลยุทธ์</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- ผลการดำเนินงาน Section -->
+                    <div class="flow-item card p-4 mb-6 max-w-4xl mx-auto">
+                        <div class="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-2xl shadow-lg p-6 mb-8">
+                            <div class="flex items-center mb-4">
+                                <i class="fas fa-chart-line text-purple-600 text-xl mr-3"></i>
+                                <h2 class="text-xl font-bold text-gray-800">ผลการดำเนินงาน</h2>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-6">
+                                <!-- AI Performance Metrics -->
+                                <div class="bg-white rounded-xl p-4 shadow-md">
+                                    <h3 class="font-semibold text-gray-700 mb-3 border-b pb-2">ประสิทธิภาพ AI Agent (MCTS + PPO)</h3>
+                                    <div class="space-y-3">
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-600">การลด Training Loss</span>
+                                            <span class="font-bold text-green-600">98.1%</span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-600">จำนวนรอบการเทรน</span>
+                                            <span class="font-bold text-blue-600">625 steps</span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-600">Final Training Loss</span>
+                                            <span class="font-bold text-purple-600">0.0427</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- LLM Analysis Metrics -->
+                                <div class="bg-white rounded-xl p-4 shadow-md">
+                                    <h3 class="font-semibold text-gray-700 mb-3 border-b pb-2">การวิเคราะห์กลยุทธ์ด้วย LLM</h3>
+                                    <div class="space-y-3">
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-600">Final Evaluation Loss</span>
+                                            <span class="font-bold text-green-600">0.1388</span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-600">Confidence Score</span>
+                                            <span class="font-bold text-blue-600">0.166</span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-600">การลด Eval Loss</span>
+                                            <span class="font-bold text-purple-600">91.7%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- สรุปผลการดำเนินงาน Section -->
+                    <div class="flow-item card p-4 mb-6 max-w-4xl mx-auto">
+                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl shadow-lg p-6">
+                            <div class="flex items-center mb-4">
+                                <i class="fas fa-trophy text-green-600 text-xl mr-3"></i>
+                                <h2 class="text-xl font-bold text-gray-800">สรุปผลการดำเนินงาน</h2>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <!-- Key Achievements -->
+                                <div class="bg-white rounded-xl p-4 shadow-md">
+                                    <h3 class="font-semibold text-gray-700 mb-3 border-b pb-2">ความสำเร็จหลัก</h3>
+                                    <ul class="space-y-2 text-sm">
+                                        <li class="flex items-start">
+                                            <i class="fas fa-check-circle text-green-500 mr-2 mt-1"></i>
+                                            <span>Fine-tune LLM Llama 3.2-1B สำเร็จด้วย Loss ลดลง 98.1%</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <i class="fas fa-check-circle text-green-500 mr-2 mt-1"></i>
+                                            <span>พัฒนา 6C Framework วิเคราะห์กลยุทธ์ 36 กลสามก๊กได้ครบถ้วน</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <i class="fas fa-check-circle text-green-500 mr-2 mt-1"></i>
+                                            <span>สร้าง MakNeeb RL Environment ด้วย MCTS และ PPO Algorithm</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <i class="fas fa-check-circle text-green-500 mr-2 mt-1"></i>
+                                            <span>พัฒนาเว็บแอพพลิเคชันแบบ Full-stack (Vue.js + Node.js)</span>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <!-- Future Work -->
+                                <div class="bg-white rounded-xl p-4 shadow-md">
+                                    <h3 class="font-semibold text-gray-700 mb-3 border-b pb-2">การพัฒนาต่อในอนาคต</h3>
+                                    <ul class="space-y-2 text-sm">
+                                        <li class="flex items-start">
+                                            <i class="fas fa-arrow-right text-blue-500 mr-2 mt-1"></i>
+                                            <span>ปรับปรุง Model Quantization (Q4_K_M GGUF) เพื่อประสิทธิภาพที่ดีขึ้น</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <i class="fas fa-arrow-right text-blue-500 mr-2 mt-1"></i>
+                                            <span>เพิ่มกลยุทธ์จากตำราอื่นๆ เช่น ตำราซุนจื๊อ และ The Art of War</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <i class="fas fa-arrow-right text-blue-500 mr-2 mt-1"></i>
+                                            <span>พัฒนาระบบ RAG (Retrieval-Augmented Generation) สำหรับกลยุทธ์</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <i class="fas fa-arrow-right text-blue-500 mr-2 mt-1"></i>
+                                            <span>ขยายการใช้งานไปยังเกมกลยุทธ์อื่นๆ เช่น หมากรุก และ Go</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Footer -->
+                <div class="mt-4 text-center text-gray-500 text-sm">
+                    <p>© 2023 ระบบวิเคราะห์กลยุทธ์สามก๊กสำหรับเกมหมากหนีบ. สงวนลิขสิทธิ์.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96634358d7dc26c5',t:'MTc1MzY5NDAzMy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

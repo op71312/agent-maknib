@@ -332,7 +332,7 @@ app.add_middleware(
 
 @app.on_event("startup")
 def load_llm_model():
-    global startup_status
+    global startup_status, model, mcts_pool
     startup_status["progress"] = 10
     startup_status["message"] = "Import library..."
     import time
@@ -344,12 +344,39 @@ def load_llm_model():
     from app.llm.backend.llm_strategy import LLMStrategySingleton
     LLMStrategySingleton.load_model(model_path)
 
+    startup_status["progress"] = 50
+    startup_status["message"] = "กำลังโหลด .pth model..."
+    
+    # โหลด Neural Network Model
+    print("⏳ กำลังสร้างโมเดล...")
+    model = MakNeebNet(action_size=4096).to(DEVICE)
+    
+    print("⏳ กำลังโหลด weights...")
+    checkpoint = torch.load(MODEL_PATH, map_location=DEVICE, weights_only=False)
+    model.load_state_dict(checkpoint['model_state_dict'])
+    model.eval()
+    
+    startup_status["progress"] = 70
+    startup_status["message"] = "กำลังสร้าง MCTS Pool..."
+    
+    # สร้าง MCTS Pool
+    print("⏳ กำลังสร้าง MCTS Pool สำหรับทุก difficulty...")
+    mcts_pool = {
+        "easy": MCTS(model, DEVICE, c_puct=1.5, num_simulations=10),
+        "medium": MCTS(model, DEVICE, c_puct=1.5, num_simulations=50), 
+        "hard": MCTS(model, DEVICE, c_puct=1.5, num_simulations=200)
+    }
+    
+    print(f"✅ โหลด .pth model สำเร็จ (Device: {DEVICE})")
+    print("✅ สร้าง MCTS Pool สำเร็จ (Easy:10, Medium:50, Hard:200 simulations)")
+
     startup_status["progress"] = 90
     startup_status["message"] = "กำลังเตรียมระบบ..."
     time.sleep(0.5)  # จำลอง
 
     startup_status["progress"] = 100
     startup_status["message"] = "พร้อมใช้งานแล้ว!"
+    print("🚀 ระบบพร้อมใช้งาน - ความเร็วสูงสุด!")
 
 class AIMoveRequest(BaseModel):
     board: List[List[int]]
@@ -363,13 +390,11 @@ class AIMoveResponse(BaseModel):
     to_col: int
     action_id: int
 
-# โหลดโมเดล
+# ========== Global Variables สำหรับ AI Model ==========
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 MODEL_PATH = "app/ai/maknib_simulation.pth"
-model = MakNeebNet(action_size=4096).to(DEVICE)
-checkpoint = torch.load(MODEL_PATH, map_location=DEVICE, weights_only=False)
-model.load_state_dict(checkpoint['model_state_dict'])
-model.eval()
+model = None
+mcts_pool = None
 
 def validate_action_sequence(env, action_ids):
     valid_actions = []
@@ -386,14 +411,10 @@ def validate_action_sequence(env, action_ids):
 def ai_move(req: AIMoveRequest):
     env = MakNeebRLEnv()
     env.reset(board=req.board, current_player=req.current_player)
-    # กำหนดจำนวน simulation ตามระดับ
-    if req.difficulty == "easy":
-        num_sim = 10
-    elif req.difficulty == "medium":
-        num_sim = 50
-    else:  # hard
-        num_sim = 200
-    mcts = MCTS(model, DEVICE, c_puct=1.5, num_simulations=num_sim)
+    
+    # ใช้ MCTS ที่สร้างไว้แล้วตาม difficulty (เร็วมาก!)
+    mcts = mcts_pool.get(req.difficulty, mcts_pool["medium"])  # default = medium
+    
     action_probs, _ = mcts.search(env)
     best_action = int(np.argmax(action_probs))
     (from_row, from_col), (to_row, to_col) = env._decode_action(best_action)

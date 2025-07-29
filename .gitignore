@@ -1,0 +1,112 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+.venv/
+venv/
+env/
+ENV/
+
+# AI Models & Large Files
+*.pth
+*.gguf
+*.bin
+*.model
+*.safetensors
+
+# Torch/CUDA libraries (ขนาดใหญ่)
+.venv/Lib/site-packages/torch/lib/cudnn_adv64_9.dll
+.venv/Lib/site-packages/torch/lib/cudnn_engines_precompiled64_9.dll
+.venv/Lib/site-packages/torch/lib/cudnn_ops64_9.dll
+.venv/Lib/site-packages/torch/lib/cufft64_10.dll
+.venv/Lib/site-packages/torch/lib/cusolverMg64_11.dll
+.venv/Lib/site-packages/torch/lib/cusolver64_11.dll
+.venv/Lib/site-packages/torch/lib/cusparse64_11.dll
+.venv/Lib/site-packages/torch/lib/dnml.lib
+.venv/Lib/site-packages/torch/lib/torch_cpu.dll
+.venv/Lib/site-packages/torch/lib/torch_cuda.dll
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+.npm
+.eslintcache
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Database
+*.db
+*.sqlite
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+tmp/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# PyTorch checkpoints and models
+checkpoints/
+models/
+*.pt
+*.checkpoint
+
+# Dataset files
+dataset/
+data/
+*.csv
+*.json
+*.parquet
+
+# Build output
+dist/
+build/

@@ -66,11 +66,11 @@ agent-maknib/
 ### 2.1 สร้าง Python Virtual Environment
 ```bash
 cd app
-python -m venv venv
+python -m venv env
 # Windows:
-venv\Scripts\activate
+env\Scripts\activate
 # macOS/Linux:
-source venv/bin/activate
+source env/bin/activate
 ```
 
 ### 2.2 ติดตั้ง dependencies
@@ -90,6 +90,7 @@ pip install fastapi uvicorn numpy torch pydantic llama-cpp-python
 ## 3. ติดตั้ง Frontend (Vue.js)
 ```bash
 cd ../frontend
+npm install -g vite  # ติดตั้ง vite CLI (ถ้ายังไม่มี)
 npm install
 ```
 
@@ -97,6 +98,10 @@ npm install
 ```bash
 cd ../app
 # (ถ้า venv ยังไม่ activate ให้ activate ก่อน)
+# Windows:
+env\Scripts\activate
+# macOS/Linux:
+source env/bin/activate
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 - API จะรันที่ http://localhost:8000
@@ -108,33 +113,31 @@ npm run dev
 ```
 - เว็บจะรันที่ http://localhost:5173
 
-## 6. (ถ้ามี) ติดตั้ง Python AI/เกม logic เพิ่มเติม
-- ถ้าใช้ `mak_nib_python/` สำหรับรัน AI/เกม logic เพิ่มเติม ให้เข้าไปติดตั้ง dependencies ตามที่มีในโฟลเดอร์นั้น (ถ้ามี requirements.txt)
-
-## 7. การใช้งาน
+## 6. การใช้งาน
 - เปิดเบราว์เซอร์ไปที่ http://localhost:5173
 - เล่นเกมผ่าน UI ได้เลย
 - Backend จะประมวลผล AI, LLM, กลยุทธ์ ฯลฯ
 
-## 8. หมายเหตุ
+## 7. หมายเหตุ
 - ถ้าใช้ GPU ให้ติดตั้ง torch เวอร์ชันที่รองรับ CUDA (`pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118`)
 - ถ้า LLM ช้า ให้ตรวจสอบว่า llama-cpp-python รองรับ GPU หรือไม่
 - ถ้าเจอปัญหาไฟล์โมเดลไม่เจอ ให้ตรวจสอบ path ให้ตรงกับที่โค้ดระบุ
 
-## 9. TL;DR (สรุปคำสั่ง)
+## 8. TL;DR (สรุปคำสั่ง)
 ```bash
 # Backend
 cd app
-python -m venv venv
-venv\Scripts\activate  # หรือ source venv/bin/activate
+python -m venv env
+env\Scripts\activate  # หรือ source env/bin/activate
 pip install -r requirements.txt
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
 
 # Frontend
 cd ../frontend
+npm install -g vite
 npm install
 npm run dev
 ```
 
-## 10. ติดต่อ/แจ้งปัญหา
+## 9. ติดต่อ/แจ้งปัญหา
 - ถ้าติดปัญหาเรื่อง dependency, path, หรือ error ใด ๆ แจ้งรายละเอียดมาได้เลย!

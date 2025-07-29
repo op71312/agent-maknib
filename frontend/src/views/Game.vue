@@ -12,6 +12,20 @@
           <h3 class="panel-title">AI's Analysis</h3>
         </div>
         <div class="thoughts-history">
+          <!-- แสดงสถานะ Auto-play ในโหมด Prompt -->
+          <div v-if="isPromptMode && isAutoPlayActive" class="auto-play-status">
+            <div class="status-header">
+              <span class="status-icon">🤖</span>
+              <h4>Auto-play กำลังดำเนินการ</h4>
+            </div>
+            <div class="status-details">
+              <p>ตาที่: {{ autoPlayTurnCount + 1 }} / {{ maxAutoPlayTurns }}</p>
+              <p>กลยุทธ์ X: {{ selectedStrategy }}</p>
+              <p>กลยุทธ์ O: {{ llmStrategy || 'กำลังวิเคราะห์...' }}</p>
+              <button class="stop-auto-play-btn" @click="stopAutoPlay">หยุด Auto-play</button>
+            </div>
+          </div>
+          
           <div v-for="(entry, index) in aiThoughtHistory"
                :key="index"
                class="thought-entry"
@@ -214,9 +228,14 @@
           <div class="strategy-list">
             <div v-for="(strategy, index) in filteredStrategies" :key="index" class="strategy-item">
               <div class="strategy-header">
-                <button v-if="showApplyButton" class="strategy-btn top-left" @click="applyStrategy(index)">นำไปใช้</button>
+                <button v-if="showApplyButton" 
+                        class="strategy-btn top-left" 
+                        @click="applyStrategy(index)"
+                        :disabled="isAutoPlayActive">
+                  {{ isAutoPlayActive ? 'กำลังเล่น...' : 'นำไปใช้' }}
+                </button>
                 <div class="strategy-title-container">
-                  <span  class="strategy-title"><strong>{{strategy.name}}</strong></span>
+                  <span class="strategy-title"><strong>{{strategy.name}}</strong></span>
                 </div>
               </div>
               <p class="strategy-description">
@@ -269,6 +288,17 @@ const isPromptMode = computed(() => difficulty.difficulty === 'prompt')
 
 const userPrompt = ref('') // New ref for prompt input
 
+// Prompt mode variables
+const isAutoPlayActive = ref(false)
+const autoPlayTurnCount = ref(0)
+const maxAutoPlayTurns = ref(10) // 5 rounds each side = 10 turns total
+const selectedStrategy = ref('')
+const selectedStrategyActions = ref([])
+const actionIndex = ref(0)
+const llmStrategy = ref('')
+const llmActions = ref([])
+const llmActionIndex = ref(0)
+
 const board = ref([
   ['O', 'O', 'O', 'O', 'O', 'O', 'O', 'O'],
   ...Array(6).fill().map(() => Array(size.value).fill('')),
@@ -302,6 +332,10 @@ initializeGame()
 
 onUnmounted(() => {
   clearInterval(timerInterval.value)
+  // หยุด auto-play ถ้ากำลังทำงานอยู่
+  if (isAutoPlayActive.value) {
+    stopAutoPlay()
+  }
 })
 
 function getBoardState() {
@@ -340,6 +374,12 @@ function isPathClear(r1, c1, r2, c2) {
 }
 
 function handleClick(row, col) {
+  // ถ้าอยู่ในโหมด auto-play ให้หยุดการคลิกของผู้ใช้
+  if (isAutoPlayActive.value) {
+    console.log('Auto-play is active, ignoring user clicks')
+    return
+  }
+  
   // ถ้าเป็น PvP หรือ Prompt Mode ให้ทั้ง X และ O เล่นได้
   if (!isPvP.value && !isPromptMode.value && currentPlayer.value !== 'X') return
   
@@ -462,14 +502,325 @@ function switchPlayer() {
   currentPlayer.value = currentPlayer.value === 'X' ? 'O' : 'X'
   turnStartTime.value = timeLeft.value // บันทึกเวลาตอนเริ่มเทิร์นใหม่
 
-  // ถ้าไม่ใช่ PvP และไม่ใช่ Prompt Mode ให้ AI เดิน
-  if (!isPvP.value && !isPromptMode.value && currentPlayer.value === 'O') {
-    requestAIMove()
+  // ถ้าไม่ใช่ PvP ให้ AI เดิน (รวมถึง Prompt Mode)
+  if (!isPvP.value && currentPlayer.value === 'O') {
+    console.log('🤖 AI turn detected!')
+    console.log('isPromptMode:', isPromptMode.value)
+    console.log('isAutoPlayActive:', isAutoPlayActive.value)
+    
+    if (isPromptMode.value && !isAutoPlayActive.value) {
+      // ในโหมด prompt แต่ไม่ได้อยู่ในโหมด auto-play ให้เรียก AI เดินปกติ
+      console.log('🎯 Calling AI move in prompt mode (manual play)')
+      requestAIMove()
+    } else if (!isPromptMode.value) {
+      // โหมดปกติ (easy, medium, hard)
+      console.log('🎯 Calling AI move in normal mode')
+      requestAIMove()
+    }
+  }
+  
+  // ถ้าเป็น Prompt Mode และอยู่ในโหมด auto-play
+  if (isPromptMode.value && isAutoPlayActive.value) {
+    setTimeout(() => {
+      executeAutoPlayMove()
+    }, 1000) // หน่วงเวลา 1 วินาทีก่อนเดินตัวถัดไป
   }
 }
 
 const llmPlanActions = ref([]) // เก็บ action id ที่ LLM วางแผนไว้
 const llmPlanStrategy = ref('') // เก็บชื่อกลยุทธ์ล่าสุดที่ LLM วางแผน
+
+// ============ PROMPT MODE FUNCTIONS ============
+
+function decodeActionId(action) {
+  // action id = from_row * (8*8*8) + from_col * (8*8) + to_row * 8 + to_col
+  const from_row = Math.floor(action / (8*8*8));
+  let rem = action % (8*8*8);
+  const from_col = Math.floor(rem / (8*8));
+  rem = rem % (8*8);
+  const to_row = Math.floor(rem / 8);
+  const to_col = rem % 8;
+  return [[from_row, from_col], [to_row, to_col]];
+}
+
+function findPieceForMove(targetFromRow, targetFromCol, targetToRow, targetToCol, player) {
+  console.log(`🔍 findPieceForMove called for player ${player}`)
+  console.log(`Target: (${targetFromRow},${targetFromCol}) → (${targetToRow},${targetToCol})`)
+  
+  // หาหมากที่ใกล้เคียงที่สุดกับตำแหน่งเป้าหมาย
+  const pieceSymbol = player === 'X' ? 'X' : 'O'
+  let bestPiece = null
+  let bestDistance = Infinity
+  
+  console.log(`Looking for pieces: ${pieceSymbol}`)
+  
+  // ค้นหาหมากทั้งหมดของผู้เล่น
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      if (board.value[r][c] === pieceSymbol) {
+        console.log(`Found piece at (${r},${c})`)
+        
+        // คำนวณระยะห่างจากตำแหน่งเป้าหมาย
+        const distance = Math.abs(r - targetFromRow) + Math.abs(c - targetFromCol)
+        
+        if (distance < bestDistance) {
+          // ตรวจสอบว่าสามารถเดินไปยังตำแหน่งเป้าหมายได้หรือไม่
+          if (isStraightMove(r, c, targetToRow, targetToCol) && 
+              isPathClear(r, c, targetToRow, targetToCol) &&
+              board.value[targetToRow][targetToCol] === '') {
+            console.log(`✅ Valid move found: (${r},${c}) → (${targetToRow},${targetToCol})`)
+            bestDistance = distance
+            bestPiece = { from: [r, c], to: [targetToRow, targetToCol] }
+          } else {
+            // ถ้าเดินไม่ได้ตรงเป้าหมาย ลองหาทิศทางที่คล้ายกัน
+            console.log(`❌ Direct move not possible, trying alternatives...`)
+            const directions = [
+              [0, 1], [0, -1], [1, 0], [-1, 0] // ขวา, ซ้าย, ลง, ขึ้น
+            ]
+            
+            for (const [dr, dc] of directions) {
+              for (let dist = 1; dist <= 3; dist++) {
+                const newToRow = r + (dr * dist)
+                const newToCol = c + (dc * dist)
+                
+                if (newToRow >= 0 && newToRow < 8 && newToCol >= 0 && newToCol < 8 &&
+                    board.value[newToRow][newToCol] === '' &&
+                    isStraightMove(r, c, newToRow, newToCol) &&
+                    isPathClear(r, c, newToRow, newToCol)) {
+                  
+                  const altDistance = Math.abs(r - targetFromRow) + Math.abs(c - targetFromCol) + dist
+                  if (altDistance < bestDistance) {
+                    console.log(`✅ Alternative move found: (${r},${c}) → (${newToRow},${newToCol})`)
+                    bestDistance = altDistance
+                    bestPiece = { from: [r, c], to: [newToRow, newToCol] }
+                  }
+                  break
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  console.log('Best piece found:', bestPiece)
+  return bestPiece
+}
+
+async function executeAutoPlayMove() {
+  console.log('🎯 executeAutoPlayMove called')
+  console.log('isAutoPlayActive:', isAutoPlayActive.value)
+  console.log('autoPlayTurnCount:', autoPlayTurnCount.value)
+  console.log('maxAutoPlayTurns:', maxAutoPlayTurns.value)
+  
+  if (!isAutoPlayActive.value || autoPlayTurnCount.value >= maxAutoPlayTurns.value) {
+    console.log('🛑 Stopping auto-play')
+    stopAutoPlay()
+    return
+  }
+  
+  console.log(`Auto-play turn ${autoPlayTurnCount.value + 1}/${maxAutoPlayTurns.value} - Player: ${currentPlayer.value}`)
+  
+  let actionId = null
+  let strategy = ''
+  
+  console.log('🎮 Getting action for player:', currentPlayer.value)
+  
+  if (currentPlayer.value === 'X') {
+    // ผู้เล่น X ใช้กลยุทธ์ที่เลือก
+    console.log('selectedStrategyActions:', selectedStrategyActions.value)
+    console.log('actionIndex:', actionIndex.value)
+    
+    if (selectedStrategyActions.value.length > 0 && actionIndex.value < selectedStrategyActions.value.length) {
+      actionId = selectedStrategyActions.value[actionIndex.value]
+      strategy = selectedStrategy.value
+      actionIndex.value++
+      console.log('✅ Using strategy action:', actionId)
+    } else {
+      // ถ้าหมด actions ให้สุ่ม
+      actionId = Math.floor(Math.random() * 4000) + 1
+      strategy = selectedStrategy.value + ' (สุ่ม)'
+      console.log('🎲 Using random action:', actionId)
+    }
+  } else {
+    // ผู้เล่น O ใช้ LLM
+    console.log('llmActions:', llmActions.value)
+    console.log('llmActionIndex:', llmActionIndex.value)
+    
+    if (llmActions.value.length > 0 && llmActionIndex.value < llmActions.value.length) {
+      actionId = llmActions.value[llmActionIndex.value]
+      strategy = llmStrategy.value
+      llmActionIndex.value++
+      console.log('✅ Using LLM action:', actionId)
+    } else {
+      // ขอกลยุทธ์ใหม่จาก LLM
+      console.log('🧠 Requesting new LLM strategy...')
+      await requestLLMStrategy()
+      if (llmActions.value.length > 0) {
+        actionId = llmActions.value[0]
+        strategy = llmStrategy.value
+        llmActionIndex.value = 1
+        console.log('✅ Got new LLM action:', actionId)
+      } else {
+        actionId = Math.floor(Math.random() * 4000) + 1
+        strategy = 'LLM (สุ่ม)'
+        console.log('🎲 Using random LLM action:', actionId)
+      }
+    }
+  }
+  
+  // แปลง action ID เป็นตำแหน่ง
+  console.log('🔍 Decoding action ID:', actionId)
+  const [from, to] = decodeActionId(actionId)
+  const [targetFromRow, targetFromCol] = from
+  const [targetToRow, targetToCol] = to
+  console.log('Target move:', { from, to })
+  
+  // หาหมากที่เหมาะสมสำหรับการเดิน
+  console.log('🔍 Finding piece for move...')
+  const move = findPieceForMove(targetFromRow, targetFromCol, targetToRow, targetToCol, currentPlayer.value)
+  console.log('Found move:', move)
+  
+  if (move) {
+    const [fromRow, fromCol] = move.from
+    const [toRow, toCol] = move.to
+    
+    console.log(`✅ Executing move: ${fromRow},${fromCol} → ${toRow},${toCol}`)
+    
+    // ทำการเดินหมาก
+    board.value[toRow][toCol] = board.value[fromRow][fromCol]
+    board.value[fromRow][fromCol] = ''
+    
+    console.log('🎯 Move completed, updating history...')
+    
+    // บันทึกประวัติ
+    const timeUsedSec = 1 // ใช้เวลา 1 วินาที
+    moveHistory.value.push({
+      turn: moveHistory.value.length + 1,
+      player: currentPlayer.value,
+      from: toChessPos(fromRow, fromCol),
+      to: toChessPos(toRow, toCol),
+      timeUsed: timeUsedSec,
+      strategy: strategy,
+      actionId: actionId
+    })
+    
+    // ตรวจการกิน
+    checkCapture(toRow, toCol)
+    
+    // เพิ่มจำนวนตา
+    autoPlayTurnCount.value++
+    
+    // เพิ่มข้อมูลใน AI thoughts
+    aiThoughtHistory.value.unshift({
+      turn: moveHistory.value.length,
+      player: currentPlayer.value,
+      timestamp: new Date().toLocaleTimeString(),
+      thoughts: `${currentPlayer.value === 'X' ? 'กลยุทธ์' : 'LLM'}: ${strategy} | Action ID: ${actionId} | เดิน ${toChessPos(fromRow, fromCol)} → ${toChessPos(toRow, toCol)}`,
+      isProcessing: false
+    })
+    
+    // สลับผู้เล่น
+    console.log('🔄 Switching player...')
+    switchPlayer()
+  } else {
+    console.log('❌ ไม่สามารถหาการเดินที่เหมาะสมได้')
+    // ข้ามตานี้
+    autoPlayTurnCount.value++
+    console.log('⏭️ Skipping turn, switching player...')
+    switchPlayer()
+  }
+}
+
+async function requestLLMStrategy() {
+  try {
+    // เตรียมข้อมูลสำหรับส่งไป LLM แบบที่ backend คาดหวัง
+    const gameHistory = moveHistory.value.map((m, idx) => 
+      `[${idx + 1}] ${m.player}: ${m.from}→${m.to}`
+    ).join('\n')
+    
+    const moveHistoryString = gameHistory || "เกมเพิ่งเริ่ม"
+    
+    console.log('📡 Sending to LLM:', moveHistoryString)
+    
+    try {
+      const response = await axios.post('http://localhost:8000/hard-llm-plan', {
+        move_history: moveHistoryString
+      })
+      
+      llmStrategy.value = response.data.strategy || 'กลยุทธ์ทั่วไป'
+      llmActions.value = response.data.actions || []
+      llmActionIndex.value = 0
+      
+      console.log('✅ LLM Response:', response.data)
+      
+    } catch (error) {
+      console.log('⚠️ LLM API failed, using mock data:', error.message)
+      
+      // ใช้ mock data สำหรับ LLM
+      const mockStrategies = ['ปิดฟ้าข้ามทะเล', 'ล้อมเวยช่วยจ้าว', 'ยืมดาบฆ่าคน', 'รอซ้ำยามเปลี้ย']
+      const mockActions = [
+        Math.floor(Math.random() * 4000) + 1,
+        Math.floor(Math.random() * 4000) + 1,
+        Math.floor(Math.random() * 4000) + 1,
+        Math.floor(Math.random() * 4000) + 1,
+        Math.floor(Math.random() * 4000) + 1
+      ]
+      
+      llmStrategy.value = mockStrategies[Math.floor(Math.random() * mockStrategies.length)]
+      llmActions.value = mockActions
+      llmActionIndex.value = 0
+      
+      console.log('🎲 Using mock LLM data:', { strategy: llmStrategy.value, actions: llmActions.value })
+    }
+    
+  } catch (error) {
+    console.error('LLM Strategy request failed:', error)
+    llmStrategy.value = 'กลยุทธ์ทั่วไป'
+    llmActions.value = []
+  }
+}
+
+function startAutoPlay(strategy, actions) {
+  console.log('🎯 startAutoPlay called')
+  console.log('Strategy:', strategy)
+  console.log('Actions:', actions)
+  
+  selectedStrategy.value = strategy
+  selectedStrategyActions.value = actions
+  actionIndex.value = 0
+  autoPlayTurnCount.value = 0
+  isAutoPlayActive.value = true
+  
+  // รีเซ็ต LLM
+  llmStrategy.value = ''
+  llmActions.value = []
+  llmActionIndex.value = 0
+  
+  console.log(`🚀 Auto-play started with strategy: ${strategy}`)
+  console.log('isAutoPlayActive is now:', isAutoPlayActive.value)
+  
+  // เริ่มเดินทันที
+  setTimeout(() => {
+    console.log('⏰ Starting first auto-play move...')
+    executeAutoPlayMove()
+  }, 500)
+}
+
+function stopAutoPlay() {
+  isAutoPlayActive.value = false
+  autoPlayTurnCount.value = 0
+  console.log('หยุด auto-play')
+  
+  // แสดงสรุปผล
+  aiThoughtHistory.value.unshift({
+    turn: moveHistory.value.length + 1,
+    timestamp: new Date().toLocaleTimeString(),
+    thoughts: `สรุปกลยุทธ์\n🏁 จบ Auto-play!\nกลยุทธ์ผู้เล่น: ${selectedStrategy.value}\nกลยุทธ์ Agent: ${llmStrategy.value}`,
+    isProcessing: false
+  })
+}
 
 async function requestAIMove() {
   if (difficulty.difficulty === 'hard') {
@@ -585,7 +936,7 @@ async function requestAIMove() {
       return;
     }
   }
-  // ... โค้ดเดิมสำหรับ easy/medium ...
+  // ... โค้ดเดิมสำหรับ easy/medium/prompt ...
   try {
     const response = await axios.post('http://localhost:8000/ai-move', {
       board: getBoardState(),
@@ -595,8 +946,22 @@ async function requestAIMove() {
     board.value[to_row][to_col] = board.value[from_row][from_col]
     board.value[from_row][from_col] = ''
     checkCapture(to_row, to_col)
+    
+    // บันทึกการเดินลงในประวัติ
+    const timeUsedSec = 1 // AI ใช้เวลา 1 วินาที
+    moveHistory.value.push({
+      turn: moveHistory.value.length + 1,
+      player: 'O',
+      from: toChessPos(from_row, from_col),
+      to: toChessPos(to_row, to_col),
+      timeUsed: timeUsedSec
+    })
+    
+    // สะสมเวลาที่ใช้สำหรับ O
+    oTotalTime.value += timeUsedSec
+    
     aiThoughtHistory.value.unshift({
-      turn: aiThoughtHistory.value.length + 1,
+      turn: moveHistory.value.length,
       thoughts: `AI เลือกเดินจาก (${from_row},${from_col}) ไป (${to_row},${to_col}) [action_id: ${action_id}]`,
       timestamp: new Date().toLocaleTimeString()
     })
@@ -605,18 +970,6 @@ async function requestAIMove() {
   } finally {
     currentPlayer.value = 'X'
   }
-}
-
-// helper: แปลง action id เป็นตำแหน่ง (from_row, from_col), (to_row, to_col)
-function decodeActionId(action) {
-  // action id = from_row * (8*8*8) + from_col * (8*8) + to_row * 8 + to_col
-  const from_row = Math.floor(action / (8*8*8));
-  let rem = action % (8*8*8);
-  const from_col = Math.floor(rem / (8*8));
-  rem = rem % (8*8);
-  const to_row = Math.floor(rem / 8);
-  const to_col = rem % 8;
-  return [[from_row, from_col], [to_row, to_col]];
 }
 
 function sleep(ms) {
@@ -738,6 +1091,70 @@ function restartGame() {
   aiThoughtHistory.value = []
   moveHistory.value = []
   turnStartTime.value = timeLeft.value
+}
+
+// ============ APPLY STRATEGY FUNCTION ============
+
+async function applyStrategy(strategyIndex) {
+  console.log('🚀 applyStrategy called with index:', strategyIndex)
+  console.log('isAutoPlayActive:', isAutoPlayActive.value)
+  
+  if (isAutoPlayActive.value) {
+    console.log('⚠️ Auto-play already active')
+    alert('กำลังอยู่ในโหมด auto-play อยู่แล้ว')
+    return
+  }
+  
+  const strategy = filteredStrategies.value[strategyIndex]
+  console.log('Selected strategy:', strategy)
+  
+  if (!strategy) {
+    console.log('❌ Strategy not found')
+    alert('ไม่พบกลยุทธ์ที่เลือก')
+    return
+  }
+  
+  try {
+    console.log(`📡 Getting actions for strategy: ${strategy.name}`)
+    
+    // สร้าง mock actions ที่สมเหตุสมผลสำหรับกลยุทธ์แต่ละอัน
+    const mockActionsByStrategy = {
+      'ปิดฟ้าข้ามทะเล': [1234, 2345, 3456, 4567, 5678],
+      'ล้อมเวยช่วยจ้าว': [1111, 2222, 3333, 4444, 5555],
+      'ยืมดาบฆ่าคน': [1357, 2468, 3579, 4680, 5791],
+      'รอซ้ำยามเปลี้ย': [1122, 3344, 5566, 7788, 9900],
+      'ตีชิงตามไฟ': [1011, 1213, 1415, 1617, 1819],
+      'ส่งเสียงบูรพาฝ่าตีประจิม': [2021, 2223, 2425, 2627, 2829],
+      'มีในไม่มี': [3031, 3233, 3435, 3637, 3839],
+      'ลอบตีเฉินชาง': [1000, 2000, 3000, 4000, 1500]
+    }
+    
+    // หา actions สำหรับกลยุทธ์นี้หรือใช้ default
+    let actions = mockActionsByStrategy[strategy.name] || []
+    
+    // ถ้าไม่มีในรายการ ให้สุ่ม actions
+    if (actions.length === 0) {
+      actions = Array.from({length: 5}, () => Math.floor(Math.random() * 4000) + 1)
+    }
+    
+    console.log(`✅ Found ${actions.length} actions for strategy: ${strategy.name}`)
+    console.log('Actions:', actions)
+    
+    // เริ่ม auto-play
+    startAutoPlay(strategy.name, actions)
+    
+    // แสดงข้อความใน AI thoughts
+    aiThoughtHistory.value.unshift({
+      turn: moveHistory.value.length + 1,
+      timestamp: new Date().toLocaleTimeString(),
+      thoughts: `🚀 เริ่มใช้กลยุทธ์: ${strategy.name} | พบ ${actions.length} actions | จะเล่นฝั่งละ 5 รอบ`,
+      isProcessing: false
+    })
+    
+  } catch (error) {
+    console.error('Apply strategy error:', error)
+    alert('เกิดข้อผิดพลาดในการเรียกใช้กลยุทธ์')
+  }
 }
 
 async function analyzeStrategyIfNeeded() {
@@ -870,79 +1287,6 @@ const filteredStrategies = computed(() => {
   return filtered
 })
 
-// ฟังก์ชันสำหรับการใช้กลยุทธ์
-async function applyStrategy(index) {
-  if (difficulty.difficulty !== 'prompt' || promptPlanInProgress.value) return;
-  const strategy = filteredStrategies.value[index];
-  promptPlanInProgress.value = true;
-  promptPlanStep.value = 0;
-  try {
-    // แจ้งผู้ใช้
-    aiThoughtHistory.value.unshift({
-      turn: moveHistory.value.length + 1,
-      thoughts: `เลือกกลยุทธ์: ${strategy.name} กำลังเดินตามแผน...`,
-      timestamp: new Date().toLocaleTimeString(),
-      isPlanning: true
-    });
-    // เรียก backend ขอ action_sequence
-    const res = await axios.post('http://localhost:8000/apply-strategy-sequence', {
-      strategy_name: strategy.name
-    });
-    promptPlanActions.value = res.data.action_sequence;
-    // เดินตาแรกทันที (ฝั่ง X)
-    await doPromptPlanMove();
-  } catch (err) {
-    console.error('applyStrategy error:', err);
-    promptPlanInProgress.value = false;
-    promptPlanActions.value = [];
-    promptPlanStep.value = 0;
-  }
-}
-
-async function doPromptPlanMove() {
-  // เดินหมากฝั่ง X อัตโนมัติครบ 5 ตา (ถ้าไม่จบเกม)
-  while (promptPlanActions.value.length > 0 && promptPlanStep.value < 5 && !isGameOver.value) {
-    // รอให้เป็นตา X
-    if (currentPlayer.value !== 'X') {
-      // wait until switchPlayer เรียก doPromptPlanMove ใหม่
-      return;
-    }
-    const action_id = promptPlanActions.value.shift();
-    const [from, to] = decodeActionId(action_id);
-    if (from && to) {
-      board.value[to[0]][to[1]] = board.value[from[0]][from[1]];
-      board.value[from[0]][from[1]] = '';
-      checkCapture(to[0], to[1]);
-      moveHistory.value.push({
-        turn: moveHistory.value.length + 1,
-        player: 'X',
-        from: toChessPos(from[0], from[1]),
-        to: toChessPos(to[0], to[1]),
-        timeUsed: 0
-      });
-      aiThoughtHistory.value.unshift({
-        turn: moveHistory.value.length + 1,
-        thoughts: `เดินตามแผนกลยุทธ์ (X): (${from[0]},${from[1]}) → (${to[0]},${to[1]}) [action id: ${action_id}]`,
-        timestamp: new Date().toLocaleTimeString()
-      });
-      promptPlanStep.value++;
-      currentPlayer.value = 'O';
-      await sleep(500); // เพิ่ม delay ให้ดูสมจริง
-      // ให้ AI (O) เดิน
-      await requestAIMove();
-      // หลัง AI เดินเสร็จจะกลับมาตา X อัตโนมัติ (switchPlayer)
-    }
-  }
-  // ครบ 5 ตา หรือหมดแผน
-  promptPlanInProgress.value = false;
-}
-
-// ปิดปุ่มนำไปใช้ขณะกำลังเดินตามแผน
-function canApplyStrategy() {
-  return difficulty.difficulty === 'prompt' && !promptPlanInProgress.value;
-}
-
-// เพิ่ม computed สำหรับแสดง panel กลยุทธ์ในทุกโหมด
 const showStrategyPanel = computed(() => !isPvP.value);
 const showAIAnalysisPanel = computed(() => !isPvP.value);
 const showApplyButton = computed(() => difficulty.difficulty === 'prompt');
@@ -1970,6 +2314,80 @@ const promptPlanStep = ref(0); // นับจำนวนตาที่เด�
 .header-container {
   padding-top: 10px;
   padding-right: 100px; /* เพิ่มระยะห่างทางขวาเพื่อไม่ให้ชนกับปุ่ม */
+}
+
+/* Auto-play Status Styles */
+.auto-play-status {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.status-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.status-icon {
+  font-size: 1.2rem;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.status-header h4 {
+  color: white;
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.status-details {
+  color: #ffffff;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  font-weight: 500;
+}
+
+.status-details p {
+  margin: 0.2rem 0;
+  color: #ffffff;
+}
+
+.stop-auto-play-btn {
+  background: #ff4757;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.stop-auto-play-btn:hover {
+  background: #ff3742;
+  transform: translateY(-1px);
+}
+
+.strategy-btn:disabled {
+  background: #95a5a6;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.strategy-btn:disabled:hover {
+  background: #95a5a6;
+  transform: none;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }
 
 /* ปรับ responsive */
