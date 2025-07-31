@@ -451,11 +451,16 @@ class HardLLMPlanResponse(BaseModel):
 @app.post("/hard-llm-plan", response_model=HardLLMPlanResponse)
 def hard_llm_plan(req: HardLLMPlanRequest):
     result = analyze_strategy_and_plan_llm(req.move_history, req.board, req.current_player)
-    # ตรวจสอบ action id ว่าไม่ผิดกติกา
     env = MakNeebRLEnv()
     env.reset(board=req.board, current_player=req.current_player)
-    valid_actions = validate_action_sequence(env, result['actions'])
-    return HardLLMPlanResponse(strategy=result['strategy'], actions=valid_actions, raw=result['raw'])
+    valid_actions = validate_action_sequence(env, result.get('actions') or [])
+    strategy = result.get('strategy')
+    if not strategy or not isinstance(strategy, str):
+        strategy = '-'
+    raw = result.get('raw')
+    if not isinstance(raw, str) or raw is None:
+        raw = ''
+    return HardLLMPlanResponse(strategy=strategy, actions=valid_actions, raw=raw)
 
 class ApplyStrategySequenceRequest(BaseModel):
     strategy_name: str
@@ -464,21 +469,20 @@ class ApplyStrategySequenceResponse(BaseModel):
     action_sequence: list
     game_number: int
 
+
+# --- ใช้ StrategyDatabase จาก utils ---
+from app.api.utils.strategy_db import StrategyDatabase
+
 @app.post("/apply-strategy-sequence", response_model=ApplyStrategySequenceResponse)
 def apply_strategy_sequence(req: ApplyStrategySequenceRequest):
-    csv_path = "app/llm/dataset/game_strategy_analysis_llm_limited.csv"
-    matches = []
-    with open(csv_path, encoding="utf-8") as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            if row.get("strategy", "").strip() == req.strategy_name.strip():
-                # action_sequence อาจเป็น "227,3600,138,1072,40"
-                seq = [int(x) for x in row["action_sequence"].split(",") if x.strip().isdigit()]
-                matches.append({"action_sequence": seq, "game_number": int(row.get("game_number", 0))})
-    if not matches:
+    db = StrategyDatabase()
+    # หา game_number ที่มีใน db
+    game_numbers = db.get_all_game_numbers(req.strategy_name.strip())
+    if not game_numbers:
         return ApplyStrategySequenceResponse(action_sequence=[], game_number=-1)
-    chosen = random.choice(matches[:3]) if len(matches) >= 3 else random.choice(matches)
-    return ApplyStrategySequenceResponse(action_sequence=chosen["action_sequence"], game_number=chosen["game_number"])
+    chosen_game = random.choice(game_numbers)
+    actions = db.get_strategy_actions_by_game(req.strategy_name.strip(), chosen_game)
+    return ApplyStrategySequenceResponse(action_sequence=actions, game_number=chosen_game)
 
 class ApplyActionSequenceRequest(BaseModel):
     board: List[List[int]]
@@ -512,4 +516,3 @@ def apply_action_sequence(req: ApplyActionSequenceRequest):
         o_score=o_score
     )
 
-# สำหรับรันด้วย: uvicorn ai_backend.main:app --reload
