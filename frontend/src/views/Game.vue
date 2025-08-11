@@ -746,15 +746,14 @@ async function requestLLMStrategy() {
     
     try {
       const response = await axios.post('http://localhost:8000/hard-llm-plan', {
+        board: getBoardState(),
+        current_player: -1, // ฝั่ง AI (O)
         move_history: moveHistoryString
       })
-      
       llmStrategy.value = response.data.strategy || 'กลยุทธ์ทั่วไป'
       llmActions.value = response.data.actions || []
       llmActionIndex.value = 0
-      
       console.log('✅ LLM Response:', response.data)
-      
     } catch (error) {
       console.log('⚠️ LLM API failed, using mock data:', error.message)
       
