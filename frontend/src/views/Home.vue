@@ -54,8 +54,9 @@ function showRules() {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: radial-gradient(ellipse at center, #1a0000 0%, #000000 70%);
+  background: radial-gradient(ellipse at center, #1a1a1a 0%, #000000 70%);
   overflow: hidden;
+  font-family: 'Kanit', sans-serif;
 }
 
 .fire-background {
@@ -65,20 +66,20 @@ function showRules() {
   width: 100%;
   height: 100%;
   background: 
-    radial-gradient(circle at 20% 80%, rgba(255, 69, 0, 0.3) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(255, 140, 0, 0.2) 0%, transparent 50%),
-    radial-gradient(circle at 40% 40%, rgba(220, 20, 60, 0.2) 0%, transparent 50%),
+    radial-gradient(circle at 20% 80%, rgba(0, 255, 127, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(0, 191, 255, 0.12) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(64, 224, 208, 0.1) 0%, transparent 50%),
     linear-gradient(45deg, 
       transparent 0%,
-      rgba(139, 0, 0, 0.4) 25%,
-      rgba(255, 69, 0, 0.3) 50%,
-      rgba(139, 0, 0, 0.4) 75%,
+      rgba(47, 79, 79, 0.3) 25%,
+      rgba(0, 255, 127, 0.2) 50%,
+      rgba(47, 79, 79, 0.3) 75%,
       transparent 100%);
   background-size: 300% 300%, 250% 250%, 400% 400%, 200% 200%;
   animation: 
-    fireEffect1 8s ease-in-out infinite,
-    fireEffect2 12s ease-in-out infinite reverse,
-    fireEffect3 15s ease-in-out infinite;
+    digitalEffect1 8s ease-in-out infinite,
+    digitalEffect2 12s ease-in-out infinite reverse,
+    digitalEffect3 15s ease-in-out infinite;
 }
 
 .particles {
@@ -88,11 +89,11 @@ function showRules() {
   width: 100%;
   height: 100%;
   background-image: 
-    radial-gradient(2px 2px at 20px 30px, rgba(255, 69, 0, 0.8), transparent),
-    radial-gradient(2px 2px at 40px 70px, rgba(255, 140, 0, 0.6), transparent),
-    radial-gradient(1px 1px at 90px 40px, rgba(255, 215, 0, 0.5), transparent),
-    radial-gradient(1px 1px at 130px 80px, rgba(255, 69, 0, 0.4), transparent),
-    radial-gradient(2px 2px at 160px 30px, rgba(255, 140, 0, 0.3), transparent);
+    radial-gradient(2px 2px at 20px 30px, rgba(0, 255, 127, 0.8), transparent),
+    radial-gradient(2px 2px at 40px 70px, rgba(0, 191, 255, 0.6), transparent),
+    radial-gradient(1px 1px at 90px 40px, rgba(192, 192, 192, 0.5), transparent),
+    radial-gradient(1px 1px at 130px 80px, rgba(0, 255, 127, 0.4), transparent),
+    radial-gradient(2px 2px at 160px 30px, rgba(0, 191, 255, 0.3), transparent);
   background-repeat: repeat;
   background-size: 200px 100px;
   animation: sparkle 20s linear infinite;
@@ -126,10 +127,10 @@ function showRules() {
   font-weight: 700;
   color: #fff;
   text-shadow: 
-    0 0 10px rgba(255, 69, 0, 0.8),
-    0 0 20px rgba(255, 69, 0, 0.6),
-    0 0 30px rgba(255, 69, 0, 0.4),
-    0 0 40px rgba(255, 69, 0, 0.2);
+    0 0 10px rgba(0, 255, 127, 0.8),
+    0 0 20px rgba(0, 255, 127, 0.6),
+    0 0 30px rgba(0, 255, 127, 0.4),
+    0 0 40px rgba(0, 255, 127, 0.2);
   margin: 0;
   animation: glowText 3s ease-in-out infinite;
   letter-spacing: 0.1em;
@@ -139,7 +140,7 @@ function showRules() {
 .title-underline {
   width: 100px;
   height: 4px;
-  background: linear-gradient(90deg, transparent, #ff4500, #ff8c00, #ff4500, transparent);
+  background: linear-gradient(90deg, transparent, #00ff7f, #00bfff, #00ff7f, transparent);
   margin: 1rem auto;
   border-radius: 2px;
   animation: underlineGlow 2s ease-in-out infinite;
@@ -175,11 +176,6 @@ function showRules() {
   gap: 0.8rem;
 }
 
-.button-icon {
-  font-size: 1.8rem;
-  line-height: 1;
-}
-
 .button-glow {
   position: absolute;
   top: 0;
@@ -192,22 +188,22 @@ function showRules() {
 }
 
 .start-button {
-  background: linear-gradient(135deg, #dc143c 0%, #8b0000 100%);
-  color: white;
+  background: linear-gradient(135deg, #00ff7f 0%, #00cc66 100%);
+  color: #000;
   box-shadow: 
-    0 8px 25px rgba(220, 20, 60, 0.3),
+    0 8px 25px rgba(0, 255, 127, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .start-button .button-glow {
-  background: linear-gradient(135deg, #ff1744 0%, #dc143c 100%);
+  background: linear-gradient(135deg, #32ff7e 0%, #00ff7f 100%);
 }
 
 .start-button:hover {
   transform: translateY(-8px) scale(1.05);
   box-shadow: 
-    0 15px 35px rgba(220, 20, 60, 0.5),
-    0 5px 15px rgba(255, 23, 68, 0.4);
+    0 15px 35px rgba(0, 255, 127, 0.5),
+    0 5px 15px rgba(50, 255, 126, 0.4);
 }
 
 .start-button:hover .button-glow {
@@ -215,22 +211,22 @@ function showRules() {
 }
 
 .rules-button {
-  background: linear-gradient(135deg, #2c2c2c 0%, #1a1a1a 100%);
-  color: white;
+  background: linear-gradient(135deg, #00bfff 0%, #0080cc 100%);
+  color: #000;
   box-shadow: 
-    0 8px 25px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    0 8px 25px rgba(0, 191, 255, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .rules-button .button-glow {
-  background: linear-gradient(135deg, #404040 0%, #2c2c2c 100%);
+  background: linear-gradient(135deg, #40c4ff 0%, #00bfff 100%);
 }
 
 .rules-button:hover {
   transform: translateY(-8px) scale(1.05);
   box-shadow: 
-    0 15px 35px rgba(0, 0, 0, 0.6),
-    0 5px 15px rgba(64, 64, 64, 0.4);
+    0 15px 35px rgba(0, 191, 255, 0.5),
+    0 5px 15px rgba(64, 196, 255, 0.4);
 }
 
 .rules-button:hover .button-glow {
@@ -245,17 +241,17 @@ function showRules() {
   font-size: 1.6rem;
 }
 
-@keyframes fireEffect1 {
+@keyframes digitalEffect1 {
   0%, 100% { background-position: 0% 50%, 0% 50%, 0% 50%, 0% 50%; }
   50% { background-position: 100% 50%, 100% 50%, 100% 50%, 100% 50%; }
 }
 
-@keyframes fireEffect2 {
+@keyframes digitalEffect2 {
   0%, 100% { background-position: 100% 0%, 0% 100%, 50% 50%, 25% 75%; }
   50% { background-position: 0% 100%, 100% 0%, 75% 25%, 75% 25%; }
 }
 
-@keyframes fireEffect3 {
+@keyframes digitalEffect3 {
   0%, 100% { background-position: 50% 0%, 50% 100%, 0% 50%, 100% 50%; }
   50% { background-position: 0% 100%, 100% 0%, 100% 50%, 0% 50%; }
 }
@@ -268,29 +264,30 @@ function showRules() {
 @keyframes glowText {
   0%, 100% {
     text-shadow: 
-      0 0 10px rgba(255, 69, 0, 0.8),
-      0 0 20px rgba(255, 69, 0, 0.6),
-      0 0 30px rgba(255, 69, 0, 0.4),
-      0 0 40px rgba(255, 69, 0, 0.2);
+      0 0 10px rgba(0, 255, 127, 0.8),
+      0 0 20px rgba(0, 255, 127, 0.6),
+      0 0 30px rgba(0, 255, 127, 0.4),
+      0 0 40px rgba(0, 255, 127, 0.2);
   }
   50% {
     text-shadow: 
-      0 0 20px rgba(255, 69, 0, 1),
-      0 0 30px rgba(255, 69, 0, 0.8),
-      0 0 40px rgba(255, 69, 0, 0.6),
-      0 0 50px rgba(255, 69, 0, 0.4);
+      0 0 20px rgba(0, 255, 127, 1),
+      0 0 30px rgba(0, 255, 127, 0.8),
+      0 0 40px rgba(0, 255, 127, 0.6),
+      0 0 50px rgba(0, 255, 127, 0.4);
   }
 }
 
 @keyframes underlineGlow {
   0%, 100% {
-    box-shadow: 0 0 10px rgba(255, 69, 0, 0.5);
+    box-shadow: 0 0 10px rgba(0, 255, 127, 0.5);
   }
   50% {
-    box-shadow: 0 0 20px rgba(255, 69, 0, 0.8);
+    box-shadow: 0 0 20px rgba(0, 255, 127, 0.8);
   }
 }
 
+/* Responsive adjustments */
 @media (max-width: 768px) {
   .main-content {
     padding: 1rem;
@@ -324,12 +321,9 @@ function showRules() {
   .title-container {
     margin-bottom: 2.5rem;
   }
-  
-  .button-icon {
-    font-size: 1.5rem;
-  }
 }
 
+/* Accessibility improvements */
 @media (prefers-reduced-motion: reduce) {
   .fire-background,
   .particles,
@@ -343,8 +337,9 @@ function showRules() {
   }
 }
 
+/* Focus states for accessibility */
 .game-button:focus {
-  outline: 3px solid rgba(255, 69, 0, 0.6);
+  outline: 3px solid rgba(0, 255, 127, 0.6);
   outline-offset: 2px;
 }
 </style>

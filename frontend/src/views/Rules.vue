@@ -150,7 +150,7 @@
             </h3>
             <ul class="rule-list">
               <li>ฝ่ายที่หมากถูกกินจนหมด หรือหมากเหลือน้อยกว่าจะเป็นฝ่ายแพ้</li>
-              <li>ถ้าเ่นจบครบ15นาทีแล้ว หมากทั้งสองฝ่ายเหลือเท่ากัน จะถือว่าเสมอ</li>
+              <li>ถ้าเล่นนจบครบ15นาทีแล้ว หมากทั้งสองฝ่ายเหลือเท่ากัน จะถือว่าเสมอ</li>
             </ul>
           </div>
         </div>
@@ -179,13 +179,15 @@ function goBack() {
 </script>
 
 <style scoped>
+
 .game-container {
+  font-family: 'Kanit', sans-serif;
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: radial-gradient(ellipse at center, #1a0000 0%, #000000 70%);
+  background: radial-gradient(ellipse at center, #1a1a1a 0%, #000000 70%);
   overflow-y: auto;
   display: flex;
   justify-content: center;
@@ -201,14 +203,14 @@ function goBack() {
   width: 100%;
   height: 100%;
   background: 
-    radial-gradient(circle at 20% 80%, rgba(255, 69, 0, 0.3) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(255, 140, 0, 0.2) 0%, transparent 50%),
-    radial-gradient(circle at 40% 40%, rgba(220, 20, 60, 0.2) 0%, transparent 50%),
+    radial-gradient(circle at 20% 80%, rgba(0, 255, 127, 0.3) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(0, 191, 255, 0.2) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(57, 255, 20, 0.2) 0%, transparent 50%),
     linear-gradient(45deg, 
       transparent 0%,
-      rgba(139, 0, 0, 0.4) 25%,
-      rgba(255, 69, 0, 0.3) 50%,
-      rgba(139, 0, 0, 0.4) 75%,
+      rgba(0, 100, 100, 0.4) 25%,
+      rgba(0, 255, 127, 0.3) 50%,
+      rgba(0, 100, 100, 0.4) 75%,
       transparent 100%);
   background-size: 300% 300%, 250% 250%, 400% 400%, 200% 200%;
   animation: 
@@ -225,11 +227,11 @@ function goBack() {
   width: 100%;
   height: 100%;
   background-image: 
-    radial-gradient(2px 2px at 20px 30px, rgba(255, 69, 0, 0.8), transparent),
-    radial-gradient(2px 2px at 40px 70px, rgba(255, 140, 0, 0.6), transparent),
-    radial-gradient(1px 1px at 90px 40px, rgba(255, 215, 0, 0.5), transparent),
-    radial-gradient(1px 1px at 130px 80px, rgba(255, 69, 0, 0.4), transparent),
-    radial-gradient(2px 2px at 160px 30px, rgba(255, 140, 0, 0.3), transparent);
+    radial-gradient(2px 2px at 20px 30px, rgba(0, 255, 127, 0.8), transparent),
+    radial-gradient(2px 2px at 40px 70px, rgba(0, 191, 255, 0.6), transparent),
+    radial-gradient(1px 1px at 90px 40px, rgba(57, 255, 20, 0.5), transparent),
+    radial-gradient(1px 1px at 130px 80px, rgba(0, 255, 127, 0.4), transparent),
+    radial-gradient(2px 2px at 160px 30px, rgba(0, 191, 255, 0.3), transparent);
   background-repeat: repeat;
   background-size: 200px 100px;
   animation: sparkle 20s linear infinite;
@@ -241,19 +243,18 @@ function goBack() {
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 1200px; 
-  margin: 2rem auto;
-  padding: 0 2rem;
+  max-width: 900px;
+  margin-top: 2rem;
 }
 
 .rules-container {
-  background: linear-gradient(145deg, rgba(30, 0, 0, 0.95), rgba(10, 0, 0, 0.98));
+  background: linear-gradient(145deg, rgba(20, 20, 20, 0.95), rgba(10, 10, 10, 0.98));
   border-radius: 24px;
-  padding: 3rem;
+  padding: 4rem;
   box-shadow: 
-    0 20px 40px rgba(255, 0, 0, 0.2),
+    0 20px 40px rgba(0, 255, 127, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 69, 0, 0.2);
+  border: 1px solid rgba(0, 255, 127, 0.2);
   animation: slideUp 0.6s ease-out;
 }
 
@@ -267,9 +268,9 @@ function goBack() {
   font-weight: 700;
   color: #fff;
   text-shadow: 
-    0 0 10px rgba(255, 69, 0, 0.8),
-    0 0 20px rgba(255, 69, 0, 0.6),
-    0 0 30px rgba(255, 69, 0, 0.4);
+    0 0 10px rgba(0, 255, 127, 0.8),
+    0 0 20px rgba(0, 255, 127, 0.6),
+    0 0 30px rgba(0, 255, 127, 0.4);
   margin: 0;
   letter-spacing: 0.05em;
   animation: titleGlow 3s ease-in-out infinite;
@@ -278,7 +279,7 @@ function goBack() {
 .title-underline {
   width: 120px;
   height: 4px;
-  background: linear-gradient(90deg, transparent, #ff4500, #ff8c00, #ff4500, transparent);
+  background: linear-gradient(90deg, transparent, #00ff7f, #00bfff, #00ff7f, transparent);
   margin: 1.5rem auto 0;
   border-radius: 2px;
   animation: underlineGlow 2s ease-in-out infinite;
@@ -286,45 +287,45 @@ function goBack() {
 
 .rules-content {
   text-align: left;
-  color: #e8eaed;
-  line-height: 1.9; 
-  font-size: 1.3rem; 
+  color: #e0ffe0;
+  line-height: 1.9;
+  font-size: 1.3rem;
 }
 
 .rule-section {
-  margin-bottom: 4rem;
-  padding: 4rem; 
-  background: linear-gradient(135deg, rgba(255, 69, 0, 0.08), rgba(139, 0, 0, 0.05));
-  border-radius: 24px; 
-  border: 1px solid rgba(255, 69, 0, 0.15);
+  margin-bottom: 3.5rem;
+  padding: 3.5rem;
+  background: linear-gradient(135deg, rgba(0, 255, 127, 0.08), rgba(0, 100, 100, 0.05));
+  border-radius: 16px;
+  border: 1px solid rgba(0, 255, 127, 0.15);
   transition: all 0.3s ease;
 }
 
 .rule-section:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(255, 69, 0, 0.15);
+  box-shadow: 0 8px 25px rgba(0, 255, 127, 0.15);
 }
 
 .section-title {
   display: flex;
   align-items: center;
-  gap: 1.2rem; 
-  color: #ff6b6b;
-  font-size: 2rem; 
+  gap: 1.2rem;
+  color: #00ffff;
+  font-size: 2rem;
   font-weight: 600;
-  margin-bottom: 2rem; 
-  text-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
+  margin-bottom: 2rem;
+  text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
 }
 
 .section-icon {
-  font-size: 2.5rem; 
+  font-size: 2.5rem;
   animation: iconFloat 3s ease-in-out infinite;
 }
 
 .rule-description {
-  color: #ffb74d;
-  font-size: 1.7rem; 
-  margin-bottom: 2rem; 
+  color: #b3ffff;
+  font-size: 1.7rem;
+  margin-bottom: 2rem;
   font-weight: 500;
 }
 
@@ -336,92 +337,92 @@ function goBack() {
 
 .rule-list li {
   position: relative;
-  padding: 1.5rem 0 1.5rem 3.5rem; 
-  margin-bottom: 1.2rem; 
+  padding: 1.5rem 0 1.5rem 3.5rem;
+  margin-bottom: 1.2rem;
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
   border-radius: 8px;
-  border-left: 3px solid rgba(255, 69, 0, 0.5);
+  border-left: 3px solid rgba(0, 255, 127, 0.5);
   transition: all 0.3s ease;
-  font-size: 1.5rem; 
+  font-size: 1.5rem;
 }
 
 .rule-list li:hover {
-  background: linear-gradient(135deg, rgba(255, 69, 0, 0.1), rgba(255, 140, 0, 0.05));
-  border-left-color: rgba(255, 69, 0, 0.8);
+  background: linear-gradient(135deg, rgba(0, 255, 127, 0.1), rgba(0, 191, 255, 0.05));
+  border-left-color: rgba(0, 255, 127, 0.8);
   transform: translateX(5px);
 }
 
 .rule-list li::before {
-  content: '🔥';
+  content: '⚡';
   position: absolute;
-  left: 1rem; 
+  left: 1rem;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 1.4rem; 
+  font-size: 1.4rem;
 }
 
 .examples-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));  
-  gap: 3.5rem;
-  margin: 3.5rem 0;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 3rem;
+  margin: 3rem 0;
 }
 
 .example-card {
   background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
   border-radius: 16px;
-  padding: 3.5rem; 
+  padding: 3.5rem;
   box-shadow: 
     0 8px 25px rgba(0, 0, 0, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 69, 0, 0.2);
+  border: 1px solid rgba(0, 255, 127, 0.2);
   transition: all 0.3s ease;
 }
 
 .example-card:hover {
   transform: translateY(-5px);
   box-shadow: 
-    0 15px 35px rgba(255, 69, 0, 0.2),
+    0 15px 35px rgba(0, 255, 127, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 .example-title {
-  color: #ffd700;
-  font-size: 1.9rem; 
+  color: #ccff00;
+  font-size: 1.9rem;
   font-weight: 600;
   margin-bottom: 2rem;
   text-align: center;
-  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+  text-shadow: 0 0 10px rgba(204, 255, 0, 0.5);
 }
 
 .example-board {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem; 
-  margin: 2rem 0; 
+  gap: 1rem;
+  margin: 2rem 0;
 }
 
 .board-row {
   display: flex;
-  gap: 1rem; 
+  gap: 1rem;
 }
 
 .cell {
-  width: 80px; 
-  height: 80px; 
-  border: 2px solid rgba(255, 69, 0, 0.4);
+  width: 65px;
+  height: 65px;
+  border: 2px solid rgba(0, 255, 127, 0.4);
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2.5rem; 
+  font-size: 2.2rem;
   position: relative;
   transition: all 0.3s ease;
 }
 
 .cell.empty {
-  background: linear-gradient(145deg, #f5deb3, #deb887);
+  background: linear-gradient(145deg, #404040, #2a2a2a);
 }
 
 .cell.piece-black {
@@ -438,20 +439,20 @@ function goBack() {
 
 .cell:hover {
   transform: scale(1.05);
-  box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
 }
 
 .step-caption {
   text-align: center;
-  font-size: 1.3rem; 
-  color: #ffb74d;
+  font-size: 1.3rem;
+  color: #b3ffff;
   font-weight: 500;
-  line-height: 1.6; 
-  margin-top: 1.5rem; 
+  line-height: 1.6;
+  margin-top: 1.5rem;
   padding: 1.5rem;
-  background: rgba(255, 183, 77, 0.08);
+  background: rgba(179, 255, 255, 0.08);
   border-radius: 8px;
-  border: 1px solid rgba(255, 183, 77, 0.15);
+  border: 1px solid rgba(179, 255, 255, 0.15);
 }
 
 .back-btn {
@@ -459,23 +460,24 @@ function goBack() {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1.2rem; 
-  background: linear-gradient(135deg, #dc143c 0%, #8b0000 100%);
+  gap: 1.2rem;
+  background: linear-gradient(135deg, #00ff7f 0%, #00cc66 100%);
   border: none;
   color: white;
   font-weight: 600;
-  font-size: 1.6rem; 
+  font-size: 1.6rem;
   padding: 1.8rem 3.5rem;
   border-radius: 50px;
   cursor: pointer;
   box-shadow: 
-    0 8px 25px rgba(220, 20, 60, 0.3),
+    0 8px 25px rgba(0, 255, 127, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  font-family: 'Kanit', sans-serif;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  margin: 3rem auto 0; 
+  margin: 3rem auto 0;
   overflow: hidden;
-  min-width: 250px; 
+  min-width: 250px;
 }
 
 .btn-content {
@@ -492,7 +494,7 @@ function goBack() {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, #ff1744 0%, #dc143c 100%);
+  background: linear-gradient(135deg, #39ff14 0%, #00ff7f 100%);
   opacity: 0;
   transition: opacity 0.3s ease;
   border-radius: 50px;
@@ -501,12 +503,8 @@ function goBack() {
 .back-btn:hover {
   transform: translateY(-5px) scale(1.02);
   box-shadow: 
-    0 15px 35px rgba(220, 20, 60, 0.5),
-    0 5px 15px rgba(255, 23, 68, 0.4);
-}
-
-.back-btn:hover .btn-glow {
-  opacity: 1;
+    0 15px 35px rgba(0, 255, 127, 0.5),
+    0 5px 15px rgba(57, 255, 20, 0.4);
 }
 
 .back-btn:active {
@@ -514,7 +512,7 @@ function goBack() {
 }
 
 .back-btn .icon {
-  font-size: 1.8rem; 
+  font-size: 1.8rem;
   transition: transform 0.3s ease;
 }
 
@@ -522,6 +520,7 @@ function goBack() {
   transform: translateX(-3px);
 }
 
+/* Animations */
 @keyframes fireEffect1 {
   0%, 100% { background-position: 0% 50%, 0% 50%, 0% 50%, 0% 50%; }
   50% { background-position: 100% 50%, 100% 50%, 100% 50%, 100% 50%; }
@@ -537,28 +536,33 @@ function goBack() {
   50% { background-position: 0% 100%, 100% 0%, 100% 50%, 0% 50%; }
 }
 
+@keyframes sparkle {
+  0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.6; }
+  50% { transform: translateY(-10px) rotate(180deg); opacity: 1; }
+}
+
 @keyframes titleGlow {
   0%, 100% {
     text-shadow: 
-      0 0 10px rgba(255, 69, 0, 0.8),
-      0 0 20px rgba(255, 69, 0, 0.6),
-      0 0 30px rgba(255, 69, 0, 0.4);
+      0 0 10px rgba(0, 255, 127, 0.8),
+      0 0 20px rgba(0, 255, 127, 0.6),
+      0 0 30px rgba(0, 255, 127, 0.4);
   }
   50% {
     text-shadow: 
-      0 0 20px rgba(255, 69, 0, 1),
-      0 0 30px rgba(255, 69, 0, 0.8),
-      0 0 40px rgba(255, 69, 0, 0.6);
+      0 0 20px rgba(0, 255, 127, 1),
+      0 0 30px rgba(0, 255, 127, 0.8),
+      0 0 40px rgba(0, 255, 127, 0.6);
   }
 }
 
 @keyframes underlineGlow {
   0%, 100% {
-    box-shadow: 0 0 10px rgba(255, 69, 0, 0.5);
+    box-shadow: 0 0 10px rgba(0, 255, 127, 0.5);
     transform: scaleX(1);
   }
   50% {
-    box-shadow: 0 0 20px rgba(255, 69, 0, 0.8);
+    box-shadow: 0 0 20px rgba(0, 255, 127, 0.8);
     transform: scaleX(1.1);
   }
 }
@@ -579,46 +583,123 @@ function goBack() {
   }
 }
 
-@media (max-width: 1200px) {
-  .examples-container {
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+/* Responsive Design */
+@media (max-width: 768px) {
+  .game-container {
+    padding: 1rem;
   }
   
-  .cell {
-    width: 70px;
-    height: 70px;
-    font-size: 2.2rem;
+  .rules-container {
+    padding: 2.5rem;
   }
-}
-
-@media (max-width: 768px) {
+  
   .content {
-    padding: 0 1rem;
+    margin-top: 1rem;
   }
-
+  
+  .examples-container {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
   .rule-section {
     padding: 2rem;
   }
-
-  .examples-container {
-    grid-template-columns: 1fr;
+  
+  .section-title {
+    font-size: 1.6rem;
   }
-
+  
+  .rule-description {
+    font-size: 1.3rem;
+  }
+  
+  .rule-list li {
+    font-size: 1.2rem;
+    padding: 1.2rem 0 1.2rem 3rem;
+  }
+  
+  .rule-list li::before {
+    left: 0.8rem;
+    font-size: 1.1rem;
+  }
+  
+  .example-card {
+    padding: 2.5rem;
+  }
+  
+  .example-title {
+    font-size: 1.5rem;
+  }
+  
   .cell {
-    width: 55px;
-    height: 55px;
-    font-size: 2rem;
+    width: 50px;
+    height: 50px;
+    font-size: 1.8rem;
+  }
+  
+  .step-caption {
+    font-size: 1rem;
+    padding: 1.2rem;
+  }
+  
+  .back-btn {
+    padding: 1.2rem 2.5rem;
+    font-size: 1.2rem;
   }
 }
 
 @media (max-width: 480px) {
+  .rules-container {
+    padding: 2rem;
+  }
+  
+  .rule-section {
+    padding: 1.5rem;
+  }
+  
+  .example-card {
+    padding: 2rem;
+  }
+  
   .cell {
-    width: 45px;
-    height: 45px;
-    font-size: 1.8rem;
+    width: 40px;
+    height: 40px;
+    font-size: 1.5rem;
+  }
+  
+  .back-btn {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    min-width: 180px;
   }
 }
 
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  .fire-background,
+  .ambient-particles,
+  .title,
+  .title-underline,
+  .section-icon {
+    animation: none;
+  }
+  
+  .back-btn,
+  .rule-section,
+  .example-card,
+  .cell {
+    transition: none;
+  }
+}
+
+/* Focus states for accessibility */
+.back-btn:focus {
+  outline: 3px solid rgba(0, 255, 127, 0.6);
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
 @media (prefers-contrast: high) {
   .rules-container {
     background: rgba(0, 0, 0, 0.9);
@@ -650,35 +731,22 @@ function goBack() {
   padding: 1rem;
   background: rgba(255, 255, 255, 0.03);
   border-radius: 12px;
-  border: 1px solid rgba(255, 69, 0, 0.1);
+  border: 1px solid rgba(0, 255, 127, 0.1);
 }
 
 .step-title {
-  color: #ffd700;
-  font-size: 1.6rem; 
+  color: #ccff00;
+  font-size: 1.6rem;
   font-weight: 600;
-  margin-bottom: 1.2rem; 
+  margin-bottom: 1.2rem;
   text-align: center;
-  text-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
-}
-
-.step-caption {
-  text-align: center;
-  font-size: 1.3rem;
-  color: #ffb74d;
-  font-weight: 500;
-  line-height: 1.6; 
-  margin-top: 1.5rem; 
-  padding: 1.5rem; 
-  background: rgba(255, 183, 77, 0.08);
-  border-radius: 8px;
-  border: 1px solid rgba(255, 183, 77, 0.15);
+  text-shadow: 0 0 8px rgba(204, 255, 0, 0.4);
 }
 
 .cell.highlight {
-  background: linear-gradient(145deg, #ffd700, #ffb347) !important;
-  border-color: #ff8c00 !important;
-  box-shadow: 0 0 15px rgba(255, 215, 0, 0.6) !important;
+  background: linear-gradient(145deg, #00ffff, #00bfff) !important;
+  border-color: #0099cc !important;
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.6) !important;
   animation: pulse 1.5s ease-in-out infinite;
 }
 
@@ -699,17 +767,17 @@ function goBack() {
 
 .cell.new-piece {
   animation: slideIn 0.6s ease-out;
-  box-shadow: 0 0 20px rgba(255, 215, 0, 0.8) !important;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.8) !important;
 }
 
 @keyframes pulse {
   0%, 100% { 
     transform: scale(1); 
-    box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.6);
   }
   50% { 
     transform: scale(1.1); 
-    box-shadow: 0 0 25px rgba(255, 215, 0, 0.9);
+    box-shadow: 0 0 25px rgba(0, 255, 255, 0.9);
   }
 }
 
@@ -744,6 +812,7 @@ function goBack() {
   }
 }
 
+/* Responsive adjustments for new examples */
 @media (max-width: 768px) {
   .step-container {
     padding: 0.8rem;

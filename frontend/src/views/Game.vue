@@ -1341,15 +1341,15 @@ const promptPlanStep = ref(0); // นับจำนวนตาที่เด�
 }
 
 .ai-thoughts-panel {
-  grid-column: 1 / 2; /* Explicitly place AI panel */
+  grid-column: 1 / 2;
   height: 100%;
-  background: linear-gradient(145deg, rgba(97, 26, 26, 0.95), rgba(10, 0, 0, 0.98));
+  background: linear-gradient(145deg, rgba(20, 30, 40, 0.95), rgba(10, 15, 25, 0.98));
   border-radius: 20px;
   padding: 2rem;
-  box-shadow: 
-    0 10px 20px rgba(255, 0, 0, 0.15), 
+  box-shadow:
+    0 10px 20px rgba(0, 255, 127, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 69, 0, 0.2);
+  border: 1px solid rgba(0, 255, 127, 0.3);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -1357,15 +1357,15 @@ const promptPlanStep = ref(0); // นับจำนวนตาที่เด�
 }
 
 .game-content {
-  grid-column: 2 / 3; /* Explicitly place Game content */
+  grid-column: 2 / 3;
   height: 100%;
-  background: linear-gradient(145deg, rgba(97, 26, 26, 0.95), rgba(10, 0, 0, 0.98));
+  background: linear-gradient(145deg, rgba(20, 30, 40, 0.95), rgba(10, 15, 25, 0.98));
   border-radius: 20px;
   padding: 2rem;
-  box-shadow: 
-    0 10px 20px rgba(186, 41, 41, 0.1),
+  box-shadow:
+    0 10px 20px rgba(0, 191, 255, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 69, 0, 0.13);
+  border: 1px solid rgba(0, 191, 255, 0.2);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -1426,7 +1426,7 @@ const promptPlanStep = ref(0); // นับจำนวนตาที่เด�
   gap: 1rem;
   margin-bottom: 2rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(255, 69, 0, 0.2);
+  border-bottom: 1px solid rgba(0, 255, 127, 0.3);
 }
 
 .ai-icon {
@@ -1439,7 +1439,7 @@ const promptPlanStep = ref(0); // นับจำนวนตาที่เด�
   font-size: 1.4rem;
   font-weight: 600;
   margin: 0;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 0 10px rgba(0, 255, 127, 0.5);
 }
 
 .thoughts-history {
@@ -1453,7 +1453,7 @@ const promptPlanStep = ref(0); // นับจำนวนตาที่เด�
   border-radius: 12px;
   padding: 1.2rem;
   margin-bottom: 1rem;
-  border: 1px solid rgba(255, 69, 0, 0.15);
+  border: 1px solid rgba(0, 255, 127, 0.6);
   transition: all 0.3s ease;
 }
 
@@ -1463,9 +1463,9 @@ const promptPlanStep = ref(0); // นับจำนวนตาที่เด�
 }
 
 .thought-entry.processing {
-  background: linear-gradient(135deg, rgba(0, 128, 0, 0.1), rgba(0, 100, 0, 0.05));
-  border-color: rgba(0, 255, 0, 0.4);
-  box-shadow: 0 0 15px rgba(0, 255, 0, 0.15);
+  background: linear-gradient(135deg, rgba(0, 191, 255, 0.1), rgba(0, 100, 200, 0.05));
+  border-color: rgba(0, 191, 255, 0.4);
+  box-shadow: 0 0 15px rgba(0, 191, 255, 0.2);
 }
 
 .thought-header {
@@ -1473,13 +1473,13 @@ const promptPlanStep = ref(0); // นับจำนวนตาที่เด�
   justify-content: space-between;
   align-items: center;
   margin-bottom: 0.8rem;
-  color: #ffb74d;
+  color: #00ff7f;
   font-size: 0.85rem;
 }
 
 .turn-number {
   font-weight: 600;
-  color: #ffd700;
+  color: #00bfff;
 }
 
 .timestamp {
@@ -1498,7 +1498,7 @@ const promptPlanStep = ref(0); // นับจำนวนตาที่เด�
   align-items: center;
   justify-content: center;
   height: 200px;
-  color: #ff8a65;
+  color: #00ff7f;
   text-align: center;
 }
 
@@ -1511,7 +1511,7 @@ const promptPlanStep = ref(0); // นับจำนวนตาที่เด�
 .dot {
   width: 8px;
   height: 8px;
-  background: #ff8a65;
+  background: #00ff7f;
   border-radius: 50%;
   animation: thinking 1.4s ease-in-out infinite both;
 }
@@ -1519,13 +1519,17 @@ const promptPlanStep = ref(0); // นับจำนวนตาที่เด�
 .dot:nth-child(1) { animation-delay: -0.32s; }
 .dot:nth-child(2) { animation-delay: -0.16s; }
 
-/* ปรับแต่ง Prompt Panel ให้เหมือนกับในภาพ */
 .prompt-panel {
-  background: linear-gradient(145deg, rgba(23, 32, 68, 0.95), rgba(5, 10, 30, 0.98));
-  padding: 1.5rem;
-  height: 100%;
+  background: linear-gradient(145deg, rgba(20, 30, 50, 0.95), rgba(10, 15, 35, 0.98));
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow:
+    0 10px 20px rgba(0, 191, 255, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(0, 191, 255, 0.3);
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .prompt-panel .panel-header {
@@ -1533,7 +1537,7 @@ const promptPlanStep = ref(0); // นับจำนวนตาที่เด�
   align-items: center;
   margin-bottom: 1.2rem;
   padding-bottom: 0.8rem;
-  border-bottom: 1px solid rgba(100, 149, 237, 0.2);
+  border-bottom: 1px solid rgba(0, 191, 255, 0.3);
 }
 
 .prompt-icon {
@@ -1548,7 +1552,6 @@ const promptPlanStep = ref(0); // นับจำนวนตาที่เด�
   margin: 0;
 }
 
-/* เพิ่ม CSS สำหรับแสดงรายการกลยุทธ์ */
 .strategies-filter {
   display: flex;
   justify-content: space-between;
@@ -1694,13 +1697,13 @@ const promptPlanStep = ref(0); // นับจำนวนตาที่เด�
   align-items: center;
   justify-content: center;
   gap: 1rem;
-  color: #ff6b6b;
+  color: #00ff7f;
   font-size: 2rem;
   font-weight: 700;
   margin-bottom: 2rem;
   text-shadow: 
-    0 0 10px rgba(255, 69, 0, 0.8),
-    0 0 20px rgba(255, 69, 0, 0.6);
+ 0 0 10px rgba(0, 255, 127, 0.8),
+    0 0 20px rgba(0, 255, 127, 0.6);
   letter-spacing: 1px;
 }
 
@@ -1728,14 +1731,14 @@ const promptPlanStep = ref(0); // นับจำนวนตาที่เด�
   flex: 1 1 0;
   min-width: 0;
   max-width: none;
-  background: linear-gradient(135deg, rgba(255, 69, 0, 0.15), rgba(139, 0, 0, 0.1));
+ background: linear-gradient(135deg, rgba(0, 255, 127, 0.15), rgba(0, 100, 100, 0.1));
   border-radius: 16px;
   padding: 1.5rem 1rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.7rem;
-  border: 1px solid rgba(255, 69, 0, 0.2);
+  border: 1px solid rgba(0, 255, 127, 0.3);
   box-sizing: border-box;
   transition: all 0.3s ease;
 }
@@ -1760,7 +1763,7 @@ const promptPlanStep = ref(0); // นับจำนวนตาที่เด�
 }
 
 .info-label {
-  color: #ffb74d;
+  color: #00ff7f;
   font-size: 0.9rem;
   margin-bottom: 0.25rem;
 }
@@ -1773,21 +1776,21 @@ const promptPlanStep = ref(0); // นับจำนวนตาที่เด�
 }
 
 .info-value.warning {
-  color: #ffb74d;
+  color: #ffa500;
   animation: pulse 1s ease-in-out infinite;
 }
 
 .info-value.critical {
-  color: #f44336;
+  color: #f44344;
   animation: pulse 0.5s ease-in-out infinite;
 }
 
 .player-name.player-x {
-  color: #fff176;
+  color: #00ff7f;
 }
 
 .player-name.player-o {
-  color: #ef5350;
+  color:#00bfff;
 }
 
 .score-inline {
@@ -1843,9 +1846,9 @@ const promptPlanStep = ref(0); // นับจำนวนตาที่เด�
   background: linear-gradient(145deg, #2c1810, #1a0f08);
   padding: 20px;
   border-radius: 20px;
-  border: 3px solid rgba(255, 69, 0, 0.3);
+  border: 3px solid rgba(26, 217, 52, 0.3);
   box-shadow: 
-    0 0 40px rgba(255, 69, 0, 0.2),
+    0 0 40px rgba(25, 216, 60, 0.2),
     inset 0 0 20px rgba(0, 0, 0, 0.5);
   user-select: none;
   width: 100%;
@@ -1928,12 +1931,12 @@ const promptPlanStep = ref(0); // นับจำนวนตาที่เด�
 }
 
 .cell-light {
-  background: linear-gradient(145deg, #f5deb3, #deb887);
+  background: linear-gradient(145deg, #ffffff, #ffffff);
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .cell-dark {
-  background: linear-gradient(145deg, #8b4513, #654321);
+  background: linear-gradient(145deg, #061024, #106e65);
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
@@ -2057,7 +2060,7 @@ const promptPlanStep = ref(0); // นับจำนวนตาที่เด�
 /* Adjusted back-btn to flow with flexbox */
 .back-btn {
   margin-top: auto; /* Pushes the button to the bottom within its flex container */
-  background: linear-gradient(135deg, #ff6b6b, #dc143c);
+  background: linear-gradient(135deg, #0b72e0, #43c0d6);
   color: white;
   font-weight: 600;
   font-size: 0.9rem;
@@ -2071,8 +2074,8 @@ const promptPlanStep = ref(0); // นับจำนวนตาที่เด�
 }
 
 .back-btn:hover {
-  background: linear-gradient(135deg, #ff1744, #dc143c);
-  box-shadow: 0 8px 25px rgba(220, 20, 60, 0.4);
+  background: linear-gradient(135deg, #0ba7e0, #1ae4eb);
+  box-shadow: 0 8px 25px rgba(7, 214, 190, 0.4);
   transform: translateY(-3px);
 }
 
