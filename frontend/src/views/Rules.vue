@@ -172,7 +172,6 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
-// ฟังก์ชันกลับไปยังหน้าหลัก
 function goBack() {
   router.push('/')
 }
@@ -248,7 +247,7 @@ function goBack() {
 }
 
 .rules-container {
-  background: linear-gradient(145deg, rgba(20, 20, 20, 0.95), rgba(10, 10, 10, 0.98));
+  background: linear-gradient(145deg, rgba(16, 72, 40, 0.95), rgba(19, 62, 40, 0.98));
   border-radius: 24px;
   padding: 4rem;
   box-shadow: 

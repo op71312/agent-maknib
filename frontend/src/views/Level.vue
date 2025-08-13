@@ -205,7 +205,7 @@ export default {
   text-align: center;
   width: 100%;
   max-width: 1400px; /* Reverted to original max-width */
-  background: linear-gradient(145deg, rgba(20, 20, 20, 0.9), rgba(10, 10, 10, 0.95));
+  background: linear-gradient(145deg, rgba(5, 79, 29, 0.9), rgba(39, 94, 77, 0.95));
   backdrop-filter: blur(20px);
   border-radius: 24px;
   padding: 4rem 3rem; /* ปรับ padding หลัก */

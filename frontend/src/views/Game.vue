@@ -1290,9 +1290,9 @@ const showStrategyPanel = computed(() => !isPvP.value);
 const showAIAnalysisPanel = computed(() => !isPvP.value);
 const showApplyButton = computed(() => difficulty.difficulty === 'prompt');
 
-const promptPlanActions = ref([]); // สำหรับโหมด prompt: action id ที่ต้องเดินตามกลยุทธ์
-const promptPlanInProgress = ref(false); // true ขณะกำลังเดินตามกลยุทธ์
-const promptPlanStep = ref(0); // นับจำนวนตาที่เดินไปแล้ว (สูงสุด 5)
+const promptPlanActions = ref([]); 
+const promptPlanInProgress = ref(false);
+const promptPlanStep = ref(0); 
 </script>
 
 <style scoped>
@@ -1305,7 +1305,7 @@ const promptPlanStep = ref(0); // นับจำนวนตาที่เด�
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: radial-gradient(ellipse at center, #1a0000 0%, #000000 70%);
+  background: radial-gradient(ellipse at center, #073b0c 0%, #09472e 70%);
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -1325,14 +1325,14 @@ const promptPlanStep = ref(0); // นับจำนวนตาที่เด�
   transform: translateZ(0);
 }
 
-/* Default layout for AI modes (Easy, Medium, Hard) */
+
 .content {
   position: relative;
   z-index: 1;
   width: 100%;
   flex-grow: 1;
   display: grid;
-  grid-template-columns: 350px 1fr; /* AI Panel left, Game Content right */
+  grid-template-columns: 350px 1fr; 
   gap: 2rem;
   padding: 2rem;
   transform: translateZ(0);
@@ -1342,7 +1342,7 @@ const promptPlanStep = ref(0); // นับจำนวนตาที่เด�
 .ai-thoughts-panel {
   grid-column: 1 / 2;
   height: 100%;
-  background: linear-gradient(145deg, rgba(20, 30, 40, 0.95), rgba(10, 15, 25, 0.98));
+  background:  rgba(30, 74, 65, 0.98);
   border-radius: 20px;
   padding: 2rem;
   box-shadow:
@@ -1358,7 +1358,7 @@ const promptPlanStep = ref(0); // นับจำนวนตาที่เด�
 .game-content {
   grid-column: 2 / 3;
   height: 100%;
-  background: linear-gradient(145deg, rgba(20, 30, 40, 0.95), rgba(10, 15, 25, 0.98));
+  background:  rgba(30, 74, 65, 0.98);
   border-radius: 20px;
   padding: 2rem;
   box-shadow:
@@ -1371,27 +1371,27 @@ const promptPlanStep = ref(0); // นับจำนวนตาที่เด�
   transform: translateZ(0);
 }
 
-/* Layout for PvP Mode */
+
 .content.pvp-mode {
-  grid-template-columns: 1fr; /* Game content takes full width */
+  grid-template-columns: 1fr; 
 }
 .content.pvp-mode .game-content {
-  grid-column: 1 / -1; /* Ensure it spans full width */
+  grid-column: 1 / -1; 
 }
 
-/* Layout for Prompt Mode */
+
 .content.prompt-mode {
   grid-template-columns: 320px 1fr 320px;
   grid-template-areas: "ai-panel game-content prompt-panel";
-  overflow: auto; /* เพิ่ม overflow: auto เพื่อให้สามารถเลื่อนได้ */
-  max-height: 100vh; /* กำหนดความสูงสูงสุด */
+  overflow: auto; 
+  max-height: 100vh; 
 }
 .content.prompt-mode .ai-thoughts-panel,
 .content.prompt-mode .game-content,
 .content.prompt-mode .prompt-panel {
   height: auto;
-  min-height: 80vh; /* ให้มีความสูงขั้นต่ำ */
-  overflow-y: auto; /* ให้แต่ละส่วนสามารถเลื่อนได้เมื่อเนื้อหาเกิน */
+  min-height: 80vh; 
+  overflow-y: auto; 
 }
 .content.prompt-mode .game-content {
   display: flex;
@@ -1399,7 +1399,7 @@ const promptPlanStep = ref(0); // นับจำนวนตาที่เด�
 }
 .content.prompt-mode .game-board-container {
   flex: 1;
-  min-height: 400px; /* กำหนดความสูงขั้นต่ำให้กระดาน */
+  min-height: 400px; 
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1519,7 +1519,7 @@ const promptPlanStep = ref(0); // นับจำนวนตาที่เด�
 .dot:nth-child(2) { animation-delay: -0.16s; }
 
 .prompt-panel {
-  background: linear-gradient(145deg, rgba(20, 30, 50, 0.95), rgba(10, 15, 35, 0.98));
+  background: rgba(30, 74, 65, 0.98);
   border-radius: 20px;
   padding: 2rem;
   box-shadow:
@@ -1613,7 +1613,7 @@ const promptPlanStep = ref(0); // นับจำนวนตาที่เด�
   align-items: center;
 }
 
-/* สไตล์สำหรับปุ่มนำไปใช้ที่อยู่ด้านบนซ้าย */
+
 .strategy-btn.top-left {
   background: #4caf4f24;
   color: #4caf50;
@@ -1623,7 +1623,7 @@ const promptPlanStep = ref(0); // นับจำนวนตาที่เด�
   font-size: 0.8rem;
   cursor: pointer;
   transition: all 0.2s ease;
-  margin-right: auto; /* ให้ปุ่มอยู่ทางซ้ายสุด */
+  margin-right: auto; 
 }
 
 .strategy-btn.top-left:hover {
@@ -1631,7 +1631,6 @@ const promptPlanStep = ref(0); // นับจำนวนตาที่เด�
   transform: translateY(-1px);
 }
 
-/* ปรับความกว้างของหัวข้อให้พอดีกับพื้นที่ที่เหลือ */
 .strategy-title {
   font-size: 1.1rem;
   color: #4caf50;
@@ -1668,7 +1667,6 @@ const promptPlanStep = ref(0); // นับจำนวนตาที่เด�
   background: rgba(76, 175, 80, 0.4);
 }
 
-/* สไตล์ scrollbar ของ strategy-list */
 .strategy-list::-webkit-scrollbar {
   width: 6px;
 }
@@ -1842,7 +1840,7 @@ const promptPlanStep = ref(0); // นับจำนวนตาที่เด�
   display: grid;
   grid-template-rows: repeat(8, 1fr);
   gap: 3px;
-  background: linear-gradient(145deg, #2c1810, #1a0f08);
+  background: linear-gradient(145deg, #123121, #08191a);
   padding: 20px;
   border-radius: 20px;
   border: 3px solid rgba(26, 217, 52, 0.3);
@@ -1935,7 +1933,7 @@ const promptPlanStep = ref(0); // นับจำนวนตาที่เด�
 }
 
 .cell-dark {
-  background: linear-gradient(145deg, #061024, #106e65);
+  background: linear-gradient(145deg, #106e65, #106e65);
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
@@ -2269,14 +2267,12 @@ const promptPlanStep = ref(0); // นับจำนวนตาที่เด�
   }
 }
 
-/* Focus states for accessibility */
 .control-button:focus,
 .prompt-panel button:focus {
-  outline: 3px solid rgba(255, 215, 0, 0.6);
+  outline: 3px solid rgba(9, 255, 0, 0.6);
   outline-offset: 2px;
 }
 
-/* เพิ่ม container สำหรับจัดวางหัวข้อและปุ่ม */
 .header-container {
   display: flex;
   justify-content: space-between;
@@ -2285,17 +2281,14 @@ const promptPlanStep = ref(0); // นับจำนวนตาที่เด�
   margin-bottom: 1.5rem;
 }
 
-/* ปรับ difficulty-header ให้อยู่ซ้าย */
 .difficulty-header {
   flex-grow: 1;
 }
 
-/* รีเซ็ต margin ของ difficulty-display */
 .difficulty-display {
   margin-bottom: 0;
 }
 
-/* ปรับแต่งปุ่มกลับให้อยู่บนขวาสุด */
 .back-btn.corner {
   position: absolute;
   top: 20px;
@@ -2306,19 +2299,16 @@ const promptPlanStep = ref(0); // นับจำนวนตาที่เด�
   z-index: 10;
 }
 
-/* ปรับ game-content ให้มี position เป็น relative เพื่อรองรับ absolute positioning ของปุ่ม */
+
 .game-content {
   position: relative;
-  /* ...คงค่า properties อื่นไว้เหมือนเดิม... */
 }
 
-/* ปรับ header-container เพื่อไม่ให้ทับซ้อนกับปุ่ม */
 .header-container {
   padding-top: 10px;
-  padding-right: 100px; /* เพิ่มระยะห่างทางขวาเพื่อไม่ให้ชนกับปุ่ม */
+  padding-right: 100px;
 }
 
-/* Auto-play Status Styles */
 .auto-play-status {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border-radius: 12px;
