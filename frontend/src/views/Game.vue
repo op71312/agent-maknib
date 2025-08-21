@@ -1290,9 +1290,9 @@ const showStrategyPanel = computed(() => !isPvP.value);
 const showAIAnalysisPanel = computed(() => !isPvP.value);
 const showApplyButton = computed(() => difficulty.difficulty === 'prompt');
 
-const promptPlanActions = ref([]); 
-const promptPlanInProgress = ref(false);
-const promptPlanStep = ref(0); 
+const promptPlanActions = ref([]); // สำหรับโหมด prompt: action id ที่ต้องเดินตามกลยุทธ์
+const promptPlanInProgress = ref(false); // true ขณะกำลังเดินตามกลยุทธ์
+const promptPlanStep = ref(0); // นับจำนวนตาที่เดินไปแล้ว (สูงสุด 5)
 </script>
 
 <style scoped>
@@ -1305,7 +1305,7 @@ const promptPlanStep = ref(0);
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: radial-gradient(ellipse at center, #073b0c 0%, #09472e 70%);
+  background: radial-gradient(ellipse at center, #0d1f1c 0%, #000000 70%);
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -1325,14 +1325,14 @@ const promptPlanStep = ref(0);
   transform: translateZ(0);
 }
 
-
+/* Default layout for AI modes (Easy, Medium, Hard) */
 .content {
   position: relative;
   z-index: 1;
   width: 100%;
   flex-grow: 1;
   display: grid;
-  grid-template-columns: 350px 1fr; 
+  grid-template-columns: 350px 1fr; /* AI Panel left, Game Content right */
   gap: 2rem;
   padding: 2rem;
   transform: translateZ(0);
@@ -1340,15 +1340,15 @@ const promptPlanStep = ref(0);
 }
 
 .ai-thoughts-panel {
-  grid-column: 1 / 2;
+  grid-column: 1 / 2; /* Explicitly place AI panel */
   height: 100%;
-  background:  rgba(30, 74, 65, 0.98);
+  background: linear-gradient(145deg, rgba(20, 60, 50, 0.95), rgba(10, 25, 20, 0.98));
   border-radius: 20px;
   padding: 2rem;
-  box-shadow:
-    0 10px 20px rgba(0, 255, 127, 0.1),
+  box-shadow: 
+    0 10px 20px rgba(0, 150, 136, 0.15), 
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(0, 255, 127, 0.3);
+  border: 1px solid rgba(0, 150, 136, 0.2);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -1356,42 +1356,42 @@ const promptPlanStep = ref(0);
 }
 
 .game-content {
-  grid-column: 2 / 3;
+  grid-column: 2 / 3; /* Explicitly place Game content */
   height: 100%;
-  background:  rgba(30, 74, 65, 0.98);
+  background: linear-gradient(145deg, rgba(20, 60, 50, 0.95), rgba(10, 25, 20, 0.98));
   border-radius: 20px;
   padding: 2rem;
-  box-shadow:
-    0 10px 20px rgba(0, 191, 255, 0.08),
+  box-shadow: 
+    0 10px 20px rgba(0, 150, 136, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(0, 191, 255, 0.2);
+  border: 1px solid rgba(0, 150, 136, 0.13);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   transform: translateZ(0);
 }
 
-
+/* Layout for PvP Mode */
 .content.pvp-mode {
-  grid-template-columns: 1fr; 
+  grid-template-columns: 1fr; /* Game content takes full width */
 }
 .content.pvp-mode .game-content {
-  grid-column: 1 / -1; 
+  grid-column: 1 / -1; /* Ensure it spans full width */
 }
 
-
+/* Layout for Prompt Mode */
 .content.prompt-mode {
   grid-template-columns: 320px 1fr 320px;
   grid-template-areas: "ai-panel game-content prompt-panel";
-  overflow: auto; 
-  max-height: 100vh; 
+  overflow: auto; /* เพิ่ม overflow: auto เพื่อให้สามารถเลื่อนได้ */
+  max-height: 100vh; /* กำหนดความสูงสูงสุด */
 }
 .content.prompt-mode .ai-thoughts-panel,
 .content.prompt-mode .game-content,
 .content.prompt-mode .prompt-panel {
   height: auto;
-  min-height: 80vh; 
-  overflow-y: auto; 
+  min-height: 80vh; /* ให้มีความสูงขั้นต่ำ */
+  overflow-y: auto; /* ให้แต่ละส่วนสามารถเลื่อนได้เมื่อเนื้อหาเกิน */
 }
 .content.prompt-mode .game-content {
   display: flex;
@@ -1399,7 +1399,7 @@ const promptPlanStep = ref(0);
 }
 .content.prompt-mode .game-board-container {
   flex: 1;
-  min-height: 400px; 
+  min-height: 400px; /* กำหนดความสูงขั้นต่ำให้กระดาน */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1425,7 +1425,7 @@ const promptPlanStep = ref(0);
   gap: 1rem;
   margin-bottom: 2rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(0, 255, 127, 0.3);
+  border-bottom: 1px solid rgba(0, 150, 136, 0.2);
 }
 
 .ai-icon {
@@ -1438,7 +1438,7 @@ const promptPlanStep = ref(0);
   font-size: 1.4rem;
   font-weight: 600;
   margin: 0;
-  text-shadow: 0 0 10px rgba(0, 255, 127, 0.5);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .thoughts-history {
@@ -1448,23 +1448,23 @@ const promptPlanStep = ref(0);
 }
 
 .thought-entry {
-  background: linear-gradient(135deg, rgba(255, 69, 0, 0.08), rgba(139, 0, 0, 0.05));
+  background: linear-gradient(135deg, rgba(0, 150, 136, 0.08), rgba(0, 121, 107, 0.05));
   border-radius: 12px;
   padding: 1.2rem;
   margin-bottom: 1rem;
-  border: 1px solid rgba(0, 255, 127, 0.6);
+  border: 1px solid rgba(0, 150, 136, 0.15);
   transition: all 0.3s ease;
 }
 
 .thought-entry.latest {
-  border-color: rgba(255, 215, 0, 0.4);
-  box-shadow: 0 0 15px rgba(255, 215, 0, 0.15);
+  border-color: rgba(77, 182, 172, 0.4);
+  box-shadow: 0 0 15px rgba(77, 182, 172, 0.15);
 }
 
 .thought-entry.processing {
-  background: linear-gradient(135deg, rgba(0, 191, 255, 0.1), rgba(0, 100, 200, 0.05));
-  border-color: rgba(0, 191, 255, 0.4);
-  box-shadow: 0 0 15px rgba(0, 191, 255, 0.2);
+  background: linear-gradient(135deg, rgba(0, 128, 0, 0.1), rgba(0, 100, 0, 0.05));
+  border-color: rgba(0, 255, 0, 0.4);
+  box-shadow: 0 0 15px rgba(0, 255, 0, 0.15);
 }
 
 .thought-header {
@@ -1472,13 +1472,13 @@ const promptPlanStep = ref(0);
   justify-content: space-between;
   align-items: center;
   margin-bottom: 0.8rem;
-  color: #00ff7f;
+  color: #ffb74d;
   font-size: 0.85rem;
 }
 
 .turn-number {
   font-weight: 600;
-  color: #00bfff;
+  color: #ffd700;
 }
 
 .timestamp {
@@ -1497,7 +1497,7 @@ const promptPlanStep = ref(0);
   align-items: center;
   justify-content: center;
   height: 200px;
-  color: #00ff7f;
+  color: #4db6ac;
   text-align: center;
 }
 
@@ -1510,7 +1510,7 @@ const promptPlanStep = ref(0);
 .dot {
   width: 8px;
   height: 8px;
-  background: #00ff7f;
+  background: #4db6ac;
   border-radius: 50%;
   animation: thinking 1.4s ease-in-out infinite both;
 }
@@ -1518,17 +1518,13 @@ const promptPlanStep = ref(0);
 .dot:nth-child(1) { animation-delay: -0.32s; }
 .dot:nth-child(2) { animation-delay: -0.16s; }
 
+/* ปรับแต่ง Prompt Panel ให้เหมือนกับในภาพ */
 .prompt-panel {
-  background: rgba(30, 74, 65, 0.98);
-  border-radius: 20px;
-  padding: 2rem;
-  box-shadow:
-    0 10px 20px rgba(0, 191, 255, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(0, 191, 255, 0.3);
+  background: linear-gradient(145deg, rgba(20, 60, 50, 0.95), rgba(10, 25, 20, 0.98));
+  padding: 1.5rem;
+  height: 100%;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
 }
 
 .prompt-panel .panel-header {
@@ -1536,7 +1532,7 @@ const promptPlanStep = ref(0);
   align-items: center;
   margin-bottom: 1.2rem;
   padding-bottom: 0.8rem;
-  border-bottom: 1px solid rgba(0, 191, 255, 0.3);
+  border-bottom: 1px solid rgba(0, 150, 136, 0.2);
 }
 
 .prompt-icon {
@@ -1551,6 +1547,7 @@ const promptPlanStep = ref(0);
   margin: 0;
 }
 
+/* เพิ่ม CSS สำหรับแสดงรายการกลยุทธ์ */
 .strategies-filter {
   display: flex;
   justify-content: space-between;
@@ -1559,8 +1556,8 @@ const promptPlanStep = ref(0);
 }
 
 .strategy-select {
-  background: rgba(20, 30, 70, 0.7);
-  border: 1px solid rgba(76, 175, 80, 0.4);
+  background: rgba(10, 25, 20, 0.7);
+  border: 1px solid rgba(0, 150, 136, 0.4);
   color: white;
   padding: 0.5rem;
   border-radius: 6px;
@@ -1572,8 +1569,8 @@ const promptPlanStep = ref(0);
 }
 
 .strategy-search-input {
-  background: rgba(20, 30, 70, 0.7);
-  border: 1px solid rgba(76, 175, 80, 0.4);
+  background: rgba(10, 25, 20, 0.7);
+  border: 1px solid rgba(0, 150, 136, 0.4);
   color: white;
   padding: 0.5rem;
   border-radius: 6px;
@@ -1590,14 +1587,14 @@ const promptPlanStep = ref(0);
 }
 
 .strategy-item {
-  background: rgba(30, 40, 100, 0.4);
+  background: rgba(15, 45, 35, 0.4);
   border-radius: 16px;
   padding: 1rem;
   border-left: 3px solid #4caf50;
   transition: all 0.2s ease;
   position: relative;
-  box-shadow: 0 10px 20px rgba(76, 175, 80, 0.08), 0 2px 8px rgba(0,0,0,0.08);
-  border: 1px solid rgba(76, 175, 80, 0.13);
+  box-shadow: 0 10px 20px rgba(0, 150, 136, 0.08), 0 2px 8px rgba(0,0,0,0.08);
+  border: 1px solid rgba(0, 150, 136, 0.13);
 }
 
 .strategy-header {
@@ -1613,7 +1610,7 @@ const promptPlanStep = ref(0);
   align-items: center;
 }
 
-
+/* สไตล์สำหรับปุ่มนำไปใช้ที่อยู่ด้านบนซ้าย */
 .strategy-btn.top-left {
   background: #4caf4f24;
   color: #4caf50;
@@ -1623,7 +1620,7 @@ const promptPlanStep = ref(0);
   font-size: 0.8rem;
   cursor: pointer;
   transition: all 0.2s ease;
-  margin-right: auto; 
+  margin-right: auto; /* ให้ปุ่มอยู่ทางซ้ายสุด */
 }
 
 .strategy-btn.top-left:hover {
@@ -1631,6 +1628,7 @@ const promptPlanStep = ref(0);
   transform: translateY(-1px);
 }
 
+/* ปรับความกว้างของหัวข้อให้พอดีกับพื้นที่ที่เหลือ */
 .strategy-title {
   font-size: 1.1rem;
   color: #4caf50;
@@ -1667,22 +1665,23 @@ const promptPlanStep = ref(0);
   background: rgba(76, 175, 80, 0.4);
 }
 
+/* สไตล์ scrollbar ของ strategy-list */
 .strategy-list::-webkit-scrollbar {
   width: 6px;
 }
 
 .strategy-list::-webkit-scrollbar-track {
-  background: rgba(76, 175, 80, 0.1);
+  background: rgba(0, 150, 136, 0.1);
   border-radius: 3px;
 }
 
 .strategy-list::-webkit-scrollbar-thumb {
-  background: rgba(76, 175, 80, 0.3);
+  background: rgba(0, 150, 136, 0.3);
   border-radius: 3px;
 }
 
 .strategy-list::-webkit-scrollbar-thumb:hover {
-  background: rgba(76, 175, 80, 0.5);
+  background: rgba(0, 150, 136, 0.5);
 }
 
 .game-header {
@@ -1694,13 +1693,13 @@ const promptPlanStep = ref(0);
   align-items: center;
   justify-content: center;
   gap: 1rem;
-  color: #00ff7f;
+  color: #26a69a;
   font-size: 2rem;
   font-weight: 700;
   margin-bottom: 2rem;
   text-shadow: 
- 0 0 10px rgba(0, 255, 127, 0.8),
-    0 0 20px rgba(0, 255, 127, 0.6);
+    0 0 10px rgba(38, 166, 154, 0.8),
+    0 0 20px rgba(38, 166, 154, 0.6);
   letter-spacing: 1px;
 }
 
@@ -1728,21 +1727,21 @@ const promptPlanStep = ref(0);
   flex: 1 1 0;
   min-width: 0;
   max-width: none;
- background: linear-gradient(135deg, rgba(0, 255, 127, 0.15), rgba(0, 100, 100, 0.1));
+  background: linear-gradient(135deg, rgba(0, 150, 136, 0.15), rgba(0, 121, 107, 0.1));
   border-radius: 16px;
   padding: 1.5rem 1rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.7rem;
-  border: 1px solid rgba(0, 255, 127, 0.3);
+  border: 1px solid rgba(0, 150, 136, 0.2);
   box-sizing: border-box;
   transition: all 0.3s ease;
 }
 
 .info-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(255, 69, 0, 0.2);
+  box-shadow: 0 10px 25px rgba(0, 150, 136, 0.2);
 }
 
 .info-card .info-content {
@@ -1760,7 +1759,7 @@ const promptPlanStep = ref(0);
 }
 
 .info-label {
-  color: #00ff7f;
+  color: #4db6ac;
   font-size: 0.9rem;
   margin-bottom: 0.25rem;
 }
@@ -1773,21 +1772,21 @@ const promptPlanStep = ref(0);
 }
 
 .info-value.warning {
-  color: #ffa500;
+  color: #80cbc4;
   animation: pulse 1s ease-in-out infinite;
 }
 
 .info-value.critical {
-  color: #f44344;
+  color: #ff6b6b;
   animation: pulse 0.5s ease-in-out infinite;
 }
 
 .player-name.player-x {
-  color: #00ff7f;
+  color: #fff176;
 }
 
 .player-name.player-o {
-  color:#00bfff;
+  color: #ef5350;
 }
 
 .score-inline {
@@ -1800,10 +1799,10 @@ const promptPlanStep = ref(0);
 }
 
 .vs-divider {
-  color: #ff6b6b;
+  color: #26a69a;
   font-size: 1rem;
   font-weight: 700;
-  text-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
+  text-shadow: 0 0 10px rgba(38, 166, 154, 0.5);
 }
 
 .game-board-container {
@@ -1840,12 +1839,12 @@ const promptPlanStep = ref(0);
   display: grid;
   grid-template-rows: repeat(8, 1fr);
   gap: 3px;
-  background: linear-gradient(145deg, #123121, #08191a);
+  background: linear-gradient(145deg, #2e7d6b, #1e5a4a);
   padding: 20px;
   border-radius: 20px;
-  border: 3px solid rgba(26, 217, 52, 0.3);
+  border: 3px solid rgba(0, 150, 136, 0.3);
   box-shadow: 
-    0 0 40px rgba(25, 216, 60, 0.2),
+    0 0 40px rgba(0, 150, 136, 0.2),
     inset 0 0 20px rgba(0, 0, 0, 0.5);
   user-select: none;
   width: 100%;
@@ -1860,9 +1859,9 @@ const promptPlanStep = ref(0);
   bottom: -6px;
   border-radius: 24px;
   background: linear-gradient(45deg, 
-    rgba(255, 69, 0, 0.4), 
-    rgba(255, 140, 0, 0.3), 
-    rgba(255, 69, 0, 0.4));
+    rgba(0, 150, 136, 0.4), 
+    rgba(38, 166, 154, 0.3), 
+    rgba(0, 150, 136, 0.4));
   background-size: 200% 200%;
   animation: boardGlow 4s ease-in-out infinite;
   z-index: -1;
@@ -1918,22 +1917,22 @@ const promptPlanStep = ref(0);
 
 .cell:hover:not(.selected):not(.has-piece) {
   transform: scale(1.05);
-  box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+  box-shadow: 0 0 20px rgba(77, 182, 172, 0.4);
 }
 
 .cell:focus-visible {
-  outline: 3px solid #ffd700;
+  outline: 3px solid #4db6ac;
   outline-offset: 3px;
   z-index: 10;
 }
 
 .cell-light {
-  background: linear-gradient(145deg, #ffffff, #ffffff);
+  background: linear-gradient(145deg, #e0f7fa, #b2dfdb);
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .cell-dark {
-  background: linear-gradient(145deg, #106e65, #106e65);
+  background: linear-gradient(145deg, #4db6ac, #26a69a);
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
@@ -1987,8 +1986,8 @@ const promptPlanStep = ref(0);
 
 .selected {
   box-shadow: 
-    inset 0 0 20px rgba(255, 215, 0, 0.7),
-    0 0 30px rgba(255, 215, 0, 0.5);
+    inset 0 0 20px rgba(144, 238, 144, 0.7),
+    0 0 30px rgba(144, 238, 144, 0.5);
   transform: scale(1.1);
   z-index: 5;
 }
@@ -1996,7 +1995,7 @@ const promptPlanStep = ref(0);
 .selected .piece {
   transform: scale(1.1);
   box-shadow: 
-    0 0 25px rgba(255, 215, 0, 0.7),
+    0 0 25px rgba(77, 182, 172, 0.7),
     0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
@@ -2026,7 +2025,7 @@ const promptPlanStep = ref(0);
   display: flex;
   align-items: center;
   gap: 0.8rem;
-  background: linear-gradient(135deg, #dc143c, #8b0000);
+  background: linear-gradient(135deg, #00695c, #004d40);
   border: none;
   color: white;
   font-weight: 600;
@@ -2034,15 +2033,15 @@ const promptPlanStep = ref(0);
   padding: 1rem 2rem;
   border-radius: 50px;
   cursor: pointer;
-  box-shadow: 0 4px 15px rgba(220, 20, 60, 0.3);
+  box-shadow: 0 4px 15px rgba(0, 150, 136, 0.3);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   font-family: 'Kanit', sans-serif;
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .control-button:hover {
-  background: linear-gradient(135deg, #ff1744, #dc143c);
-  box-shadow: 0 8px 25px rgba(220, 20, 60, 0.4);
+  background: linear-gradient(135deg, #00796b, #00695c);
+  box-shadow: 0 8px 25px rgba(0, 150, 136, 0.4);
   transform: translateY(-3px);
 }
 
@@ -2057,13 +2056,13 @@ const promptPlanStep = ref(0);
 /* Adjusted back-btn to flow with flexbox */
 .back-btn {
   margin-top: auto; /* Pushes the button to the bottom within its flex container */
-  background: linear-gradient(135deg, #0b72e0, #43c0d6);
+  background: linear-gradient(135deg, #26a69a, #00695c);
   color: white;
   font-weight: 600;
   font-size: 0.9rem;
   padding: 0.8rem 1.5rem;
   border-radius: 50px;
-  box-shadow: 0 4px 15px rgba(220, 20, 60, 0.3);
+  box-shadow: 0 4px 15px rgba(0, 150, 136, 0.3);
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
@@ -2071,8 +2070,8 @@ const promptPlanStep = ref(0);
 }
 
 .back-btn:hover {
-  background: linear-gradient(135deg, #0ba7e0, #1ae4eb);
-  box-shadow: 0 8px 25px rgba(7, 214, 190, 0.4);
+  background: linear-gradient(135deg, #4db6ac, #26a69a);
+  box-shadow: 0 8px 25px rgba(0, 150, 136, 0.4);
   transform: translateY(-3px);
 }
 
@@ -2100,13 +2099,13 @@ const promptPlanStep = ref(0);
 }
 
 .game-over-panel {
-  background: linear-gradient(145deg, rgba(30, 0, 0, 0.95), rgba(10, 0, 0, 0.98));
+  background: linear-gradient(145deg, rgba(10, 25, 20, 0.95), rgba(5, 15, 10, 0.98));
   border-radius: 24px;
   padding: 3rem;
   box-shadow: 
-    0 10px 20px rgba(255, 0, 0, 0.25), 
+    0 10px 20px rgba(0, 150, 136, 0.25), 
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 69, 0, 0.3);
+  border: 1px solid rgba(0, 150, 136, 0.3);
   text-align: center;
   min-width: 400px;
   animation: slideUp 0.4s ease;
@@ -2120,11 +2119,11 @@ const promptPlanStep = ref(0);
 }
 
 .game-over-title {
-  color: #ff6b6b;
+  color: #26a69a;
   font-size: 2.5rem;
   font-weight: 700;
   margin-bottom: 1.5rem;
-  text-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+  text-shadow: 0 0 20px rgba(38, 166, 154, 0.5);
 }
 
 .game-result {
@@ -2137,7 +2136,7 @@ const promptPlanStep = ref(0);
 }
 
 .result-text.draw {
-  color: #ffb74d;
+  color: #80cbc4;
 }
 
 .result-text.winner {
@@ -2170,7 +2169,7 @@ const promptPlanStep = ref(0);
   justify-content: space-around;
   margin-bottom: 2rem;
   padding: 1rem;
-  background: rgba(255, 69, 0, 0.1);
+  background: rgba(0, 150, 136, 0.1);
   border-radius: 12px;
 }
 
@@ -2181,7 +2180,7 @@ const promptPlanStep = ref(0);
 }
 
 .final-score-label {
-  color: #ffb74d;
+  color: #80cbc4;
   font-size: 0.9rem;
 }
 
@@ -2204,7 +2203,7 @@ const promptPlanStep = ref(0);
 }
 
 .game-over-buttons .back-btn {
-  background: linear-gradient(135deg, #dc143c, #8b0000);
+  background: linear-gradient(135deg, #00695c, #004d40);
 }
 
 .game-over-buttons .replay-btn {
@@ -2267,12 +2266,14 @@ const promptPlanStep = ref(0);
   }
 }
 
+/* Focus states for accessibility */
 .control-button:focus,
 .prompt-panel button:focus {
-  outline: 3px solid rgba(9, 255, 0, 0.6);
+  outline: 3px solid rgba(77, 182, 172, 0.6);
   outline-offset: 2px;
 }
 
+/* เพิ่ม container สำหรับจัดวางหัวข้อและปุ่ม */
 .header-container {
   display: flex;
   justify-content: space-between;
@@ -2281,14 +2282,17 @@ const promptPlanStep = ref(0);
   margin-bottom: 1.5rem;
 }
 
+/* ปรับ difficulty-header ให้อยู่ซ้าย */
 .difficulty-header {
   flex-grow: 1;
 }
 
+/* รีเซ็ต margin ของ difficulty-display */
 .difficulty-display {
   margin-bottom: 0;
 }
 
+/* ปรับแต่งปุ่มกลับให้อยู่บนขวาสุด */
 .back-btn.corner {
   position: absolute;
   top: 20px;
@@ -2299,16 +2303,19 @@ const promptPlanStep = ref(0);
   z-index: 10;
 }
 
-
+/* ปรับ game-content ให้มี position เป็น relative เพื่อรองรับ absolute positioning ของปุ่ม */
 .game-content {
   position: relative;
+  /* ...คงค่า properties อื่นไว้เหมือนเดิม... */
 }
 
+/* ปรับ header-container เพื่อไม่ให้ทับซ้อนกับปุ่ม */
 .header-container {
   padding-top: 10px;
-  padding-right: 100px;
+  padding-right: 100px; /* เพิ่มระยะห่างทางขวาเพื่อไม่ให้ชนกับปุ่ม */
 }
 
+/* Auto-play Status Styles */
 .auto-play-status {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border-radius: 12px;

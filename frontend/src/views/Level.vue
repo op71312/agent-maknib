@@ -106,7 +106,7 @@ export default {
   left: 0;
   width: 100%;
   height: 100%;
-  background: radial-gradient(ellipse at center, #1a1a1a 0%, #000000 70%);
+  background: radial-gradient(ellipse at center, #0d1f1c 0%, #000000 70%);
   overflow: hidden;
   display: flex;
   justify-content: center;
@@ -120,14 +120,14 @@ export default {
   width: 100%;
   height: 100%;
   background: 
-    radial-gradient(circle at 20% 80%, rgba(0, 255, 127, 0.2) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(0, 191, 255, 0.15) 0%, transparent 50%),
-    radial-gradient(circle at 40% 40%, rgba(57, 255, 20, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 20% 80%, rgba(0, 150, 136, 0.2) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(77, 182, 172, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(38, 166, 154, 0.1) 0%, transparent 50%),
     linear-gradient(45deg, 
       transparent 0%,
-      rgba(0, 100, 100, 0.3) 25%,
-      rgba(0, 255, 127, 0.2) 50%,
-      rgba(0, 100, 100, 0.3) 75%,
+      rgba(0, 105, 92, 0.3) 25%,
+      rgba(0, 150, 136, 0.2) 50%,
+      rgba(0, 105, 92, 0.3) 75%,
       transparent 100%);
   background-size: 300% 300%, 250% 250%, 400% 400%, 200% 200%;
   animation: 
@@ -143,11 +143,11 @@ export default {
   width: 100%;
   height: 100%;
   background-image: 
-    radial-gradient(2px 2px at 20px 30px, rgba(0, 255, 127, 0.6), transparent),
-    radial-gradient(2px 2px at 40px 70px, rgba(0, 191, 255, 0.5), transparent),
-    radial-gradient(1px 1px at 90px 40px, rgba(57, 255, 20, 0.4), transparent),
-    radial-gradient(1px 1px at 130px 80px, rgba(0, 255, 127, 0.3), transparent),
-    radial-gradient(2px 2px at 160px 30px, rgba(0, 191, 255, 0.3), transparent);
+    radial-gradient(2px 2px at 20px 30px, rgba(0, 150, 136, 0.6), transparent),
+    radial-gradient(2px 2px at 40px 70px, rgba(77, 182, 172, 0.5), transparent),
+    radial-gradient(1px 1px at 90px 40px, rgba(38, 166, 154, 0.4), transparent),
+    radial-gradient(1px 1px at 130px 80px, rgba(0, 150, 136, 0.3), transparent),
+    radial-gradient(2px 2px at 160px 30px, rgba(77, 182, 172, 0.3), transparent);
   background-repeat: repeat;
   background-size: 200px 100px;
   animation: sparkle 20s linear infinite;
@@ -160,7 +160,7 @@ export default {
   align-items: center;
   justify-content: center; /* จัดกึ่งกลางเมื่อเป็น flex */
   gap: 1rem;
-  background: linear-gradient(135deg, #0080ff 0%, #004080 100%);
+  background: linear-gradient(135deg, #00968A 0%, #00695C 100%);
   border: none;
   color: white;
   font-weight: 650;
@@ -169,7 +169,7 @@ export default {
   border-radius: 60px;
   cursor: pointer;
   box-shadow: 
-    0 12px 35px rgba(0, 128, 255, 0.4),
+    0 12px 35px rgba(0, 150, 136, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   font-family: 'Kanit', sans-serif;
@@ -205,14 +205,14 @@ export default {
   text-align: center;
   width: 100%;
   max-width: 1400px; /* Reverted to original max-width */
-  background: linear-gradient(145deg, rgba(5, 79, 29, 0.9), rgba(39, 94, 77, 0.95));
+  background: linear-gradient(145deg, rgba(13, 31, 28, 0.9), rgba(0, 105, 92, 0.95));
   backdrop-filter: blur(20px);
   border-radius: 24px;
   padding: 4rem 3rem; /* ปรับ padding หลัก */
   box-shadow: 
-    0 20px 40px rgba(0, 255, 127, 0.15),
+    0 20px 40px rgba(0, 150, 136, 0.15),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(0, 255, 127, 0.3);
+  border: 1px solid rgba(0, 150, 136, 0.3);
   overflow-y: auto; 
   max-height: 90vh; 
 }
@@ -227,10 +227,10 @@ export default {
   font-weight: 700;
   color: #e0ffe0;
   text-shadow: 
-    0 0 10px rgba(0, 255, 127, 0.8),
-    0 0 20px rgba(0, 255, 127, 0.6),
-    0 0 30px rgba(0, 255, 127, 0.4),
-    0 0 40px rgba(0, 255, 127, 0.2);
+    0 0 10px rgba(0, 150, 136, 0.8),
+    0 0 20px rgba(0, 150, 136, 0.6),
+    0 0 30px rgba(0, 150, 136, 0.4),
+    0 0 40px rgba(0, 150, 136, 0.2);
   margin: 0;
   letter-spacing: 0.05em;
   animation: titleGlow 3s ease-in-out infinite;
@@ -239,7 +239,7 @@ export default {
 .title-underline {
   width: 120px;
   height: 4px;
-  background: linear-gradient(90deg, transparent, #00ff7f, #39ff14, #00ff7f, transparent);
+  background: linear-gradient(90deg, transparent, #00968A, #26a69a, #00968A, transparent);
   margin: 1.5rem auto 0;
   border-radius: 2px;
   animation: underlineGlow 2s ease-in-out infinite;
@@ -319,50 +319,50 @@ export default {
 }
 
 .level-btn.easy {
-  background: linear-gradient(135deg, #00ff7f 0%, #00cc66 100%);
+  background: linear-gradient(135deg, #00968A 0%, #00695C 100%);
 }
 
 .level-btn.easy .btn-glow {
-  background: linear-gradient(135deg, #39ff14 0%, #00ff7f 100%);
+  background: linear-gradient(135deg, #26a69a 0%, #00968A 100%);
 }
 
 .level-btn.medium {
-  background: linear-gradient(135deg, #00bfff 0%, #0080ff 100%);
+  background: linear-gradient(135deg, #4db6ac 0%, #26a69a 100%);
 }
 
 .level-btn.medium .btn-glow {
-  background: linear-gradient(135deg, #40e0ff 0%, #00bfff 100%);
+  background: linear-gradient(135deg, #80cbc4 0%, #4db6ac 100%);
 }
 
 .level-btn.hard {
-  background: linear-gradient(135deg, #c0c0c0 0%, #808080 100%);
+  background: linear-gradient(135deg, #607d8b 0%, #455a64 100%);
 }
 
 .level-btn.hard .btn-glow {
-  background: linear-gradient(135deg, #e0e0e0 0%, #c0c0c0 100%);
+  background: linear-gradient(135deg, #90a4ae 0%, #607d8b 100%);
 }
 
 .level-btn.friend {
-  background: linear-gradient(135deg, #0066cc 0%, #003d7a 100%);
+  background: linear-gradient(135deg, #00838f 0%, #00695C 100%);
 }
 
 .level-btn.friend .btn-glow {
-  background: linear-gradient(135deg, #0080ff 0%, #0066cc 100%);
+  background: linear-gradient(135deg, #26a69a 0%, #00838f 100%);
 }
 
 .level-btn.prompt {
-  background: linear-gradient(135deg, #00cccc 0%, #008080 100%);
+  background: linear-gradient(135deg, #00acc1 0%, #0097a7 100%);
 }
 
 .level-btn.prompt .btn-glow {
-  background: linear-gradient(135deg, #40ffff 0%, #00cccc 100%);
+  background: linear-gradient(135deg, #4dd0e1 0%, #00acc1 100%);
 }
 
 .level-btn:hover {
   transform: translateY(-8px) scale(1.02);
   box-shadow: 
     0 20px 40px rgba(0, 0, 0, 0.4),
-    0 0 30px rgba(0, 255, 127, 0.4);
+    0 0 30px rgba(0, 150, 136, 0.4);
 }
 
 .level-btn:hover .btn-glow {
@@ -417,27 +417,27 @@ export default {
 @keyframes titleGlow {
   0%, 100% {
     text-shadow: 
-      0 0 10px rgba(0, 255, 127, 0.8),
-      0 0 20px rgba(0, 255, 127, 0.6),
-      0 0 30px rgba(0, 255, 127, 0.4),
-      0 0 40px rgba(0, 255, 127, 0.2);
+      0 0 10px rgba(0, 150, 136, 0.8),
+      0 0 20px rgba(0, 150, 136, 0.6),
+      0 0 30px rgba(0, 150, 136, 0.4),
+      0 0 40px rgba(0, 150, 136, 0.2);
   }
   50% {
     text-shadow: 
-      0 0 20px rgba(0, 255, 127, 1),
-      0 0 30px rgba(0, 255, 127, 0.8),
-      0 0 40px rgba(0, 255, 127, 0.6),
-      0 0 50px rgba(0, 255, 127, 0.4);
+      0 0 20px rgba(0, 150, 136, 1),
+      0 0 30px rgba(0, 150, 136, 0.8),
+      0 0 40px rgba(0, 150, 136, 0.6),
+      0 0 50px rgba(0, 150, 136, 0.4);
   }
 }
 
 @keyframes underlineGlow {
   0%, 100% {
-    box-shadow: 0 0 10px rgba(0, 255, 127, 0.5);
+    box-shadow: 0 0 10px rgba(0, 150, 136, 0.5);
     transform: scaleX(1);
   }
   50% {
-    box-shadow: 0 0 20px rgba(0, 255, 127, 0.8);
+    box-shadow: 0 0 20px rgba(0, 150, 136, 0.8);
     transform: scaleX(1.1);
   }
 }
@@ -573,34 +573,34 @@ export default {
 /* Focus states for accessibility */
 .level-btn:focus,
 .back-btn:focus {
-  outline: 3px solid rgba(255, 69, 0, 0.6);
+  outline: 3px solid rgba(0, 150, 136, 0.6);
   outline-offset: 2px;
 }
 
 /* High contrast mode support */
 @media (prefers-contrast: high) {
   .level-btn.easy {
-    background: #00ff7f;
+    background: #00968A;
     border: 2px solid #fff;
   }
   
   .level-btn.medium {
-    background: #00bfff;
+    background: #4db6ac;
     border: 2px solid #fff;
   }
   
   .level-btn.hard {
-    background: #c0c0c0;
+    background: #607d8b;
     border: 2px solid #fff;
   }
   
   .level-btn.friend {
-    background: #0066cc;
+    background: #00838f;
     border: 2px solid #fff;
   }
   
   .level-btn.prompt {
-    background: #00cccc;
+    background: #00acc1;
     border: 2px solid #fff;
   }
   

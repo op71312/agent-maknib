@@ -54,7 +54,7 @@ function showRules() {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: radial-gradient(ellipse at center, #1a1a1a 0%, #000000 70%);
+  background: radial-gradient(ellipse at center, #0d1f1c 0%, #000000 70%);
   overflow: hidden;
   font-family: 'Kanit', sans-serif;
 }
@@ -66,14 +66,14 @@ function showRules() {
   width: 100%;
   height: 100%;
   background: 
-    radial-gradient(circle at 20% 80%, rgba(0, 255, 127, 0.15) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(0, 191, 255, 0.12) 0%, transparent 50%),
-    radial-gradient(circle at 40% 40%, rgba(64, 224, 208, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 20% 80%, rgba(0, 188, 212, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(0, 150, 136, 0.12) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(38, 166, 154, 0.1) 0%, transparent 50%),
     linear-gradient(45deg, 
       transparent 0%,
-      rgba(47, 79, 79, 0.3) 25%,
-      rgba(0, 255, 127, 0.2) 50%,
-      rgba(47, 79, 79, 0.3) 75%,
+      rgba(0, 77, 64, 0.3) 25%,
+      rgba(0, 150, 136, 0.2) 50%,
+      rgba(0, 77, 64, 0.3) 75%,
       transparent 100%);
   background-size: 300% 300%, 250% 250%, 400% 400%, 200% 200%;
   animation: 
@@ -89,11 +89,11 @@ function showRules() {
   width: 100%;
   height: 100%;
   background-image: 
-    radial-gradient(2px 2px at 20px 30px, rgba(0, 255, 127, 0.8), transparent),
-    radial-gradient(2px 2px at 40px 70px, rgba(0, 191, 255, 0.6), transparent),
-    radial-gradient(1px 1px at 90px 40px, rgba(192, 192, 192, 0.5), transparent),
-    radial-gradient(1px 1px at 130px 80px, rgba(0, 255, 127, 0.4), transparent),
-    radial-gradient(2px 2px at 160px 30px, rgba(0, 191, 255, 0.3), transparent);
+    radial-gradient(2px 2px at 20px 30px, rgba(0, 150, 136, 0.8), transparent),
+    radial-gradient(2px 2px at 40px 70px, rgba(0, 188, 212, 0.6), transparent),
+    radial-gradient(1px 1px at 90px 40px, rgba(77, 182, 172, 0.5), transparent),
+    radial-gradient(1px 1px at 130px 80px, rgba(0, 150, 136, 0.4), transparent),
+    radial-gradient(2px 2px at 160px 30px, rgba(0, 188, 212, 0.3), transparent);
   background-repeat: repeat;
   background-size: 200px 100px;
   animation: sparkle 20s linear infinite;
@@ -127,10 +127,10 @@ function showRules() {
   font-weight: 700;
   color: #fff;
   text-shadow: 
-    0 0 10px rgba(0, 255, 127, 0.8),
-    0 0 20px rgba(0, 255, 127, 0.6),
-    0 0 30px rgba(0, 255, 127, 0.4),
-    0 0 40px rgba(0, 255, 127, 0.2);
+    0 0 10px rgba(0, 150, 136, 0.8),
+    0 0 20px rgba(0, 150, 136, 0.6),
+    0 0 30px rgba(0, 150, 136, 0.4),
+    0 0 40px rgba(0, 150, 136, 0.2);
   margin: 0;
   animation: glowText 3s ease-in-out infinite;
   letter-spacing: 0.1em;
@@ -140,7 +140,7 @@ function showRules() {
 .title-underline {
   width: 100px;
   height: 4px;
-  background: linear-gradient(90deg, transparent, #00ff7f, #00bfff, #00ff7f, transparent);
+  background: linear-gradient(90deg, transparent, #00968A, #00BCD4, #00968A, transparent);
   margin: 1rem auto;
   border-radius: 2px;
   animation: underlineGlow 2s ease-in-out infinite;
@@ -188,22 +188,22 @@ function showRules() {
 }
 
 .start-button {
-  background: linear-gradient(135deg, #00ff7f 0%, #00cc66 100%);
-  color: #000;
+  background: linear-gradient(135deg, #00968A 0%, #00695C 100%);
+  color: #fff;
   box-shadow: 
-    0 8px 25px rgba(0, 255, 127, 0.3),
+    0 8px 25px rgba(0, 150, 136, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .start-button .button-glow {
-  background: linear-gradient(135deg, #32ff7e 0%, #00ff7f 100%);
+  background: linear-gradient(135deg, #26a69a 0%, #00968A 100%);
 }
 
 .start-button:hover {
   transform: translateY(-8px) scale(1.05);
   box-shadow: 
-    0 15px 35px rgba(0, 255, 127, 0.5),
-    0 5px 15px rgba(50, 255, 126, 0.4);
+    0 15px 35px rgba(0, 150, 136, 0.5),
+    0 5px 15px rgba(38, 166, 154, 0.4);
 }
 
 .start-button:hover .button-glow {
@@ -339,7 +339,7 @@ function showRules() {
 
 /* Focus states for accessibility */
 .game-button:focus {
-  outline: 3px solid rgba(0, 255, 127, 0.6);
+  outline: 3px solid rgba(0, 150, 136, 0.6);
   outline-offset: 2px;
 }
 </style>
